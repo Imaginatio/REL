@@ -84,6 +84,7 @@ _\* Those are uppercase `α`/`ß`/`μ`, not latin `A`/`B`/`M`_
 ## TODO
 
 - Core
+    - Add `RECst.literal(string)` (aliased by `RE.literal(string)`) for auto-escaped literal sequence ; consider `RE.apply('symbol)` to be another alias
     - Add missing short notation for non-greedy RepMode in numbered Rep
     - Add [atomic grouping](http://www.regular-expressions.info/atomic.html) support
     - Add character range support (at DSL level), with inversion (`[^...]`)
@@ -97,7 +98,11 @@ _\* Those are uppercase `α`/`ß`/`μ`, not latin `A`/`B`/`M`_
 
 ## Known issues
 
-The string primitives are not parsed, so any group you pass inside those strings won't be taken into account by REL when the final regex is generated. The following groups and back-references will be shifted so the resulting regex will most probably be incorrect.
+The string primitives are not parsed, so
+
+- Any group you pass inside those strings won't be taken into account by REL when the final regex is generated. The following groups and back-references will be shifted so the resulting regex will most probably be incorrect.
+
+- You still need to escape your expressions to match regex-significant characters like `+`, `?` or `(`, even in `RECst` (pending update on this point)
 
 
 ## License
