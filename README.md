@@ -6,9 +6,9 @@ Consider the following YYYY-MM-DD date regex: `^(?:19|20)\d\d([- /.])(?:0[1-9]|1
 
 ```scala
 import fr.splayce.REL._
-import REL.Implicits._
+import Implicits._
 
-val sep     = "[- /.]" \ "sep"	          // group named "sep"
+val sep     = "[- /.]" \ "sep"            // group named "sep"
 val year    = ("19" | "20") ~ """\d\d"""  // ~ is concatenation
 val month   = "0[1-9]" | "1[012]"
 val day     = "0[1-9]" | "[12]\\d" | "3[01]"
@@ -20,62 +20,63 @@ These value are `RE` objects, which can be converted to `scala.util.matching.Reg
 
 The embedded [Date regexes](./REL/src/main/scala/matchers/Date.scala) and [extractors](./REL/src/main/scala/matchers/DateExtractor.scala) will give you more complete examples, matching several date formats at once with little prior knowledge.
 
-### Supported opperators:
+### Supported opperators
 
-Examples assume:
-
-```scala
+> Examples are noted `DSL expression` → `resulting regex`. They assume:
+> ```scala
+import fr.splayce.REL._
+import Implicits._
 val a = RE("a")
 val b = RE("b")
 ```
 
 - Concatenation:
-    - Protected: `a ~ b    // (?:a)(?:b)`
-    - Unprotected: `a - b    // ab`
-- Alternative: `a | b    // a|b`
+    - Protected: `a ~ b` → `(?:a)(?:b)`
+    - Unprotected: `a - b` → `ab`
+- Alternative: `a | b` → `a|b`
 - Option:
-    - [greedy](http://www.regular-expressions.info/repeat.html#greedy) `a.?    // (?:a)?` you can also skip the dot `a ?` but the former has clearer priority in a complex expression
-    - [reluctant / lazy](http://www.regular-expressions.info/repeat.html#lazy): `a.??    // (?:a)??`
-    - [possessive](http://www.regular-expressions.info/possessive.html): `a.?+    // (?:a)?+`
+    - [greedy](http://www.regular-expressions.info/repeat.html#greedy) `a.?` → `(?:a)?` ; you can also skip the dot `a ?` but the former has clearer priority in a complex expression
+    - [reluctant / lazy](http://www.regular-expressions.info/repeat.html#lazy): `a.??` → `(?:a)??`
+    - [possessive](http://www.regular-expressions.info/possessive.html): `a.?+` → `(?:a)?+`
 - Repeat:
-	- At least one:
-	    - greedy: `a.+     // (?:a)+`
-	    - reluctant: `a.+?     // (?:a)+?`
-	    - possessive: `a.++     // (?:a)++`
-	- Any number:
-	    - greedy: `a.*     // (?:a)*`
-	    - reluctant: `a.*?     // (?:a)*?`
-	    - possessive: `a.*+     // (?:a)*+`
-    - In range: `a(1,3) === a(1 to 3)    // (?:a){1,}`
-    - At most: `a(0,3)    // (?:a){0,3}".r` ()
-    - At least: `a(3)    // (?:a){3,}`
-    - Exactly: `a^3    // (?:a){3}`
+    - At least one:
+        - greedy: `a.+ ` → `(?:a)+`
+        - reluctant: `a.+? ` → `(?:a)+?`
+        - possessive: `a.++ ` → `(?:a)++`
+    - Any number:
+        - greedy: `a.* ` → `(?:a)*`
+        - reluctant: `a.*? ` → `(?:a)*?`
+        - possessive: `a.*+ ` → `(?:a)*+`
+    - In range: `a(1,3)` or `a(1 to 3)` → `(?:a){1,}`
+    - At most: `a(0,3)` → `(?:a){0,3}` (duh)
+    - At least: `a(3)` → `(?:a){3,}`
+    - Exactly: `a^3` → `(?:a){3}`
 - Lookaround:
-    - Lookahead: `a.>?    // (?=a)`
-    - Lookbehind: `a.<?    // (?<=a)`
-    - Negative lookahead: `a.>!    // (?!a)`
-    - Negative lookbehind: `a.<!    // (?<!a)`
+    - Lookahead: `a.>?` → `(?=a)`
+    - Lookbehind: `a.<?` → `(?<=a)`
+    - Negative lookahead: `a.>!` → `(?!a)`
+    - Negative lookbehind: `a.<!` → `(?<!a)`
 - Grouping:
-    - Named: `a \ "group_a"    // (a)".r`; the name `group_a` will be passed to the `Regex` constructor,  queryable on corresponding `Match`es
-    - Unnamed: `a.g    // (a)`
-    - Non-capturing: `a.ncg    // (?:a)` or the short syntax `a.%`
-- Back-reference: `!g` will insert a backreference on group `g`; e.g. `val g = (a|b).g; g - a - !g    // (a|b)a\1`
+    - Named: `a \ "group_a"` → `(a)`; the name `group_a` will be passed to the `Regex` constructor,  queryable on corresponding `Match`es
+    - Unnamed: `a.g` → `(a)`
+    - Non-capturing: `a.ncg` → `(?:a)` or the short syntax `a.%`
+- Back-reference: `!g` will insert a backreference on group `g`; e.g. `val g = (a|b).g; g - a - !g` → `(a|b)a\1`
 
 ### Constants
 
 A few "constants" (sub-expressions with no repetitions, capturing groups, or unprotected alternatives) are also pre-defined. Some of them have a UTF-8 Greek symbol alias for conciseness (import `REL.Symbols._` to use them), uppercase for negation. You can add your own by instancing case class `RECst(expr)`
 
 - `Epsilon` or `ε` is empty string
-- `AlphaLower` for `[a-z]`, `AlphaUpper` for `[A-Z]`
-- `Alpha` or `α` for `[a-zA-Z]`, `NotAlpha` or `Α`* for `[^a-zA-Z]`
-- `LetterLower` for `\p{Ll}`, `LetterUpper` for `\p{Lu}` (unicode letters, including)
-- `Letter` or `λ` for `\p{L}`, `NotLetter` or `Λ` for `\P{L}`
-- `Digit` or `δ` for `\d`, `NotDigit` or `Δ` for `\D`
-- `WhiteSpace` or `σ` for `\s`, `NotWhiteSpace` or `Σ` for `\S`
-- `Word` or `μ` for `\w` (`Alpha` or `_`), `NotWord` or `Μ`* for `\W`
-- `WordBoundary` or `ß` for `\b`, `NotWordBoundary` or `Β`* for `\B`
-- `LineBeginning` for `^`, `LineEnd` for `$`
-- `InputBeginning` for `\A`, `InputEnd` for `\z`
+- `AlphaLower` → `[a-z]`, `AlphaUpper` → `[A-Z]`
+- `Alpha` or `α` → `[a-zA-Z]`, `NotAlpha` or `Α`* → `[^a-zA-Z]`
+- `LetterLower` → `\p{Ll}`, `LetterUpper` → `\p{Lu}` (unicode letters, including)
+- `Letter` or `λ` → `\p{L}`, `NotLetter` or `Λ` → `\P{L}`
+- `Digit` or `δ` → `\d`, `NotDigit` or `Δ` → `\D`
+- `WhiteSpace` or `σ` → `\s`, `NotWhiteSpace` or `Σ` → `\S`
+- `Word` or `μ` → `\w` (`Alpha` or `_`), `NotWord` or `Μ`* → `\W`
+- `WordBoundary` or `ß` → `\b`, `NotWordBoundary` or `Β`* → `\B`
+- `LineBeginning` → `^`, `LineEnd` → `$`
+- `InputBeginning` → `\A`, `InputEnd` → `\z`
 
 _\* Those are uppercase `α`/`ß`/`μ`, not latin `A`/`B`/`M`_
 
