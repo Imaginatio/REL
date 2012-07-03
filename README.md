@@ -72,17 +72,15 @@ A few "constants" (sub-expressions with no repetitions, capturing groups, or unp
 - `Letter` or `λ` for `\p{L}`, `NotLetter` or `Λ` for `\P{L}`
 - `Digit` or `δ` for `\d`, `NotDigit` or `Δ` for `\D`
 - `WhiteSpace` or `σ` for `\s`, `NotWhiteSpace` or `Σ` for `\S`
-- `Word` or `μ` for `\w` (`Alpha` or `_`), `NotWord` or `Μ` for `\W`
-- `WordBoundary` or `ß` for `\b`, `NotWordBoundary` or `Β` for `\B`
+- `Word` or `μ` for `\w` (`Alpha` or `_`), `NotWord` or `Μ`* for `\W`
+- `WordBoundary` or `ß` for `\b`, `NotWordBoundary` or `Β`* for `\B`
 - `LineBeginning` for `^`, `LineEnd` for `$`
 - `InputBeginning` for `\A`, `InputEnd` for `\z`
 
-\* Those are uppercase `α`/`ß`/`μ`, not latin `A`/`B`/`M`
+_\* Those are uppercase `α`/`ß`/`μ`, not latin `A`/`B`/`M`_
 
 
 ## TODO
-
-(Not including the missing description in this file)
 
 - Core
     - Add missing short notation for non-greedy RepMode in numbered Rep
