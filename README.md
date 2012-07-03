@@ -30,13 +30,13 @@ val b = RE("b")
 ```
 
 - Concatenation:
-    - Protected: `a ~ b    === "(?:a)(?:b)".r`
-    - Unprotected: `a - b    === "ab".r`
-- Alternative: `a | b    === "a|b".r`
+    - Protected: `a ~ b    // (?:a)(?:b)`
+    - Unprotected: `a - b    // ab`
+- Alternative: `a | b    // a|b`
 - Option:
-    - [greedy](http://www.regular-expressions.info/repeat.html#greedy) `a.?    === "(?:a)?".r` you can also skip the dot `a ?` but the former has clearer priority in a complex expression
-    - [reluctant / lazy](http://www.regular-expressions.info/repeat.html#lazy): `a.??    === "(?:a)??".r`
-    - [possessive](http://www.regular-expressions.info/possessive.html): `a.?+    === "(?:a)?+".r`
+    - [greedy](http://www.regular-expressions.info/repeat.html#greedy) `a.?    // (?:a)?` you can also skip the dot `a ?` but the former has clearer priority in a complex expression
+    - [reluctant / lazy](http://www.regular-expressions.info/repeat.html#lazy): `a.??    // (?:a)??`
+    - [possessive](http://www.regular-expressions.info/possessive.html): `a.?+    // (?:a)?+`
 - Repeat:
 	- At least one:
 	    - greedy: `a.+     // (?:a)+`
