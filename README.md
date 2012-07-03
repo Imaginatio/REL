@@ -18,7 +18,7 @@ val dateMDY = "^" ~ month ~ sep ~ day   ~ !sep ~ year ~ "$"
 
 These value are `RE` objects, which can be converted to `scala.util.matching.Regex` instances either implicitly (by importing `REL.Implicits._` or explicitly (via the `.r` method).
 
-The embedded [Date regexes](./REL/src/main/scala/matchers/Date.scala) and [extractors](./REL/src/main/scala/matchers/DateExtractor.scala) will give you more complete examples, matching several date formats at once with little prior knowledge.
+The embedded [Date regexes](/Imaginatio/REL/blob/master/src/main/scala/matchers/Date.scala) and [extractors](/Imaginatio/REL/blob/master/src/main/scala/matchers/DateExtractor.scala) will give you more complete examples, matching several date formats at once with little prior knowledge.
 
 ### Supported opperators
 
