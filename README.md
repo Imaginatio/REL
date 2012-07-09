@@ -16,7 +16,7 @@ val dateYMD = "^" ~ year  ~ sep ~ month ~ !sep ~ day  ~ "$"
 val dateMDY = "^" ~ month ~ sep ~ day   ~ !sep ~ year ~ "$"
 ```
 
-These value are `RE` objects, which can be converted to `scala.util.matching.Regex` instances either implicitly (by importing `REL.Implicits._` or explicitly (via the `.r` method).
+These value are `RE` objects, which can be converted to `scala.util.matching.Regex` instances either implicitly (by importing `REL.Implicits._`) or explicitly (via the `.r` method).
 
 The embedded [Date regexes](https://github.com/Imaginatio/REL/blob/master/src/main/scala/matchers/Date.scala) and [extractors](https://github.com/Imaginatio/REL/blob/master/src/main/scala/matchers/DateExtractor.scala) will give you more complete examples, matching several date formats at once with little prior knowledge.
 
@@ -103,6 +103,13 @@ The string primitives are not parsed, so
 - Any group you pass inside those strings won't be taken into account by REL when the final regex is generated. The following groups and back-references will be shifted so the resulting regex will most probably be incorrect.
 
 - You still need to escape your expressions to match regex-significant characters like `+`, `?` or `(`, even in `RECst` (pending update on this point)
+
+
+## Usage and downloads
+
+- download the [source from github](https://github.com/Imaginatio/REL) and build the library with SBT
+- download the [latest binary release](https://github.com/Imaginatio/REL/downloads)
+- use [our public Maven repository](https://github.com/Imaginatio/Maven-repository/)
 
 
 ## License
