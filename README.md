@@ -95,6 +95,8 @@ _\* Those are uppercase `α`/`ß`/`μ`, not latin `A`/`B`/`M`_
 - Utils
     - Generate sample strings that match a regex (e.g. with [Xeger](http://code.google.com/p/xeger/))
     - Source generation or compiler plugin to enable REL independance \[at runtime]
+- Documentation
+    - Document cleaners and extractors
 
 
 ## Known issues
