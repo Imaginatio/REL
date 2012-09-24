@@ -71,7 +71,7 @@ package fr {
 
     override val ALPHA_MONTHS = Array(
       """janv(?:\.|ier)?""",
-      """f[ée]v(?:\.|rier)?""",
+      """f[ée]v(?:\.|rier|r\.?)?""",
       """mars""",
       """avr(?:\.|il)?""",
       """mai""",

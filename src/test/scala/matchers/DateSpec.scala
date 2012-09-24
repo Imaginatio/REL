@@ -144,11 +144,11 @@ class DateSpec extends Specification {
       // NB missing 'mars', 'mai', 'juin', 'aout'
       // usually not abbreviated
       List(
-        "janv", "fev", "fév", "avr", "juil",
+        "janv", "fev", "fév", "févr", "fevr", "avr", "juil",
         "sept", "oct", "nov", "dec", "déc"
       ) must allBeMatching(FR_FULL)
       List(
-        "janv.", "fev.", "fév.", "avr.", "juil.",
+        "janv.", "fev.", "fév.", "févr.", "fevr.", "avr.", "juil.", 
         "sept.", "oct.", "nov.", "dec.", "déc."
       ) must allBeMatching(FR_FULL)
     }
