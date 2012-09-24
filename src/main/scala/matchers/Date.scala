@@ -76,7 +76,7 @@ package fr {
       """avr(?:\.|il)?""",
       """mai""",
       """juin""",
-      """juil(?:\.|let)?""",
+      """juil(?:\.|let|l\.?)?""",
       """ao[uû]t""",
       """sept(?:\.|embre)?""",
       """oct(?:\.|obre)?""",
