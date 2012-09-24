@@ -5,11 +5,15 @@ trait Cleaner {
   def clean(in: String): String
   def apply(in: String) = clean(in)
 
+  // function-like syntax: chain = Third(Second(First))
   def apply(cleaner: Cleaner) =
     this match {
       case ChainedCleaner(cleaners) => ChainedCleaner(cleaner :: cleaners)
       case _ => ChainedCleaner(this :: cleaner :: Nil)
     }
+
+  // Unix/pipe-like syntax: chain = First | Second | Third
+  def |(then: Cleaner) = then(this)
     
 }
 

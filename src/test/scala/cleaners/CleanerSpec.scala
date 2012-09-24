@@ -37,10 +37,16 @@ class CleanerSpec extends Specification {
     val aPrefix = new PrefixingCleaner("a ")
     val bPrefix = new PrefixingCleaner("b ")
     val cPrefix = new PrefixingCleaner("c ")
-    val chain = aPrefix(bPrefix(cPrefix))
+    val chain  = cPrefix | bPrefix | aPrefix
+    val chain2 = aPrefix(bPrefix(cPrefix))
 
     "perform all cleaners in order" in {
-      chain("test") must_== "a b c test"
+      chain("test")  must_== "a b c test"
+      chain2("test") must_== "a b c test"
+    }
+
+    "have equivalent chaining syntaxes (functions vs. pipes)" in {
+      chain2 must_== chain
     }
   }
 
