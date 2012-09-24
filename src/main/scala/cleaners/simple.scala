@@ -39,13 +39,13 @@ object IdentityCleaner extends Cleaner {
 object WhiteSpaceCleaner extends Cleaner {
   val WhiteSpaces = """\s+""".r
   override def clean(in: String) =
-    WhiteSpaces.pattern.matcher(in).replaceAll(" ")
+    WhiteSpaces.replaceAllIn(in, " ")
 }
 
 object CamelCaseSplitter extends Cleaner {
   val CamelCase = """(\p{Ll})(?=\p{Lu}\p{Ll})""".r
   override def clean(in: String) =
-    CamelCase.pattern.matcher(in).replaceAll("$1 ")
+    CamelCase.replaceAllIn(in, "$1 ")
 }
 
 object LowerCaseFilter extends Cleaner {
