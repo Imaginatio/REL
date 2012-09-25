@@ -58,8 +58,9 @@ val b = RE("b")
     - Negative lookbehind: `a.<!` → `(?<!a)`
 - Grouping:
     - Named: `a \ "group_a"` → `(a)`; the name `group_a` will be passed to the `Regex` constructor,  queryable on corresponding `Match`es
-    - Unnamed: `a.g` → `(a)`
+    - Unnamed: `a.g` → `(a)` (a unique group name is generated internally)
     - Non-capturing: `a.ncg` → `(?:a)` or the short syntax `a.%`
+    - [Atomic](http://www.regular-expressions.info/atomic.html): `a.ag` → `(?>a)` or the short syntax `a.?>`
 - Back-reference: `!g` will insert a backreference on group `g`; e.g. `val g = (a|b).g; g - a - !g` → `(a|b)a\1`
 
 ### Constants
@@ -86,13 +87,13 @@ _\* Those are uppercase `α`/`ß`/`μ`, not latin `A`/`B`/`M`_
 - Core
     - Add `RECst.literal(string)` (aliased by `RE.literal(string)`) for auto-escaped literal sequence ; consider `RE.apply('symbol)` to be another alias
     - Add missing short notation for non-greedy RepMode in numbered Rep
-    - Add [atomic grouping](http://www.regular-expressions.info/atomic.html) support
     - Add character range support (at DSL level), with inversion (`[^...]`)
     - Shortcuts for `^` and `$` (beware `^` is currently used as exactly-N repeater operator)
     - Consider using `'symbols` for group names
 - Matchers
     - date: consider extracting incorrect dates (like feb. 31st) with some flag
 - Utils
+    - Transform RE tree for different regex flavors (e.g. be able to output equivalent regex string to give to .NET or JavaScript programs)
     - Generate sample strings that match a regex (e.g. with [Xeger](http://code.google.com/p/xeger/))
     - Source generation or compiler plugin to enable REL independance \[at runtime]
 - Documentation
