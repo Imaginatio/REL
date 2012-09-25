@@ -10,7 +10,7 @@ object Date {
   val s  = "n_sep"
   lazy val S  = DATE_SEP \ s
   
-  lazy val YYYY = ("19" | "20") ~ (δ - δ)
+  lazy val YYYY = ("1[89]" | "20") ~ (δ - δ)
   lazy val MM   = "0[1-9]" | "1[012]"
   lazy val DD   = "0[1-9]" | ("[12][0-9]" | "3[01]")
   
