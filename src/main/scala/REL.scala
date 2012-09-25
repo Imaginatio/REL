@@ -13,6 +13,12 @@ package REL {
   case object Reluctant  extends RepMode("?")
   case object Possessive extends RepMode("+")
 
+  abstract sealed class LookDirection(val asString: String) {
+    override def toString = asString
+  }
+  case object Ahead  extends LookDirection("")
+  case object Behind extends LookDirection("<")
+
   abstract sealed class RE {
 
     def ~ (that: RE)    =
@@ -55,23 +61,36 @@ package REL {
     def apply(lb: Int): RE      = RepAtLeastN(this.ncg, lb)
     def ^ (n: Int): RE          = RepExactlyN(this.ncg, n)
     
-    def `>?` = LookAhead(this)
-    def `>!` = NegLookAhead(this)
-    def `<?` = LookBehind(this)
-    def `<!` = NegLookBehind(this)
+    def `>?` = LookAround(this, Ahead)
+    def `>!` = LookAround(this, Ahead, false)
+    def `<?` = LookAround(this, Behind)
+    def `<!` = LookAround(this, Behind, false)
     
-    def g() = Group(java.util.UUID.randomUUID.toString, this)
-    def g(name: String)     = Group(name, this)
+    def g(name: String): Group = this match {
+      case NCGroup(re) => re.g(name)
+      case _ => Group(name, this)
+    }
+    def g(): Group = g(java.util.UUID.randomUUID.toString)
     def `\\` (name: String) = g(name)
     def apply(name: String) = g(name)
     def apply() = g()
     
-    def ncg = this match {
-        case NCGroup(_) => this
-        case Group(_, _) => this
-        case _ => NCGroup(this)
-      }
+    def ncg: RE = this match {
+      case re: LookAround => this
+      case re: AGroup     => this
+      case re: NCGroup    => this
+      case re: Group      => this
+      case _              => NCGroup(this)
+    }
     def % = ncg
+    
+    def ag: RE = this match {
+      case re: Rep if (re.mode == Possessive) => this
+      case re: AGroup                         => this
+      case NCGroup(re)                        => re.ag
+      case _                                  => AGroup(this)
+    }
+    def ?> = ag
     
     protected[REL] def linear(groupNames: List[String] = Nil): (String, List[String])
     
@@ -115,20 +134,41 @@ package REL {
   }
 
   case class NCGroup(override val re: RE) extends RE1(re) {
-    override def linear(groupNames: List[String]) =
-      re match {
-        case re @ NCGroup(_) => re.linear(groupNames)
-        case re @ Group(_, _) => re.linear(groupNames)
-        case _ => linear("(?:" + _ + ")", groupNames)
-      }
+    override def linear(groupNames: List[String]) = re match {
+      case re: LookAround => re.linear(groupNames)
+      case re: AGroup     => re.linear(groupNames)
+      case re: NCGroup    => re.linear(groupNames)
+      case re: Group      => re.linear(groupNames)
+      case _              => linear("(?:" + _ + ")", groupNames)
     }
+  }
+
+  case class AGroup(override val re: RE) extends RE1(re) {
+    override def linear(groupNames: List[String]) = re match {
+      case re: Rep if (re.mode == Possessive) => re.linear(groupNames)
+      case re: AGroup                         => re.linear(groupNames)
+      case NCGroup(re)                        => AGroup(re).linear(groupNames)
+      case _                                  => linear("(?>" + _ + ")", groupNames)
+    }
+  }
 
   case class Group(val name: String,
       override val re: RE) extends RE1(re) {
-    override def linear(groupNames: List[String]) =
-      linear("(" + _ + ")", groupNames ::: List(name))
+    override def linear(groupNames: List[String]) = re match {
+      case NCGroup(re) => Group(name, re).linear(groupNames)
+      case _           => linear("(" + _ + ")", groupNames ::: List(name))
+    }
     
     def unary_! = GroupRef(name)
+  }
+
+  case class LookAround(override val re: RE,
+        val direction: LookDirection, positive: Boolean = true)
+      extends RE1(re) {
+    override def linear(groupNames: List[String]) = re match {
+      case NCGroup(re) => LookAround(re, direction, positive).linear(groupNames)
+      case _ => linear("(?" + direction + (if (positive) "=" else "!") + _ + ")", groupNames)
+    }
   }
   
   sealed abstract class Rep(override val re: RE,
@@ -181,27 +221,7 @@ package REL {
     override def linear(groupNames: List[String]) =
       linear(_ + "+" + mode, groupNames)
   }
-
-  case class LookAhead(override val re: RE) extends RE1(re) {
-    override def linear(groupNames: List[String]) =
-      linear("(?=" + _ + ")", groupNames)
-  }
-
-  case class NegLookAhead(override val re: RE) extends RE1(re) {
-    override def linear(groupNames: List[String]) =
-      linear("(?!" + _ + ")", groupNames)
-  }
-
-  case class LookBehind(override val re: RE) extends RE1(re) {
-    override def linear(groupNames: List[String]) =
-      linear("(?<=" + _ + ")", groupNames)
-  }
-
-  case class NegLookBehind(override val re: RE) extends RE1(re) {
-    override def linear(groupNames: List[String]) =
-      linear("(?<!" + _ + ")", groupNames)
-  }
-
+  
 
   sealed abstract class RE0 extends RE {
     protected[REL] def linear(groupNames: List[String]) =
