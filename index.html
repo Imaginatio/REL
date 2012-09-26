@@ -137,9 +137,11 @@
 
 <ul>
 <li>Named: <code>a \ "group_a"</code> → <code>(a)</code>; the name <code>group_a</code> will be passed to the <code>Regex</code> constructor,  queryable on corresponding <code>Match</code>es</li>
-<li>Unnamed: <code>a.g</code> → <code>(a)</code>
-</li>
+<li>Unnamed: <code>a.g</code> → <code>(a)</code> (a unique group name is generated internally)</li>
 <li>Non-capturing: <code>a.ncg</code> → <code>(?:a)</code> or the short syntax <code>a.%</code>
+</li>
+<li>
+<a href="http://www.regular-expressions.info/atomic.html">Atomic</a>: <code>a.ag</code> → <code>(?&gt;a)</code> or the short syntax <code>a.?&gt;</code>
 </li>
 </ul>
 </li>
@@ -191,7 +193,6 @@
 <ul>
 <li>Add <code>RECst.literal(string)</code> (aliased by <code>RE.literal(string)</code>) for auto-escaped literal sequence ; consider <code>RE.apply('symbol)</code> to be another alias</li>
 <li>Add missing short notation for non-greedy RepMode in numbered Rep</li>
-<li>Add <a href="http://www.regular-expressions.info/atomic.html">atomic grouping</a> support</li>
 <li>Add character range support (at DSL level), with inversion (<code>[^...]</code>)</li>
 <li>Shortcuts for <code>^</code> and <code>$</code> (beware <code>^</code> is currently used as exactly-N repeater operator)</li>
 <li>Consider using <code>'symbols</code> for group names</li>
@@ -206,8 +207,15 @@
 <li>Utils
 
 <ul>
+<li>Transform RE tree for different regex flavors (e.g. be able to output equivalent regex string to give to .NET or JavaScript programs)</li>
 <li>Generate sample strings that match a regex (e.g. with <a href="http://code.google.com/p/xeger/">Xeger</a>)</li>
 <li>Source generation or compiler plugin to enable REL independance [at runtime]</li>
+</ul>
+</li>
+<li>Documentation
+
+<ul>
+<li>Document cleaners and extractors</li>
 </ul>
 </li>
 </ul><h2>Known issues</h2>
