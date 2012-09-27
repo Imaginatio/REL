@@ -70,7 +70,7 @@ package REL {
       case NCGroup(re) => re.g(name)
       case _ => Group(name, this)
     }
-    def g(): Group = g(java.util.UUID.randomUUID.toString)
+    def g(): Group = g("g" + java.util.UUID.randomUUID.toString.substring(24))
     def `\\` (name: String) = g(name)
     def apply(name: String) = g(name)
     def apply() = g()
@@ -221,7 +221,16 @@ package REL {
     override def linear(groupNames: List[String]) =
       linear(_ + "+" + mode, groupNames)
   }
-  
+
+  // should only be used for Flavors / tree transformation
+  protected[REL] case class Wrapper(override val re: RE,
+        val prefix: String, val suffix: String,
+        appendGroupNames: List[String] = Nil)
+      extends RE1(re) {
+    override def linear(groupNames: List[String]) =
+      linear(prefix + _ + suffix, groupNames ::: appendGroupNames)
+  }
+
 
   sealed abstract class RE0 extends RE {
     protected[REL] def linear(groupNames: List[String]) =
@@ -240,7 +249,7 @@ package REL {
       (re.toString, groupNames)
   }
 
-  sealed abstract class RECst(val reStr: String) extends RE0 {
+  abstract class RECst(val reStr: String) extends RE0 {
     override def toString = reStr
   }
   

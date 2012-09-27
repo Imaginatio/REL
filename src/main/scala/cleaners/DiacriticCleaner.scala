@@ -1,5 +1,7 @@
 package fr.splayce.REL.cleaners
 
+import fr.splayce.REL.util.Cleaner
+
 
 object DiacriticCleaner extends Cleaner {
 

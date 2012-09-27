@@ -61,7 +61,7 @@ abstract class AlphaDate {
   lazy val ALPHA_MONTH = ALPHA_MONTHS.mkString("|") \ "a_m"
 
   val ALPHA : RE
-  lazy val FULL = (ALPHA \ "a_f" | NUMERIC).g
+  lazy val FULL = (ALPHA \ "a_f" | NUMERIC) \ "date"
 }
 
 

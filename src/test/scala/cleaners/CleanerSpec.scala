@@ -2,6 +2,9 @@ package fr.splayce.REL.cleaners
 
 import org.specs2.mutable._
 
+import fr.splayce.REL.util.Cleaner
+
+
 class CleanerSpec extends Specification {
 
   "Identity Cleaner" should {

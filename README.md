@@ -16,7 +16,7 @@ val dateYMD = "^" ~ year  ~ sep ~ month ~ !sep ~ day  ~ "$"
 val dateMDY = "^" ~ month ~ sep ~ day   ~ !sep ~ year ~ "$"
 ```
 
-These value are `RE` objects, which can be converted to `scala.util.matching.Regex` instances either implicitly (by importing `REL.Implicits._`) or explicitly (via the `.r` method).
+These value are `RE` objects (trees/subtrees), which can be converted to `scala.util.matching.Regex` instances either implicitly (by importing `REL.Implicits._`) or explicitly (via the `.r` method).
 
 The embedded [Date regexes](https://github.com/Imaginatio/REL/blob/master/src/main/scala/matchers/Date.scala) and [extractors](https://github.com/Imaginatio/REL/blob/master/src/main/scala/matchers/DateExtractor.scala) will give you more complete examples, matching several date formats at once with little prior knowledge.
 
@@ -81,6 +81,20 @@ A few "constants" (sub-expressions with no repetitions, capturing groups, or unp
 
 _\* Those are uppercase `α`/`ß`/`μ`, not latin `A`/`B`/`M`_
 
+### Exporting regexes (and other regex flavors)
+
+The `.r` method on any `RE` (sub)tree returns a compiled `scala.util.matching.Regex`. The `.toString` method returns the source pattern (equivalent to `.r.toString`, so the pattern is verified).
+
+For other regex flavors, a translation mechanism is provided: you may subclass `Flavor`, which exposes a `.express(re: RE)` method, returning a `Tuple[String, List[String]]`. The first element is the translated regex string, the second is a list of the group names (in order of appearance). A subclass of `Flavor` should override `.translate(re: RE)`, using pattern matching to recursively translate Java regex subtree with matching subtree in the destination regex Flavor. It should call `super.translate` in the default case to ensure proper recusion.
+
+An example of translation into [.NET-flavored regex](http://www.regular-expressions.info/dotnet.html) is provided ([`DotNETFlavor`](https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/DotNETFlavor.scala)), that
+
+- translates `\w` to `[a-zA-Z0-9_]` (as .NET's `\w` covers UTF-8 letters including accented, while Java's covers only ASCII)
+- turns any possessive quantifier into a greedy quantifier wrapped in an atomic group (which is a longer equivalent)
+- inlines named groups and their references into the .NET `(?<name>expr)` syntax
+
+[Regular-expression.info](http://www.regular-expressions.info)'s [regex flavors comparison chart](http://www.regular-expressions.info/refflavors.html) may be of use when writing a translation.
+
 
 ## TODO
 
@@ -93,7 +107,6 @@ _\* Those are uppercase `α`/`ß`/`μ`, not latin `A`/`B`/`M`_
 - Matchers
     - date: consider extracting incorrect dates (like feb. 31st) with some flag
 - Utils
-    - Transform RE tree for different regex flavors (e.g. be able to output equivalent regex string to give to .NET or JavaScript programs)
     - Generate sample strings that match a regex (e.g. with [Xeger](http://code.google.com/p/xeger/))
     - Source generation or compiler plugin to enable REL independance \[at runtime]
 - Documentation

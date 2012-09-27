@@ -2,7 +2,7 @@ organization := "fr.splayce"
 
 name := "REL"
 
-version := "0.0.7"
+version := "0.1.0"
 
 scalaVersion := "2.9.1"
 
