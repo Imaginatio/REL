@@ -45,7 +45,7 @@
 <span class="k">val</span> <span class="n">dateMDY</span> <span class="k">=</span> <span class="s">"^"</span> <span class="o">~</span> <span class="n">month</span> <span class="o">~</span> <span class="n">sep</span> <span class="o">~</span> <span class="n">day</span>   <span class="o">~</span> <span class="o">!</span><span class="n">sep</span> <span class="o">~</span> <span class="n">year</span> <span class="o">~</span> <span class="s">"$"</span>
 </pre></div>
 
-<p>These value are <code>RE</code> objects, which can be converted to <code>scala.util.matching.Regex</code> instances either implicitly (by importing <code>REL.Implicits._</code>) or explicitly (via the <code>.r</code> method).</p>
+<p>These value are <code>RE</code> objects (trees/subtrees), which can be converted to <code>scala.util.matching.Regex</code> instances either implicitly (by importing <code>REL.Implicits._</code>) or explicitly (via the <code>.r</code> method).</p>
 
 <p>The embedded <a href="https://github.com/Imaginatio/REL/blob/master/src/main/scala/matchers/Date.scala">Date regexes</a> and <a href="https://github.com/Imaginatio/REL/blob/master/src/main/scala/matchers/DateExtractor.scala">extractors</a> will give you more complete examples, matching several date formats at once with little prior knowledge.</p>
 
@@ -185,6 +185,20 @@
 </li>
 </ul><p><em>* Those are uppercase <code>α</code>/<code>ß</code>/<code>μ</code>, not latin <code>A</code>/<code>B</code>/<code>M</code></em></p>
 
+<h3>Exporting regexes (and other regex flavors)</h3>
+
+<p>The <code>.r</code> method on any <code>RE</code> (sub)tree returns a compiled <code>scala.util.matching.Regex</code>. The <code>.toString</code> method returns the source pattern (equivalent to <code>.r.toString</code>, so the pattern is verified).</p>
+
+<p>For other regex flavors, a translation mechanism is provided: you may subclass <code>Flavor</code>, which exposes a <code>.express(re: RE)</code> method, returning a <code>Tuple[String, List[String]]</code>. The first element is the translated regex string, the second is a list of the group names (in order of appearance). A subclass of <code>Flavor</code> should override <code>.translate(re: RE)</code>, using pattern matching to recursively translate Java regex subtree with matching subtree in the destination regex Flavor. It should call <code>super.translate</code> in the default case to ensure proper recusion.</p>
+
+<p>An example of translation into <a href="http://www.regular-expressions.info/dotnet.html">.NET-flavored regex</a> is provided (<a href="https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/DotNETFlavor.scala"><code>DotNETFlavor</code></a>), that</p>
+
+<ul>
+<li>translates <code>\w</code> to <code>[a-zA-Z0-9_]</code> (as .NET's <code>\w</code> covers UTF-8 letters including accented, while Java's covers only ASCII)</li>
+<li>turns any possessive quantifier into a greedy quantifier wrapped in an atomic group (which is a longer equivalent)</li>
+<li>inlines named groups and their references into the .NET <code>(?&lt;name&gt;expr)</code> syntax</li>
+</ul><p><a href="http://www.regular-expressions.info">Regular-expression.info</a>'s <a href="http://www.regular-expressions.info/refflavors.html">regex flavors comparison chart</a> may be of use when writing a translation.</p>
+
 <h2>TODO</h2>
 
 <ul>
@@ -207,7 +221,6 @@
 <li>Utils
 
 <ul>
-<li>Transform RE tree for different regex flavors (e.g. be able to output equivalent regex string to give to .NET or JavaScript programs)</li>
 <li>Generate sample strings that match a regex (e.g. with <a href="http://code.google.com/p/xeger/">Xeger</a>)</li>
 <li>Source generation or compiler plugin to enable REL independance [at runtime]</li>
 </ul>
