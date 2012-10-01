@@ -104,6 +104,7 @@ An example of translation into [.NET-flavored regex](http://www.regular-expressi
     - Add character range support (at DSL level), with inversion (`[^...]`)
     - Shortcuts for `^` and `$` (beware `^` is currently used as exactly-N repeater operator)
     - Consider using `'symbols` for group names
+    - Add options to easily embed match flags`(?idmsux-idmsux)` when generating regex
 - Matchers
     - date: consider extracting incorrect dates (like feb. 31st) with some flag
 - Utils
