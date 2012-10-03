@@ -15,8 +15,21 @@ class CleanerSpec extends Specification {
   }
 
   "Diacritic Cleaner" should {
-    "remove diacritics" in {
-      DiacriticCleaner("àäâéèêëïîôöùüûç") must_== "aaaeeeeiioouuuc"
+    "remove diacritics and other alternations" in {
+      DiacriticCleaner("０₀⓪⁰¹⑴₁❶⓵⒈①１❷⑵２₂⓶②⒉²３³⒊⑶₃❸⓷③⓸④⒋４⁴₄❹⑷⒌₅⓹⑸❺⑤５⁵⑹⁶６❻₆⑥⓺⒍７⁷❼⓻⒎₇⑺⑦⑧⒏⓼⑻⁸８❽₈⓽９⒐❾⑼₉⑨⁹")
+        .must_== ("0000111111112222222233333333444444445555555566666666777777778888888899999999")
+      DiacriticCleaner("ẮẪȦẲẰȺÄẶȂǠȀĄÀÅẢǍĀẦÁＡẴⱯẬⒶÂẤĂẠḀǞǺÃẨƁＢḆḂɃƂḄⒷⒸḈĊĈƇÇȻꜾĆＣČḐⒹĎＤḌḒꝹƉƊḊĐƋḎȆĔÊＥĘÉẾỂỆḖƎẺḚḘĒȨĖȄẸĚỄËỀḔẼƐⒺḜÈＦḞⒻƑꝻǴĠĜꞠǤƓꝽⒼꝾĞＧĢḠǦⒽḤȞⱧḪĤＨḢꞍḦḨⱵĦḮÎỊĮƗȊＩÍĪĨÌȈḬǏⒾİÏĬỈĴɈＪⒿƘꝂḰꝀḲǨꞢꝄⓀĶＫⱩḴꝆḶＬŁꞀĽⱠḺꝈȽḸĹĿĻⱢⓁḼⓂＭƜḾṂⱮṀⓃṄǸṊŅṆꞐƝŃＮÑŇȠṈꞤỒꝌỐỎƠØǬỖÓṐṎŎⓄỢṒỞỚȪȎÔȮꝊÕỔỌǪỘṌŐǑȬỠȌƆǾÖÒƟŌＯỜȰṖꝐＰꝔⱣƤꝒⓅṔꝘɊＱꝖⓆŔŘⓇꞂṞⱤꞦṚＲȒṘŖꝚɌṜȐŠꞨＳŜṦⓈŞṢṨŚꞄȘⱾṤṠȚṮṰṪȾƬŤꞆƮＴṬⓉŦŢṶÙỮỪǛÜŮȖǓṲǗŨＵṺỰỦⓊṸÛŪỬƯǙɄŲṴỤÚŰỨȔǕŬＶⓋṾꝞƲɅṼＷŴⓌⱲẆẂẈẀẄẊẌＸⓍỲＹẎŸỶÝƳỾɎȲỴⓎỸŶŻẐŽⱫＺⓏꝢẒẔŹȤⱿƵ")
+        .must_== ("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBBBBBBBCCCCCCCCCCCDDDDDDDDDDDDDEEEEEEEEEEEEEEEEEEEEEEEEEEEEEFFFFFGGGGGGGGGGGGGGHHHHHHHHHHHHHIIIIIIIIIIIIIIIIIIIJJJJKKKKKKKKKKKKKLLLLLLLLLLLLLLLLLMMMMMMMNNNNNNNNNNNNNNNOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOPPPPPPPPPQQQQQRRRRRRRRRRRRRRRRSSSSSSSSSSSSSSSTTTTTTTTTTTTTTUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUVVVVVVVWWWWWWWWWXXXXYYYYYYYYYYYYYYZZZZZZZZZZZZZ")
+      DiacriticCleaner("ǟǡⓐāằäąấǻẩẳẚåȧậàáạȃặȁａăảⱥǎâḁầắẫãẵɐƀḃｂⓑḇƃḅɓčĉƈⓒↄȼḉꜿċćçｃḋḑḏƌɖｄďɗḓꝺḍⓓđêềⓔếḕễẻｅḛéḗēɇȇėḝęểẹǝẽȩḙệȅëɛěĕèꝼḟⓕƒｆġǥᵹḡĝꞡģɠⓖǧｇꝿğǵⱶĥẖḥｈⱨḩḧħɥḣⓗḫȟȋĭⓘîḭỉĩｉíìɨįȉīịıḯïǐⓙｊɉĵǰḱꞣḵǩķꝃⱪḳꝅƙｋⓚꝁŀɫļｌḻḷꝇḽꞁľⱡⓛḹĺꝉƚłḿɯṁｍɱⓜṃⓝŉńꞑňṅṉṇɲǹñƞꞥｎņṋɵōȫởỡǿơṑȯớóȏøọṍȱǭồꝋỗôṓǒŏợõờộȍȭⓞốöỏṏｏòɔőǫổꝍｐᵽꝕƥꝑṗⓟꝓṕɋⓠꝙꝗｑṛꞧṟꞃȑɽŗｒřɍȓṝṙꝛŕⓡśṥſẛｓšŝṡșṩṧꞅꞩṣⓢşȿṱⓣťꞇƭṭẗｔʈţŧțⱦṫṯŭùǔȕǘṻụüũṷửⓤǜｕứųṳʉůȗûủṹǖựữṵúūưǚừűʋｖṿṽⓥʌꝟｗẅẁⱳẉẇẃẘŵⓦⓧẍｘẋỿｙƴɏýỳỷⓨŷẙỹȳÿỵẏꝣⱬẑżẓｚžƶɀⓩźȥẕ")
+        .must_== ("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbccccccccccccdddddddddddddeeeeeeeeeeeeeeeeeeeeeeeeeeeeeefffffgggggggggggggghhhhhhhhhhhhhhiiiiiiiiiiiiiiiiiiijjjjjkkkkkkkkkkkkklllllllllllllllllmmmmmmmnnnnnnnnnnnnnnnnoooooooooooooooooooooooooooooooooooooooooopppppppppqqqqqrrrrrrrrrrrrrrrrssssssssssssssssstttttttttttttttuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuvvvvvvvwwwwwwwwwwxxxxyyyyyyyyyyyyyyyzzzzzzzzzzzzz")
+    }
+    "dissociate combined letters" in {
+      DiacriticCleaner("ꜲǼÆǢꜴꜶꜸꜺꜼǄǱǅǲǇǈǊǋŒƢꝎȢẞꜨꝠꜳæǽǣꜵꜷꜹꜻꜽǳǆƕǉǌœƣꝏȣßꜩꝡ")
+        .must_== ("AAAEAEAEAOAUAVAVAYDZDZDzDzLJLjNJNjOEOIOOOUSSTZVYaaaeaeaeaoauavavaydzdzhvljnjoeoiooousstzvy")
+    }
+    "not hold unnecessary chars in direct translation map" in {
+      DiacriticCleaner.diacritics.toList
+        .filter({p => DiacriticCleaner.nfdClean(p._1.toString) == p._2}) must be empty
     }
   }
 

@@ -13,7 +13,9 @@ class DateSpec extends Specification {
     }
 
     "match lonely 4-digits year of 19th to 21st centuries" in {
-      "1799" must not be matching(NUMERIC)
+      "1699" must not be matching(NUMERIC)
+      "1700" must     be matching(NUMERIC)
+      "1799" must     be matching(NUMERIC)
       "1800" must     be matching(NUMERIC)
       "1899" must     be matching(NUMERIC)
       "1900" must     be matching(NUMERIC)
