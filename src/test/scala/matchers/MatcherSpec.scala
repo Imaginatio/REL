@@ -1,7 +1,9 @@
 package fr.splayce.REL.matchers
 
 import org.specs2.mutable._
-import _root_.fr.splayce.REL.Implicits.{RE2Regex, string2RE}
+import _root_.fr.splayce.REL
+import REL.Implicits.{RE2Regex, string2RE}
+
 
 class MatcherSpec extends Specification {
 

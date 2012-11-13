@@ -34,7 +34,6 @@ package util {
 
     def apply(in: String) =
       regex.findAllIn(in).matchData.flatMap(extractMatch(_))
-
   }
 
   object MatchGroups {
@@ -59,6 +58,22 @@ package util {
     lazy val groups: Map[String, Option[String]] = {
       m.groupNames map { n => if (groupNames(n)) n -> Option(m.group(n)) else n -> None } toMap
     }
+  }
+
+
+  // trivial implementations
+
+  case class MatchedExtractor() extends MatchExtractor[String] {
+    def isDefinedAt(m: Match) = true
+    def apply(m: Match) = m.matched
+  }
+  case class NthGroupExtractor(n: Int = 1) extends MatchExtractor[String] {
+    def isDefinedAt(m: Match) = m.groupCount >= n
+    def apply(m: Match) = m.group(n)
+  }
+  case class NamedGroupExtractor(name: String) extends MatchExtractor[String] {
+    def isDefinedAt(m: Match) = m.groupNames contains name
+    def apply(m: Match) = m.group(name)
   }
 
 }
