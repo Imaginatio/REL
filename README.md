@@ -119,8 +119,13 @@ An example of translation into [.NET-flavored regex](http://www.regular-expressi
 The string primitives are not parsed, so
 
 - Any group you pass inside those strings won't be taken into account by REL when the final regex is generated. The following groups and back-references will be shifted so the resulting regex will most probably be incorrect.
+- You still need to escape your expressions to match regex-significant characters like `+`, `?` or `(`, even in `RECst` (pending update on this point).
+- Any regex you pass as a string literal will be kept as-is when translated into different flavors. For instance, the dot `.` does not have the same meaning in a JavaScript regex where is does not match a new line `\n`.
 
-- You still need to escape your expressions to match regex-significant characters like `+`, `?` or `(`, even in `RECst` (pending update on this point)
+Besides, JavaScript regexes are very limited and work a bit differently. In [JavaScript flavor](https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/JavaScriptFlavor.scala)
+
+- `WordBoundary`/`\b` is kept as-is, but will not have exactly the same semantic because of the lack of Unicode support in JavaScript regex flavor. For instance, in `"fiancé"`, Javascript sees `"\bfianc\bé" where most other flavors see `"\bfiancé\b"`. Same goes for `NotWordBoundary`/`\B`.
+- `InputBeginning` and `InputEnd` are translated to `LineBeginning` and `LineEnd`, but this is only correct if the `m` (multiline) flag is off.
 
 
 ## Usage and downloads
