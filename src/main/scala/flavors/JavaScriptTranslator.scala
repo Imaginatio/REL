@@ -1,11 +1,12 @@
 package fr.splayce.REL.flavors
 
 import fr.splayce.REL._
-import util.Flavor
+import util.Rewriter
 
-object JavaScriptFlavor extends Flavor {
 
-  override def translate(re: RE): RE = re match {
+object JavaScriptTranslator {
+
+  val translate: Rewriter = {
 
     // JavaScript regexes are pretty limited...
     case LookAround(_, Behind, _)         => notSupported("LookBehind")
@@ -24,7 +25,6 @@ object JavaScriptFlavor extends Flavor {
     case InputBegin => LineBegin
     case InputEnd   => LineEnd
 
-    case _ => super.translate(re)
   }
 
   private def notSupported(what: String, plural: Boolean = false) =

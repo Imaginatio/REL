@@ -3,6 +3,7 @@ package fr.splayce.REL.flavors
 import org.specs2.mutable._
 
 import fr.splayce.REL._
+import util._
 
 
 class FlavorSpec extends Specification {
@@ -12,7 +13,7 @@ class FlavorSpec extends Specification {
 
   "Default translation" should {
 
-    val tr = { (re: RE) => FlavorSpec.express(re)._1 }
+    val tr = { (re: RE) => FlavorSpec.simpleFlavor.express(re)._1 }
     val a = RE("a")
     val c = RE("c")
 
@@ -38,11 +39,9 @@ class FlavorSpec extends Specification {
 
 }
 
-object FlavorSpec extends util.Flavor {
+object FlavorSpec {
 
-  override def translate(re: RE): RE = re match {
+  val simpleFlavor = Flavor {
     case Atom(a) if (a.toString == "a") => Atom("b".r)
-    case Atom(c) if (c.toString == "c") => Atom("d".r)
-    case _                              => super.translate(re)
-  }
+    case Atom(c) if (c.toString == "c") => Atom("d".r)  }
 }
