@@ -9,7 +9,7 @@ import Regex.Match
 
 /**
  * Extract a list of possible date interpretations, considering ambiguity
- * 
+ *
  * Ambiguous cases are (in expr A/B/C):
  * - for Date.NUMERIC and Date.NUMERIC_US:
  *     - YMD_S | DMY_S when 10 <= A <= 31 and C >= 10 (and A != C)
@@ -19,11 +19,12 @@ import Regex.Match
  *     - MDY_L | DMY_L when B <= 12 (and A != B)
  */
 
-class DateExtractor(val regex: Regex = Date.NUMERIC) extends Extractor[List[DateExtractor.Result]] {
-  import Extractor._
+class DateExtractor(val regex: Regex = Date.NUMERIC)
+extends ByOptionExtractor[List[DateExtractor.Result]] {
+  import MatchGroups._
   import DateExtractor._
 
-  override def extractMatch(ma: Regex.Match): Option[List[Result]] = {
+  def extractMatch(ma: Match): Option[List[Result]] = {
     if (ma.groupCount == 0) {
       return None
     }
@@ -46,7 +47,7 @@ class DateExtractor(val regex: Regex = Date.NUMERIC) extends Extractor[List[Date
     else extractAlpha(ma)
   }
 
-  def extractAlpha(ma: Regex.Match): Option[List[Result]] = None
+  def extractAlpha(ma: Match): Option[List[Result]] = None
 }
 
 
@@ -68,7 +69,7 @@ object DateExtractor {
     if (d.isEmpty && ambiguous.length == 1 && ambiguous(0) == 'YMD_DMY && y.get <= DAYS_IN_MONTH(m.get)) {
       return Some(List(Result(Some(da.toInt), m, y)))  // Longer, unambiguous date
     }
-    
+
     for (switchable <- ambiguous) {
       r = r ::: (switchable match {
         case 'YMD_DMY if (y.get >= 10 && y.get <= DAYS_IN_MONTH(m.get) &&
@@ -83,13 +84,13 @@ object DateExtractor {
         case _ => Nil
       })
     }
-    
+
     if (r.isEmpty) None else Some(r)
   }
 
   def result(y: Option[String], m: Int, d: Option[String]) =
     Some(List(Result(y.map(_.toInt), Some(m), d.map(_.toInt))))
-  
+
   case class Result(
     val y: Option[Int] = None,
     val m: Option[Int] = None,
@@ -112,7 +113,7 @@ object DateExtractor {
 
 
 class AlphaDateExtractor(dateMatcher: AlphaDate) extends DateExtractor(dateMatcher.FULL) {
-  import Extractor.get
+  import MatchGroups.get
   import DateExtractor._
 
   lazy val ALPHA_MONTHS_RE = dateMatcher.ALPHA_MONTHS.map(_.r.pattern)

@@ -7,7 +7,7 @@ import Regex.Match
 
 package REL {
 
-  import util.Rewriter
+  import util._
 
   abstract sealed class RepMode(val asString: String) {
     override def toString = asString
@@ -114,6 +114,15 @@ package REL {
     def map(tr: Rewriter): RE =
       (tr lift)(this) getOrElse recurseMap(tr)
     protected def recurseMap(tr: Rewriter): RE
+
+    def <<[A](extract: MatchExtractor[A]): Extractor[A] = {
+      val extractMatch = extract.lift andThen { o => o.iterator }
+      (in: String) => (r findAllIn in).matchData.flatMap(extractMatch)
+    }
+    def <<[A](extract: MatchOptionExtractor[A]): Extractor[A] = new ByOptionExtractor[A] {
+      val regex = r
+      def extractMatch(m: Match) = extract(m)
+    }
 
   }
 

@@ -13,7 +13,7 @@ package object test {
   def haveGroup(groupName: String, value: String = null): Matcher[Option[Match]] = {
     val cond = if (value == null) new Be[Option[String]](None).not
       else new Be[Option[String]](Some(value))
-    cond ^^ { (ma: Option[Match]) => ma.flatMap(util.Extractor.get(_, groupName)) }
+    cond ^^ { (ma: Option[Match]) => ma.flatMap(util.MatchGroups.get(_, groupName)) }
   }
 
   def allBeMatching(re: Regex): Matcher[Seq[String]] =

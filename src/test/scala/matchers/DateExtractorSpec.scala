@@ -7,8 +7,7 @@ import _root_.fr.splayce.REL.test._
 class DateExtractorsSpec extends Specification {
 
   "Numeric Date Extractor" should {
-    val de = new DateExtractor()
-    import de.extractAll
+    val extractAll = new DateExtractor()
 
     "extract and normalize numeric date" in {
       extractAll("21/10/2000") must haveSingleDate("Y2000 Y00 M10 D21")
@@ -56,8 +55,7 @@ class DateExtractorsSpec extends Specification {
   }
 
   "Numeric-US Date Extractor" should {
-    val de = new DateExtractor(Date.NUMERIC_US.r)
-    import de.extractAll
+    val extractAll = new DateExtractor(Date.NUMERIC_US.r)
 
     "extract and normalize numeric date" in {
       extractAll("21/10/2000") must haveSingleDate("Y2000 Y00 M10 D21")
@@ -99,7 +97,7 @@ class DateExtractorsSpec extends Specification {
   }
 
   "French date extractor" should {
-    import fr.DateExtractor.extractAll
+    import fr.DateExtractor.{apply => extractAll}
 
     "still extract and normalize numeric date" in {
       extractAll("01/10/2000") must haveSingleDate("Y2000 Y00 M10 D01")
@@ -123,7 +121,7 @@ class DateExtractorsSpec extends Specification {
   }
 
   "English date extractor" should {
-    import en.DateExtractor.extractAll
+    import en.DateExtractor.{apply => extractAll}
 
     "still extract and normalize numeric (US) date" in {
       extractAll("10/21/2000") must haveSingleDate("Y2000 Y00 M10 D21")
