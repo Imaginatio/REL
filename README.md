@@ -99,7 +99,6 @@ An example of translation into [.NET-flavored regex](http://www.regular-expressi
 ## TODO
 
 - Core
-    - Add `RECst.literal(string)` (aliased by `RE.literal(string)`) for auto-escaped literal sequence ; consider `RE.apply('symbol)` to be another alias
     - Add missing short notation for non-greedy RepMode in numbered Rep (e.g. `...(0, 3, Reluctant)`)
     - Add character range support (at DSL level), with inversion (`[^...]`)
     - Shortcuts for `^` and `$` (beware `^` is currently used as exactly-N repeater operator)

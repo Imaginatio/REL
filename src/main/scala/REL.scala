@@ -248,6 +248,13 @@ package REL {
     override def linear(groupNames: List[String]) =
       (re.toString, groupNames)
   }
+  
+  case class Literal(val value: String) extends RE0 {
+    def this(s: Symbol) = this(s.toString.substring(1))
+
+    lazy val reStr = RE.escape(value)
+    override def toString = reStr
+  }
 
   abstract class RECst(val reStr: String) extends RE0 {
     override def toString = reStr
@@ -279,6 +286,14 @@ package REL {
 
 
   object RE {
+    val escapeChars = "\\^$()[]{}?*+.|"
+    val escapeMap = escapeChars map { c => c -> List('\\', c) } toMap
+    def escapeChar(c: Char) = escapeMap.getOrElse(c, c :: Nil)
+    def escape(s: String) = s flatMap escapeChar
+
+    def literal(s: String) = new Literal(s)
+
+    def apply(s: Symbol) = new Literal(s)
     def apply(s: String) = new Atom(s.r)
     def apply(r: Regex)  = new Atom(r)
     def apply(i: Int)    = new Digit(i)
@@ -288,6 +303,7 @@ package REL {
   object Implicits {
     implicit def regex2RE(r: Regex): RE    = RE(r)
     implicit def string2RE(s: String): RE  = RE(s)
+    implicit def symbol2RE(s: Symbol): RE  = RE(s)
     implicit def int2RE(i: Int): RE        = RE(i)
     implicit def RE2String(re: RE): String = re.toString
     implicit def RE2Regex(re: RE): Regex   = re.r
