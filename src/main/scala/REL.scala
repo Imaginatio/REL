@@ -233,7 +233,7 @@ package REL {
   }
 
   // should only be used for Flavors / tree transformation
-  protected[REL] case class Wrapper(override val re: RE,
+  case class Wrapper(override val re: RE,
         val prefix: String, val suffix: String,
         appendGroupNames: List[String] = Nil)
       extends RE1(re) {
@@ -273,6 +273,9 @@ package REL {
   case class Digit(val i: Int) extends RECst(i.toString)
 
   case object Epsilon         extends RECst("")
+  case object Dot             extends RECst(".")
+  case object MLDot           extends RECst("""[\s\S]""")
+  case object LineTerminator  extends RECst("""(?:\r\n?|[\n\u0085\u2028\u2029])""")
   case object AlphaLower      extends RECst("[a-z]")
   case object AlphaUpper      extends RECst("[A-Z]")
   case object Alpha           extends RECst("[a-zA-Z]")
@@ -340,6 +343,9 @@ package object REL {
     val ^^ = InputBegin
     val $$ = InputEnd
     val ε  = Epsilon
+    val τ  = Dot
+    val ττ = MLDot
+    val Τ  = LineTerminator
     val α  = Alpha
     val Α  = NotAlpha
     val λ  = Letter

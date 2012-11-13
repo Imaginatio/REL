@@ -53,7 +53,7 @@ val b = RE("b")
         - possessive: `a(1, 3, Possessive)` → `(?:a){1,3}+`
     - At most:
         - greedy:     `a < 3`   → `(?:a){0,3}`
-        - reluctant:  `a.<?(3)` → `(?:a){0,3}?` (dotted form `a.<?(3)` is mandatory, standalone `<?` being syntactically significant in Scala \[XMLSTART])
+        - reluctant:  `a.<?(3)` → `(?:a){0,3}?` (dotted form `a.<?(3)` is mandatory, standalone `<?` being syntactically significant in Scala: `XMLSTART`)
         - possessive: `a <+ 3`  → `(?:a){0,3}+`
     - At least:
         - greedy:     `a > 3`  → `(?:a){3,}`
@@ -77,6 +77,8 @@ val b = RE("b")
 A few "constants" (sub-expressions with no repetitions, capturing groups, or unprotected alternatives) are also pre-defined. Some of them have a UTF-8 Greek symbol alias for conciseness (import `REL.Symbols._` to use them), uppercase for negation. You can add your own by instancing case class `RECst(expr)`
 
 - `Epsilon` or `ε` → empty string
+- `Dot` or `τ` → `.`,          `LineTerminator` or `Τ`* → `.` ([line terminators](http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html#lt))
+- `MLDot` or `ττ` → `[\s\S]` (will match any char, including line terminators, even when the [`DOTALL`](http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html#DOTALL) or [`MULTILINE`](http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html#MULTILINE) modes are disabled)
 - `AlphaLower` → `[a-z]`,      `AlphaUpper` → `[A-Z]`
 - `Alpha` or `α` → `[a-zA-Z]`, `NotAlpha` or `Α`* → `[^a-zA-Z]`
 - `LetterLower` → `\p{Ll}`,    `LetterUpper` → `\p{Lu}` (unicode letters, including diacritics)
@@ -88,7 +90,7 @@ A few "constants" (sub-expressions with no repetitions, capturing groups, or unp
 - `LineBegin` or `^` → `^`,     `LineEnd` or `$` → `$`
 - `InputBegin` or `^^` → `\A`,  `InputEnd` or `$$` → `\z`
 
-_\* Those are uppercase `α`/`ß`/`μ`, not latin `A`/`B`/`M`_
+_\* Those are uppercase `α`/`ß`/`μ`/`τ`, not latin `A`/`B`/`M`/`T`_
 
 ### Exporting regexes (and other regex flavors)
 
@@ -98,7 +100,7 @@ For other regex flavors, a translation mechanism is provided: you may subclass `
 
 An example of translation into [.NET-flavored regex](http://www.regular-expressions.info/dotnet.html) is provided ([`DotNETFlavor`](https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/DotNETFlavor.scala)), that
 
-- translates `\w` to `[a-zA-Z0-9_]` (as .NET's `\w` covers UTF-8 letters including accented, while Java's covers only ASCII)
+- translates `\w` to `[a-zA-Z0-9_]` (when used with `Word`/`μ`), since .NET's `\w` covers UTF-8 letters including accented, while Java's covers only ASCII
 - turns any possessive quantifier into a greedy quantifier wrapped in an atomic group (which is a longer equivalent)
 - inlines named groups and their references into the .NET `(?<name>expr)` syntax
 
@@ -111,7 +113,7 @@ An example of translation into [.NET-flavored regex](http://www.regular-expressi
     - Add character range support (at DSL level), with inversion (`[^...]`)
     - Add a recursive (sub)tree rewriter, that would allow for instance to rename capturing groups in a second occurrence of a subtree. The reverse operation could be done by a decorator for the `Extractor` trait.
     - Consider using `'symbols` for group names
-    - Add options to easily embed match flags`(?idmsux-idmsux)` when generating regex
+    - Support regex [compilation flags](http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html#field_summary). Add options to easily embed match flags`(?idmsux-idmsux)` when generating regex.
     - Parse \[and limit] regex strings inputted to REL, producing REL-only expression trees, thus eliminating some known issues (see below) and opening some possibilities (e.g. generating sample matching strings)
 - Matchers
     - date: consider extracting incorrect dates (like feb. 31st) with some flag
@@ -138,7 +140,7 @@ The string primitives are not parsed (use `esc(str)` to escape a string that sho
 
 - Any capturing group you pass inside those strings won't be taken into account by REL when the final regex is generated. The following groups and back-references will be shifted so the resulting regex will most probably be incorrect.
 - You still need to escape your expressions to match literally characters that are regex-significant like `+`, `?` or `(`, even in `RECst`. Use `esc(str)` to escape the whole string.
-- Any regex you pass as a string will be kept as-is when translated into different flavors. For instance, the dot `.` does not have the same meaning in a JavaScript regex where is does not match a new line `\n`.
+- Any regex you pass as a string will be kept as-is when translated into different flavors. For instance, the `\w` passed in a string (as opposed to used with `Word`/`μ`) will not be translated by the `DotNETFlavor`.
 
 ### Named Capturing Groups
 
@@ -148,7 +150,7 @@ Java does not support named capturing groups, and Scala only emulates them, mapp
 
 JavaScript regexes are very limited and work a bit differently. In [JavaScript flavor](https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/JavaScriptFlavor.scala)
 
-- `WordBoundary`/`\b` is kept as-is, but will not have exactly the same semantic because of the lack of Unicode support in JavaScript regex flavor. For instance, in `"fiancé"`, Javascript sees `"\bfianc\bé" where most other flavors see `"\bfiancé\b"`. Same goes for `NotWordBoundary`/`\B`.
+- `WordBoundary`/`\b` is kept as-is, but will not have exactly the same semantic because of the lack of Unicode support in JavaScript regex flavor. For instance, in `"fiancé"`, Javascript sees `"\bfianc\bé"` where most other flavors see `"\bfiancé\b"`. Same goes for `NotWordBoundary`/`\B`.
 - `InputBegin` (`^^`) and `InputEnd` (`$$`) are translated to `LineBegin` (`^`) and `LineEnd` (`$`), but this is only correct if the `m` (multiline) flag is off.
 
 In [.NET flavor](https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/DotNETFlavor.scala), the group names are not guaranteed to be valid.

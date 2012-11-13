@@ -9,17 +9,17 @@ class RECstSpec extends Specification {
   import scala.collection.immutable.NumericRange
   import org.specs2.matcher.Matcher
 
-  def matchChars(matches: Boolean, chars: Seq[Char]): Matcher[RECst] = 
+  def matchChars(matches: Boolean, chars: Seq[Char]): Matcher[RECst] =
     be_==(true) ^^ { (re: RE) => chars.foldLeft(true)(_ && _.toString.matches(re) == matches) }
-  
+
   val matchAll = matchChars(true, _: Seq[Char])
   val matchNone = matchChars(false, _: Seq[Char])
-  
+
   val a_z = 'a' to 'z'
   val A_Z = 'A' to 'Z'
   val `0_9` = '0' to '9'
-  val à_ÿ = ('à' to 'ÿ').filter(_ != '÷')
-  val À_Ý = ('À' to 'Ý').filter(_ != '×')
+  val à_ÿ = ('à' to 'ÿ') filter(_ != '÷')
+  val À_Ý = ('À' to 'Ý') filter(_ != '×')
 
   "Epsilon" should {
     "linearize to an empty string" in {
@@ -48,6 +48,35 @@ class RECstSpec extends Specification {
       (Μ ~ ε) === Μ
       (ß ~ ε) === ß
       (Β ~ ε) === Β
+    }
+  }
+
+  "Dot" should {
+    "linearize to ." in {
+      τ.toString === "."
+    }
+    "not match line terminators by default" in {
+      ((τ+).r findFirstIn "a\n").get must have size(1)
+    }
+  }
+  "MLDot" should {
+    """linearize to [\x\X]""" in {
+      val r = """\[\\(\w)\\(\w)\]""".r
+      val r(c1, c2) = ττ.toString
+      c1 !== c2
+      c1 === c2.toLowerCase
+    }
+    "also match line terminators" in {
+      ((ττ+).r findFirstIn "a\n").get must have size(2)
+    }
+  }
+  "LineTerminator" should {
+    """linearize to (?:\r\n?|[\n\u0085\u2028\u2029])""" in {
+      Τ.toString === """(?:\r\n?|[\n\u0085\u2028\u2029])"""
+    }
+    "match all line terminators" in {
+      (Τ.r findAllIn "\r\n\n\r\u0085\u2028\u2029").toList must_==
+        List("\r\n", "\n", "\r", "\u0085", "\u2028", "\u2029")
     }
   }
 
