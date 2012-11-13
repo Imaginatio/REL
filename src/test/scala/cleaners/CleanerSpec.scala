@@ -24,8 +24,8 @@ class CleanerSpec extends Specification {
         .must_== ("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaabbbbbbbbccccccccccccdddddddddddddeeeeeeeeeeeeeeeeeeeeeeeeeeeeeefffffgggggggggggggghhhhhhhhhhhhhhiiiiiiiiiiiiiiiiiiijjjjjkkkkkkkkkkkkklllllllllllllllllmmmmmmmnnnnnnnnnnnnnnnnoooooooooooooooooooooooooooooooooooooooooopppppppppqqqqqrrrrrrrrrrrrrrrrssssssssssssssssstttttttttttttttuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuvvvvvvvwwwwwwwwwwxxxxyyyyyyyyyyyyyyyzzzzzzzzzzzzz")
     }
     "dissociate combined letters" in {
-      DiacriticCleaner("ꜲǼÆǢꜴꜶꜸꜺꜼǄǱǅǲǇǈǊǋŒƢꝎȢẞꜨꝠꜳæǽǣꜵꜷꜹꜻꜽǳǆƕǉǌœƣꝏȣßꜩꝡ")
-        .must_== ("AAAEAEAEAOAUAVAVAYDZDZDzDzLJLjNJNjOEOIOOOUSSTZVYaaaeaeaeaoauavavaydzdzhvljnjoeoiooousstzvy")
+      DiacriticCleaner("ꜲǼÆǢꜴꜶꜸꜺꜼǄǱǅǲǇǈǊǋŒƢꝎȢẞꜨꝠꜳæǽǣꜵꜷꜹꜻꜽǳǆƕǉǌœɶƣꝏȣßꜩꝡ")
+        .must_== ("AAAEAEAEAOAUAVAVAYDZDZDzDzLJLjNJNjOEOIOOOUSSTZVYaaaeaeaeaoauavavaydzdzhvljnjoeoeoiooousstzvy")
     }
     "not hold unnecessary chars in direct translation map" in {
       DiacriticCleaner.diacritics.toList
