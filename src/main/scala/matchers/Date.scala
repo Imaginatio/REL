@@ -37,22 +37,29 @@ object Date {
   lazy val DATE    = (           DATE_YMD | DATE_DMY | DATE_YM | DATE_MY) \ "n_f"
   lazy val DATE_US = (DATE_MDY | DATE_YMD | DATE_DMY | DATE_YM | DATE_MY) \ "n_f"
 
+  lazy val FULL    = (           DATE_YMD | DATE_DMY) \ "n_f"
+  lazy val FULL_US = (DATE_MDY | DATE_YMD | DATE_DMY) \ "n_f"
+
   // longest first
   // val DATE_L = DATE_YMD_L \ "ymd_long" | DATE_DMY_L \ "dmy_long"
   // val DATE_S = DATE_YMD_S \ "ymd_short" | DATE_DMY_S \ "dmy_short"
   // val DATE = (DATE_L \ "d_long" | DATE_S \ "d_short") \ "d"
 
+  lazy val NUMERIC_FULL    = δ.?<! - (FULL   ) ~ δ.?!
+  lazy val NUMERIC_FULL_US = δ.?<! - (FULL_US) ~ δ.?!
+
   lazy val NUMERIC    = δ.?<! - (DATE    | YYYY \ "n_y") ~ δ.?!
   lazy val NUMERIC_US = δ.?<! - (DATE_US | YYYY \ "n_y") ~ δ.?!
 
-  // Ambiguity is shown in DateExtractor
+  // NB: Ambiguity is shown in DateExtractor
 
 }
 
-import Date.{D, DD, YY, YYYY, NUMERIC_US}
+import Date.{D, DD, YY, YYYY, NUMERIC_US, NUMERIC_FULL_US}
 
 abstract class AlphaDate {
-  val NUMERIC = Date.NUMERIC
+  protected val NUMERIC  = Date.NUMERIC
+  protected val NUM_FULL = Date.NUMERIC_FULL
 
   val S: RE = " "
   val BREAK: RE = """(?<=\b|\.)"""
@@ -61,8 +68,10 @@ abstract class AlphaDate {
   val ALPHA_MONTHS: Array[String]
   lazy val ALPHA_MONTH = ALPHA_MONTHS.mkString("|") \ "a_m"
 
-  val ALPHA : RE
-  lazy val FULL = (ALPHA \ "a_f" | NUMERIC) \ "date"
+  val ALPHA      : RE
+  val ALPHA_FULL : RE
+  lazy val ALL      = (ALPHA       \ "a_f" | NUMERIC  ) \ "date"
+  lazy val ALL_FULL = (ALPHA_FULL \ "a_f" | NUM_FULL) \ "date"
 }
 
 
@@ -85,7 +94,8 @@ package fr {
       """d[ée]c(?:\.|embre)?""")
 
     val DAY = ("""1er\b""" | DD | D) \ "a_d"
-    override val ALPHA = ((δ.?<! - DAY ~ S.?) | ß) ~ ALPHA_MONTH ~ (YEAR | BREAK)
+    override val ALPHA      = ((δ.?<! - DAY ~ S.?) | ß) ~ ALPHA_MONTH ~ (YEAR | BREAK)
+    override val ALPHA_FULL = (δ.?<! - DAY ~ S.?) ~ ALPHA_MONTH ~ YEAR
   }
 
 }
@@ -97,7 +107,8 @@ package en {
 
   object Date extends AlphaDate {
 
-    override val NUMERIC = NUMERIC_US
+    override val NUMERIC   = NUMERIC_US
+    override val NUM_FULL = NUMERIC_FULL_US
 
     override val ALPHA_MONTHS = Array(
       """jan(?:\.|uary)?""",
@@ -119,6 +130,9 @@ package en {
     override val ALPHA =
       (((δ.?<! - DAY ~ S.?) ~ ALPHA_MONTH) | (ß ~ ALPHA_MONTH ~ (S.? ~ DAY - δ.?!).?)) ~
       ((YS.? ~ YEAR) | BREAK)
+    override val ALPHA_FULL =
+      (((δ.?<! - DAY ~ S.?) ~ ALPHA_MONTH) | (ß ~ ALPHA_MONTH ~  S.? ~ DAY - δ.?!)) ~
+      (YS.? ~ YEAR)
   }
 
 }

@@ -112,7 +112,8 @@ object DateExtractor {
 }
 
 
-class AlphaDateExtractor(dateMatcher: AlphaDate) extends DateExtractor(dateMatcher.FULL) {
+class AlphaDateExtractor(dateMatcher: AlphaDate, fullOnly: Boolean = false)
+extends DateExtractor(if (fullOnly) dateMatcher.ALL_FULL else dateMatcher.ALL) {
   import MatchGroups.get
   import DateExtractor._
 
@@ -137,9 +138,11 @@ class AlphaDateExtractor(dateMatcher: AlphaDate) extends DateExtractor(dateMatch
 }
 
 package fr {
-  object DateExtractor extends AlphaDateExtractor(Date)
+  object     DateExtractor extends AlphaDateExtractor(Date)
+  object FullDateExtractor extends AlphaDateExtractor(Date, true)
 }
 
 package en {
-  object DateExtractor extends AlphaDateExtractor(Date)
+  object     DateExtractor extends AlphaDateExtractor(Date)
+  object FullDateExtractor extends AlphaDateExtractor(Date, true)
 }

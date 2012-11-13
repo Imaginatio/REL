@@ -19,6 +19,9 @@ package object test {
   def allBeMatching(re: Regex): Matcher[Seq[String]] =
     new BeMatchingRegex(re).forall
 
+  def noneBeMatching(re: Regex): Matcher[Seq[String]] =
+    new BeMatchingRegex(re).not.forall
+
   def haveSingleDate(res: String*): Matcher[Iterator[List[DateExtractor.Result]]] = {
     (
       (new Be[Int](1) ^^ { (t: List[_]) => new Descriptible(t.size) aka "the number of matched dates" }) and

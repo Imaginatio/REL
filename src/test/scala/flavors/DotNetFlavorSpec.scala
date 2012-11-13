@@ -41,8 +41,8 @@ class DotNETFlavorSpec extends Specification {
     }
 
     "not crash when translating Date regexes" in {
-      /* println */ (tr(matchers.fr.Date.FULL))
-      /* println */ (tr(matchers.en.Date.FULL))
+      /* println */ (tr(matchers.fr.Date.ALL))
+      /* println */ (tr(matchers.en.Date.ALL))
       1 === 1
     }
 
