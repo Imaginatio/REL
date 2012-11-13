@@ -100,16 +100,18 @@ An example of translation into [.NET-flavored regex](http://www.regular-expressi
 
 - Core
     - Add `RECst.literal(string)` (aliased by `RE.literal(string)`) for auto-escaped literal sequence ; consider `RE.apply('symbol)` to be another alias
-    - Add missing short notation for non-greedy RepMode in numbered Rep
+    - Add missing short notation for non-greedy RepMode in numbered Rep (e.g. `...(0, 3, Reluctant)`)
     - Add character range support (at DSL level), with inversion (`[^...]`)
     - Shortcuts for `^` and `$` (beware `^` is currently used as exactly-N repeater operator)
     - Consider using `'symbols` for group names
     - Add options to easily embed match flags`(?idmsux-idmsux)` when generating regex
+    - Parse \[and limit] regex strings inputted to REL, producing REL-only expression trees, thus eliminating some known issues (see below) and opening some possibilities (e.g. generating sample matching strings)
 - Matchers
     - date: consider extracting incorrect dates (like feb. 31st) with some flag
 - Utils
     - Generate sample strings that match a regex (e.g. with [Xeger](http://code.google.com/p/xeger/))
     - Source generation or compiler plugin to enable REL independance \[at runtime]
+    - Binary tool that would take a REL file, compile it and produce regexes in several flavors / programming langagues
 - Documentation
     - Document cleaners and extractors
 
