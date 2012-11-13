@@ -28,8 +28,8 @@ class CleanerSpec extends Specification {
         .must_== ("AAAEAEAEAOAUAVAVAYDZDZDzDzLJLjNJNjOEOIOOOUSSTZVYaaaeaeaeaoauavavaydzdzhvljnjoeoeoiooousstzvy")
     }
     "not hold unnecessary chars in direct translation map" in {
-      DiacriticCleaner.diacritics.toList
-        .filter({p => DiacriticCleaner.nfdClean(p._1.toString) == p._2}) must be empty
+      DiacriticFolder.diacritics.toList
+        .filter({p => DiacriticFolder.nfdClean(p._1.toString) == p._2}) must be empty
     }
   }
 
@@ -46,23 +46,19 @@ class CleanerSpec extends Specification {
   }
 
   "Cleaner Chain" should {
-    class PrefixingCleaner(val prefix: String) extends Cleaner {
-      override def clean(in: String) = prefix + in
-    }
+
+    def suffixingCleaner(suffix: String) = Cleaner(_ + suffix)
     
-    val aPrefix = new PrefixingCleaner("a ")
-    val bPrefix = new PrefixingCleaner("b ")
-    val cPrefix = new PrefixingCleaner("c ")
-    val chain  = cPrefix | bPrefix | aPrefix
-    val chain2 = aPrefix(bPrefix(cPrefix))
+    val aSuffix = suffixingCleaner(" a")
+    val bSuffix = suffixingCleaner(" b")
+    val cSuffix = suffixingCleaner(" c")
+
+    val chain1 = aSuffix | bSuffix | cSuffix
+    val chain2 = cSuffix(  bSuffix(  aSuffix))
 
     "perform all cleaners in order" in {
-      chain("test")  must_== "a b c test"
-      chain2("test") must_== "a b c test"
-    }
-
-    "have equivalent chaining syntaxes (functions vs. pipes)" in {
-      chain2 must_== chain
+      chain1("test") must_== "test a b c"
+      chain2("test") must_== "test a b c"
     }
   }
 

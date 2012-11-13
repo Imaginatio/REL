@@ -4,18 +4,17 @@ import fr.splayce.REL.util.Cleaner
 import java.text.Normalizer
 
 
-object DiacriticCleaner extends Cleaner {
+object DiacriticFolder {
 
-  override def clean(in: String): String =
+  def clean(in: String) =
     nfdClean(in) flatMap diacriticFold
 
   def nfdClean(in: String) = // "è" => unicode normalized decomposition "e`" => "e"
     unicodeMarks.replaceAllIn(Normalizer.normalize(in, Normalizer.Form.NFD), "")
 
-  def diacriticFold(c: Char): List[Char] =
+  def diacriticFold(c: Char): String =
     // OPTIMIZE cache list creation for frequently used letters ?
-    if (diacritics contains c) diacritics(c).toList
-    else c :: Nil
+    diacritics.getOrElse(c, c.toString)
 
   val unicodeMarks = "\\p{IsM}+".r
 

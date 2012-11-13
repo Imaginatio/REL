@@ -6,30 +6,17 @@ import Regex.Match
 import fr.splayce.REL._
 
 
-trait Cleaner extends Function1[String, String] {
-  def clean(in: String): String
+case class Cleaner(clean: String => String) extends Function1[String, String] {
   def apply(in: String) = clean(in)
 
   // function-like syntax: chain = Third(Second(First))
-  def apply(cleaner: Cleaner) = this match {
-    case CleanerChain(cleaners) => CleanerChain(cleaner :: cleaners)
-    case _                      => CleanerChain(this :: cleaner :: Nil)
-  }
+  def apply(previous: Cleaner) = Cleaner(clean compose previous.clean)
+  def compose(previous: Cleaner) = this(previous)
 
   // Unix/pipe-like syntax: chain = First | Second | Third
-  def |(then: Cleaner) = then(this)
-    
+  def |(then: Cleaner) = Cleaner(clean andThen then.clean)
+  def andThen(then: Cleaner) = this | then
 }
-
-case class CleanerChain(cleaners: List[Cleaner]) extends Cleaner {
-  require(cleaners.size > 0)
-
-  lazy val cleaner =
-    cleaners.tail.foldLeft[String => String](cleaners.head) { _ compose _ }
-
-  override def clean(in: String) = cleaner(in)
-}
-
 
 
 trait Extractor[T] {
