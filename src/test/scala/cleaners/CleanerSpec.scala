@@ -14,6 +14,23 @@ class CleanerSpec extends Specification {
     }
   }
 
+  "WhiteSpace Cleaner" should {
+    "Remove multiple whitespaces" in {
+      WhiteSpaceCleaner("  double  spaces  ") must_== " double spaces "
+    }
+    "Translate other whitespaces to spaces" in {
+      WhiteSpaceCleaner("list:\n\tfirst\r\n\tsecond") must_== "list: first second"
+    }
+  }
+
+  "Quote Normalizer" should {
+    "Convert special quotes" in {
+      QuoteNormalizer("She said “I’ll see you soon”.") must_== """She said "I'll see you soon"."""
+      QuoteNormalizer("‘’＇′‵") must_== "'''''"
+      QuoteNormalizer("“”＂″‶〝〞") must_== "\"\"\"\"\"\"\""
+    }
+  }
+
   "Diacritic Cleaner" should {
     "remove diacritics and other alternations" in {
       DiacriticCleaner("０₀⓪⁰¹⑴₁❶⓵⒈①１❷⑵２₂⓶②⒉²３³⒊⑶₃❸⓷③⓸④⒋４⁴₄❹⑷⒌₅⓹⑸❺⑤５⁵⑹⁶６❻₆⑥⓺⒍７⁷❼⓻⒎₇⑺⑦⑧⒏⓼⑻⁸８❽₈⓽９⒐❾⑼₉⑨⁹")
@@ -33,6 +50,15 @@ class CleanerSpec extends Specification {
     }
   }
 
+  "Fullwidth Normalizer" should {
+    "normalize Fullwidth to ASCII" in {
+      FullwidthNormalizer("！＂＃＄％＆＇（）＊＋，－．／０１２３４５６７８９：；＜＝＞？＠ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ［＼］＾＿｀ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚ｛｜｝～")
+        .must_==("!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[]^_`abcdefghijklmnopqrstuvwxyz{|}~")
+      FullwidthNormalizer("￠￡￥￦")
+        .must_==("¢£¥₩")
+    }
+  }
+
   "CamelCase Splitter" should {
     "split CamelCase words" in {
       CamelCaseSplitter("someWords in CamelCase") must_== "some Words in Camel Case"
@@ -48,7 +74,7 @@ class CleanerSpec extends Specification {
   "Cleaner Chain" should {
 
     def suffixingCleaner(suffix: String) = Cleaner(_ + suffix)
-    
+
     val aSuffix = suffixingCleaner(" a")
     val bSuffix = suffixingCleaner(" b")
     val cSuffix = suffixingCleaner(" c")

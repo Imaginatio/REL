@@ -6,7 +6,7 @@ import Regex.Match
 import fr.splayce.REL._
 
 
-case class Cleaner(clean: String => String) extends Function1[String, String] {
+case class Cleaner(val clean: String => String) extends Function1[String, String] {
   def apply(in: String) = clean(in)
 
   // function-like syntax: chain = Third(Second(First))
@@ -16,6 +16,10 @@ case class Cleaner(clean: String => String) extends Function1[String, String] {
   // Unix/pipe-like syntax: chain = First | Second | Third
   def |(then: Cleaner) = Cleaner(clean andThen then.clean)
   def andThen(then: Cleaner) = this | then
+}
+object Cleaner {
+  def regexReplaceAll(re: Regex, replacement: String) =
+    Cleaner { in => re.replaceAllIn(in, replacement) }
 }
 
 
@@ -54,7 +58,7 @@ abstract class Flavor {
     translate(re).linear()
 
   /** Returns a recursively translation of the given RE (sub)tree.
-    * 
+    *
     * This is the method to override when implementing a Flavor;
     * the default case being typically:
     * {{{
@@ -62,7 +66,7 @@ abstract class Flavor {
     * }}}
     */
   def translate(re: RE): RE = re match {
-    
+
     // repeaters
     case         Opt(re,       mode) =>         Opt(translate(re),       mode)
     case       KStar(re,       mode) =>       KStar(translate(re),       mode)
@@ -77,11 +81,11 @@ abstract class Flavor {
     case      AGroup(re)       =>      AGroup(translate(re))
     case     NCGroup(re)       =>     NCGroup(translate(re))
     case  LookAround(re, d, p) =>  LookAround(translate(re), d, p)
-    
+
     // RE2
     case Conc(re1, re2) => Conc(translate(re1), translate(re2))
     case  Alt(re1, re2) =>  Alt(translate(re1), translate(re2))
-    
+
     case _ => re
   }
 }
