@@ -1,6 +1,7 @@
 package fr.splayce.REL.matchers
 
 import org.specs2.mutable._
+import _root_.fr.splayce.REL.test._
 
 
 class DateExtractorsSpec extends Specification {
@@ -33,7 +34,7 @@ class DateExtractorsSpec extends Specification {
       extractAll("32-12-2000") must haveSingleDate("Y2000 Y00 M12")
 
       extractAll("01-13-2000") must haveSingleDate("Y2000 Y00")
-      
+
       // 2012 is a leap year, 2011 isn't but it is not taken into account
       extractAll("29-02-2012") must haveSingleDate("Y2012 Y12 M02 D29")
       extractAll("29-02-2011") must haveSingleDate("Y2011 Y11 M02 D29")

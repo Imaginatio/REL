@@ -16,7 +16,7 @@ val dateYMD = ^ ~ year  ~ sep ~ month ~ !sep ~ day  ~ $
 val dateMDY = ^ ~ month ~ sep ~ day   ~ !sep ~ year ~ $
 ```
 
-These value are `RE` objects (trees/subtrees), which can be converted to `scala.util.matching.Regex` instances either implicitly (by importing `REL.Implicits._`) or explicitly (via the `.r` method).
+These value are `RE` objects (also named _terms_ or _trees_/_subtrees_), which can be converted to `scala.util.matching.Regex` instances either implicitly (by importing `REL.Implicits._`) or explicitly (via the `.r` method).
 
 The embedded [Date regexes](https://github.com/Imaginatio/REL/blob/master/src/main/scala/matchers/Date.scala) and [extractors](https://github.com/Imaginatio/REL/blob/master/src/main/scala/matchers/DateExtractor.scala) will give you more complete examples, matching several date formats at once with little prior knowledge.
 
@@ -74,7 +74,7 @@ val b = RE("b")
 
 ### Constants
 
-A few "constants" (sub-expressions with no repetitions, capturing groups, or unprotected alternatives) are also pre-defined. Some of them have a UTF-8 Greek symbol alias for conciseness (import `REL.Symbols._` to use them), uppercase for negation. You can add your own by instancing case class `RECst(expr)`
+A few "constants" (expression terms with no repetitions, capturing groups, or unprotected alternatives) are also pre-defined. Some of them have a UTF-8 Greek symbol alias for conciseness (import `REL.Symbols._` to use them), uppercase for negation. You can add your own by instancing case class `RECst(expr)`
 
 - `Epsilon` or `ε` → empty string
 - `Dot` or `τ` → `.`,          `LineTerminator` or `Τ`* → `.` ([line terminators](http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html#lt))
@@ -94,7 +94,7 @@ _\* Those are uppercase `α`/`ß`/`μ`/`τ`, not latin `A`/`B`/`M`/`T`_
 
 ### Exporting regexes (and other regex flavors)
 
-The `.r` method on any `RE` (sub)tree returns a compiled `scala.util.matching.Regex`. The `.toString` method returns the source pattern (equivalent to `.r.toString`, so the pattern is verified).
+The `.r` method on any `RE` term returns a compiled `scala.util.matching.Regex`. The `.toString` method returns the source pattern (equivalent to `.r.toString`, so the pattern is verified).
 
 For other regex flavors, a translation mechanism is provided: you may subclass `Flavor`, which exposes a `.express(re: RE)` method, returning a `Tuple[String, List[String]]`. The first element is the translated regex string, the second is a list of the group names (in order of appearance), allowing you to perform a mapping to capturing group indexes (like Scala does) if needed. A subclass of `Flavor` should override `.translate(re: RE)`, using pattern matching to recursively translate Java regex subtree with matching subtree in the destination regex Flavor. It should call `super.translate` in the default case to ensure proper recusion.
 
@@ -123,7 +123,7 @@ An example of translation into [.NET-flavored regex](http://www.regular-expressi
     - Source generation or compiler plugin to enable REL independance \[at runtime]
     - Binary tool that would take a REL file, compile it and produce regexes in several flavors / programming langagues
 - Documentation
-    - Document cleaners and extractors
+    - Document cleaners, extractors, matchers
     - Make the present document a simple description and split the documentation part into several linked pages: syntax, matchers, extractors, flavors…
 
 

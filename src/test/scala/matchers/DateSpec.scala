@@ -2,6 +2,7 @@ package fr.splayce.REL.matchers
 
 import org.specs2.mutable._
 import _root_.fr.splayce.REL.Implicits.RE2Regex
+import _root_.fr.splayce.REL.test._
 
 class DateSpec extends Specification {
 
@@ -25,7 +26,7 @@ class DateSpec extends Specification {
       "2100" must not be matching(NUMERIC)
       NUMERIC.findAllIn("test 1996 98 2004 12 ok 2012") must have size(3)
     }
-    
+
     "match D-M-YY"       in { "1-1-00"     must     be matching(NUMERIC) }
     "not match D-M-YYYY" in { "1-1-2000"   must not be matching(NUMERIC) }
     "match DD-MM-YYYY"   in { "01-10-2000" must     be matching(NUMERIC) }
@@ -37,12 +38,12 @@ class DateSpec extends Specification {
       "41-10-00" must not be matching(NUMERIC)
       "99-10-00" must not be matching(NUMERIC)
     }
-    
+
     "match YY-M-D"       in { "00-1-1"     must     be matching(NUMERIC) }
     "match YYYY-M-D"     in { "2000-1-1"   must not be matching(NUMERIC) }
     "match YYYY-MM-DD"   in { "2000-10-01" must     be matching(NUMERIC) }
     "not match YY-MM-DD" in { "00-10-01"   must not be matching(NUMERIC) }
-    
+
     "not match M-DD-YY"    in { "1-21-00"    must not be matching(NUMERIC) }
     "not match MM-DD-YY"   in { "01-21-00"   must not be matching(NUMERIC) }
     "not match M-DD-YYYY"  in { "1-21-2000"  must not be matching(NUMERIC) }
@@ -124,7 +125,7 @@ class DateSpec extends Specification {
 
   "French date regex" should {
     import fr.Date.{FULL => FR_FULL, ALPHA => FR_ALPHA}
-    
+
     "not match empty string" in {
       "" must not be matching(FR_FULL)
       "" must not be matching(FR_ALPHA)
@@ -174,7 +175,7 @@ class DateSpec extends Specification {
       List(
         "nov 2012",      "nov 12",
         "nov. 2012",     "nov. 12",
-        "novembre 2012", "novembre 12"   
+        "novembre 2012", "novembre 12"
       ) must allBeMatching(FR_FULL)
     }
     "match 'month YY[YY].' in one match without the final dot" in {
@@ -195,10 +196,10 @@ class DateSpec extends Specification {
         "03 nov", "03 nov.", "03 novembre"
       ) must allBeMatching(FR_FULL)
     }
-    
+
     "match unseparated D[D] + month + YY[YY]" in {
       List(
-         "3nov2012",  "3nov12",  "3nov.2012",  "3nov.12",  "3novembre2012",  "3novembre12", 
+         "3nov2012",  "3nov12",  "3nov.2012",  "3nov.12",  "3novembre2012",  "3novembre12",
         "03nov2012", "03nov12", "03nov.2012", "03nov.12", "03novembre2012", "03novembre12"
       ) must allBeMatching(FR_FULL)
     }
@@ -208,7 +209,7 @@ class DateSpec extends Specification {
         "03 nov 2012", "03 nov 12", "03 nov. 2012", "03 nov. 12", "03 novembre 2012", "03 novembre 12"
       ) must allBeMatching(FR_FULL)
     }
-    
+
     "match 'D[D] month YY[YY].' in one match without the final dot" in {
       "1er nov 2012." must not be matching(FR_FULL)
       (FR_FULL findAllIn   "1er nov 2012.") must have size(1)
@@ -243,7 +244,7 @@ class DateSpec extends Specification {
 
   "English date regex" should {
     import en.Date.{FULL => EN_FULL, ALPHA => EN_ALPHA}
-    
+
     "not match empty string" in {
       "" must not be matching(EN_FULL)
       "" must not be matching(EN_ALPHA)
@@ -291,20 +292,20 @@ class DateSpec extends Specification {
 
     "match unseparated month + YY[YY]" in {
       List(
-        "nov2012",      "nov,2012", 
-        "nov12",        "nov,12", 
-        "nov.2012",     "nov.12", 
-        "november2012", "november,2012", 
+        "nov2012",      "nov,2012",
+        "nov12",        "nov,12",
+        "nov.2012",     "nov.12",
+        "november2012", "november,2012",
         "november12",   "november,12"
       ) must allBeMatching(EN_FULL)
     }
     "match month YY[YY]" in {
       List(
-        "nov 2012",       "nov, 2012", 
-        //"nov 12",       "nov, 12", 
-        "nov. 2012",      "nov., 2012", 
-        //"nov. 12",      "nov., 12", 
-        "november 2012",  "november, 2012" 
+        "nov 2012",       "nov, 2012",
+        //"nov 12",       "nov, 12",
+        "nov. 2012",      "nov., 2012",
+        //"nov. 12",      "nov., 12",
+        "november 2012",  "november, 2012"
         //,"november 12", "november, 12"
       ) must allBeMatching(EN_FULL)
     }
@@ -340,14 +341,14 @@ class DateSpec extends Specification {
         "03 nov", "03 nov.", "03 november"
       ) must allBeMatching(EN_FULL)
     }
-    
+
     "match unseparated month + D[D] + ',' + YY[YY]" in {
       List(
-        "nov3,2012",       "nov3,12", 
-        "nov.3,2012",      "nov.3,12", 
-        "november3,2012",  "november3,12", 
-        "nov03,2012",      "nov03,12", 
-        "nov.03,2012",     "nov.03,12", 
+        "nov3,2012",       "nov3,12",
+        "nov.3,2012",      "nov.3,12",
+        "november3,2012",  "november3,12",
+        "nov03,2012",      "nov03,12",
+        "nov.03,2012",     "nov.03,12",
         "november03,2012", "november03,12"
       ) must allBeMatching(EN_FULL)
     }
@@ -378,11 +379,11 @@ class DateSpec extends Specification {
 
     "match unseparated month + D[D] + ',' + YY[YY]" in {
       List(
-        "3nov,2012",       "3nov,12", 
-        "3nov.,2012",      "3nov.,12", 
-        "3november,2012",  "3november,12", 
-        "03nov,2012",      "03nov,12", 
-        "03nov.,2012",     "03nov.,12", 
+        "3nov,2012",       "3nov,12",
+        "3nov.,2012",      "3nov.,12",
+        "3november,2012",  "3november,12",
+        "03nov,2012",      "03nov,12",
+        "03nov.,2012",     "03nov.,12",
         "03november,2012", "03november,12"
       ) must allBeMatching(EN_FULL)
     }
