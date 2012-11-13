@@ -29,10 +29,6 @@ package REL {
         case (Epsilon, Epsilon)                => Epsilon
         case (Epsilon, r)                      => r
         case (l, Epsilon)                      => l
-        case (l: RECst, r: RECst)              => l - r
-        case (l @ Conc(_, _: RECst), r: RECst) => l - r
-        case (l: RECst, r @ Conc(_, _: RECst)) => l - r
-        case (l @ Alt(_, _), r: RECst)         => l.ncg - r
         case (l: RECst, r @ Alt(_, _))         => l - r.ncg
         case (l, r)                            => l.ncg - r.ncg
       }
@@ -88,11 +84,8 @@ package REL {
     def apply() = g()
 
     def ncg: RE = this match {
-      case re: LookAround => this
-      case re: AGroup     => this
-      case re: NCGroup    => this
-      case re: Group      => this
-      case _              => NCGroup(this)
+      case re: Wrapped => this
+      case _           => NCGroup(this)
     }
     def % = ncg
 
@@ -125,6 +118,9 @@ package REL {
     def <<[A](extractor: MatchExtractor[A]): Extractor[A] =
       this << extractor.lift
   }
+
+  /** A Wrapped RE needs no NCGroup protection */
+  sealed trait Wrapped extends RE
 
   abstract sealed class RE2(val lRe: RE, val rRe: RE) extends RE {
     protected def linear(fn: (String, String) => String,
@@ -168,20 +164,17 @@ package REL {
       re.groups
   }
 
-  case class NCGroup(override val re: RE) extends RE1(re) {
+  case class NCGroup(override val re: RE) extends RE1(re) with Wrapped {
     override def linear(groupNames: List[String]) = re match {
-      case re: LookAround => re.linear(groupNames)
-      case re: AGroup     => re.linear(groupNames)
-      case re: NCGroup    => re.linear(groupNames)
-      case re: Group      => re.linear(groupNames)
-      case _              => linear("(?:" + _ + ")", groupNames)
+      case re: Wrapped => re.linear(groupNames)
+      case _           => linear("(?:" + _ + ")", groupNames)
     }
 
     override def recurseMap(tr: Rewriter) =
       NCGroup(re map tr)
   }
 
-  case class AGroup(override val re: RE) extends RE1(re) {
+  case class AGroup(override val re: RE) extends RE1(re) with Wrapped {
     override def linear(groupNames: List[String]) = re match {
       case re: Rep if (re.mode == Possessive) => re.linear(groupNames)
       case re: AGroup                         => re.linear(groupNames)
@@ -194,7 +187,7 @@ package REL {
   }
 
   case class Group(val name: String,
-      override val re: RE) extends RE1(re) {
+      override val re: RE) extends RE1(re) with Wrapped {
     override def linear(groupNames: List[String]) = re match {
       case NCGroup(re) => Group(name, re).linear(groupNames)
       case _           => linear("(" + _ + ")", groupNames ::: List(name))
@@ -211,7 +204,7 @@ package REL {
 
   case class LookAround(override val re: RE,
         val direction: LookDirection, positive: Boolean = true)
-      extends RE1(re) {
+      extends RE1(re) with Wrapped {
     override def linear(groupNames: List[String]) = re match {
       case NCGroup(re) => LookAround(re, direction, positive).linear(groupNames)
       case _ => linear("(?" + direction + (if (positive) "=" else "!") + _ + ")", groupNames)
@@ -320,7 +313,7 @@ package REL {
     override lazy val groups = Nil
   }
 
-  case class GroupRef(val name: String) extends RE0 {
+  case class GroupRef(val name: String) extends RE0 with Wrapped {
 
     override def linear(groupNames: List[String]) =
       ("\\" + (groupNames.lastIndexOf(name) + 1), groupNames)
@@ -340,11 +333,14 @@ package REL {
     override def toString = reStr
   }
 
-  abstract class RECst(val reStr: String) extends RE0 {
+  abstract class REStr(val reStr: String) extends RE0 {
     override def toString = reStr
   }
 
-  case class Digit(val i: Int) extends RECst(i.toString)
+  abstract class RECst(val reCst: String) extends REStr(reCst) with Wrapped
+
+  case class Digit(val i: Int)
+  extends RECst(if (i < 10) i.toString else "(?:" + i.toString + ")")
 
   case object Epsilon         extends RECst("")
   case object Dot             extends RECst(".")

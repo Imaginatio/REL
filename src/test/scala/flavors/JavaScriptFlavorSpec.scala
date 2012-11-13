@@ -64,7 +64,7 @@ class JavaScriptFlavorSpec extends Specification {
     }
 
     "translate recursively" in {
-      tr(("b" | (^^{3}+)) - "a") must_== "b|(?:(?:^){3})+a"
+      tr(("b" | (^^{3}+)) - "a") must_== "b|(?:^{3})+a"
     }
 
   }

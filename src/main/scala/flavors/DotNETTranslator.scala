@@ -6,7 +6,7 @@ import util.Rewriter
 
 object DotNETTranslator {
 
-  class Cst(val c: String) extends RECst(c)
+  class Cst(val c: String) extends REStr(c)
 
   val translate: Rewriter = {
 
