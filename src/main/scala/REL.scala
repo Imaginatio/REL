@@ -117,7 +117,7 @@ package REL {
 
     def <<[A](extract: MatchExtractor[A]): Extractor[A] = {
       val extractMatch = extract.lift andThen { o => o.iterator }
-      (in: String) => (r findAllIn in).matchData.flatMap(extractMatch)
+      Extractor { (in: String) => (r findAllIn in).matchData.flatMap(extractMatch) }
     }
     def <<[A](extract: MatchOptionExtractor[A]): Extractor[A] = new ByOptionExtractor[A] {
       val regex = r

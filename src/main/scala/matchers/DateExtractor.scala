@@ -53,6 +53,11 @@ extends ByOptionExtractor[List[DateExtractor.Result]] {
 
 object DateExtractor {
 
+  lazy val NUMERIC         = new DateExtractor(Date.NUMERIC)
+  lazy val NUMERIC_US      = new DateExtractor(Date.NUMERIC_US)
+  lazy val NUMERIC_FULL    = new DateExtractor(Date.NUMERIC_FULL)
+  lazy val NUMERIC_FULL_US = new DateExtractor(Date.NUMERIC_FULL_US)
+
   val DAYS_IN_MONTH = Array(0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 
   def year(y: String): String = year(y.toInt)

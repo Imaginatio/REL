@@ -8,16 +8,15 @@ package object util {
 
   type Rewriter = PartialFunction[RE, RE]
 
-  type Extractor[+A]            = String => Iterator[A]
   type MatchExtractor[+A]       = PartialFunction[Match, A]
   type MatchOptionExtractor[+A] = Match => Option[A]
 
   /** Reverse of PartialFunction's lift method
-   *
-   * Use with parcimony if f is costly, for it may be called twice.
-   * For example in such case, prefer implementing [MatchOptionExtractor]
-   * over using unlift to make a MatchExtractor.
-   */
+    *
+    * Use with parcimony if f is costly, for it may be called twice.
+    * For example in such case, prefer implementing [MatchOptionExtractor]
+    * over using unlift to make a MatchExtractor.
+    */
   def unlift[A, B](f: Function1[A, Option[B]]): PartialFunction[A, B] = {
     case o if (f(o).isDefined) => f(o).get
   }
@@ -26,42 +25,55 @@ package object util {
 
 package util {
 
+  trait Extractor[+A] extends Function1[String, Iterator[A]] {
+
+    def compose(prepare: String => String) =
+      Extractor(super.compose(prepare))
+
+    def unapplySeq(in: String): Option[List[A]] =
+      Some(apply(in) toList)
+
+  }
+  object Extractor {
+
+    def apply[A](extractor: String => Iterator[A]) = new Extractor[A] {
+      def apply(in: String) = extractor(in)
+    }
+
+  }
+
   trait ByOptionExtractor[+A] extends Extractor[A] {
 
     val regex: Regex
 
     def extractMatch(m: Match): Option[A]
 
-    def apply(in: String) =
+    def apply(in: String): Iterator[A] =
       regex.findAllIn(in).matchData.flatMap(extractMatch(_))
+    
+    def apply(m: Match): Option[A] =
+      extractMatch(m)
+
+    lazy val matchPattern = MatchPattern(extractMatch _)
+
   }
 
-  object MatchGroups {
+  
+  // Utility for pattern matching on Match objects
 
-    def get(ma: Match, groupName: String): Option[String] =
-      Option(ma.group(groupName)).filterNot(_.isEmpty)
-
-    def has(ma: Match, groupName: String): Boolean =
-      get(ma, groupName).isDefined
-
-    def unapply(m: Match): Option[Map[String, Option[String]]] = {
-      Some(new MatchGroups(m).groups)
-    }
-    def unapplySeq(m: Match): Option[Seq[(String, Option[String])]] = {
-      unapply(m).map(_.toSeq)
-    }
+  trait MatchPattern[+A] {
+    def unapply(m: Match): Option[A]
   }
-
-  class MatchGroups(m: Match, groupNames: String => Boolean) {
-    def this(m: Match) = this(m, s => true)
-
-    lazy val groups: Map[String, Option[String]] = {
-      m.groupNames map { n => if (groupNames(n)) n -> Option(m.group(n)) else n -> None } toMap
+  object MatchPattern {
+    def apply[A](extractor: MatchOptionExtractor[A]) = new MatchPattern[A] {
+      def unapply(m: Match) = extractor(m)
     }
+    def apply[A](extractor: MatchExtractor[A]): MatchPattern[A] =
+      apply(extractor lift)
   }
 
 
-  // trivial implementations
+  // Trivial implementations
 
   case class MatchedExtractor() extends MatchExtractor[String] {
     def isDefinedAt(m: Match) = true

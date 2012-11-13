@@ -7,7 +7,7 @@ import _root_.fr.splayce.REL.test._
 class DateExtractorsSpec extends Specification {
 
   "Numeric Date Extractor" should {
-    val extractAll = new DateExtractor()
+    val extractAll = DateExtractor.NUMERIC
 
     "extract and normalize numeric date" in {
       extractAll("21/10/2000") must haveSingleDate("Y2000 Y00 M10 D21")
