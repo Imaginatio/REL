@@ -6,7 +6,7 @@ import Regex.Match
 import fr.splayce.REL._
 
 
-trait Cleaner {
+trait Cleaner extends Function1[String, String] {
   def clean(in: String): String
   def apply(in: String) = clean(in)
 
@@ -24,14 +24,10 @@ trait Cleaner {
 case class CleanerChain(cleaners: List[Cleaner]) extends Cleaner {
   require(cleaners.size > 0)
 
-  override def clean(in: String) = applyCleaners(cleaners, in)
-  
-  def applyCleaners(cleaners: List[Cleaner], in: String): String =
-    cleaners match {
-      case Nil => in
-      case List(cleaner) => cleaner(in)
-      case cleaner :: tail => cleaner(applyCleaners(tail, in))
-    }
+  lazy val cleaner =
+    cleaners.tail.foldLeft[String => String](cleaners.head) { _ compose _ }
+
+  override def clean(in: String) = cleaner(in)
 }
 
 
