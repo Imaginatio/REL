@@ -118,15 +118,12 @@ package REL {
     lazy val matchGroup: MatchGroup = MatchGroup(None, None, groups)
     val groups: List[MatchGroup]
 
-    def <<[A](extract: MatchExtractor[A]): Extractor[A] = {
-      val extractMatch = extract.lift andThen { o => o.iterator }
-      Extractor { (in: String) => (r findAllIn in).matchData.flatMap(extractMatch) }
-    }
-    def <<[A](extract: MatchOptionExtractor[A]): Extractor[A] = new ByOptionExtractor[A] {
-      val regex = r
-      def extractMatch(m: Match) = extract(m)
-    }
-
+    def <<[A](extractor: Match => Option[A]): Extractor[A] =
+      new ByOptionExtractor[A](r, extractor)
+    def <<[A](extractor: MatchGroup => Option[A])(implicit d: DummyImplicit): Extractor[A] =
+      new ByOptionExtractor[A](this, extractor)
+    def <<[A](extractor: MatchExtractor[A]): Extractor[A] =
+      this << extractor.lift
   }
 
   abstract sealed class RE2(val lRe: RE, val rRe: RE) extends RE {

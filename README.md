@@ -108,6 +108,81 @@ Another example is the [`JavaScriptTranslator`](https://github.com/Imaginatio/RE
 
 [Regular-expression.info](http://www.regular-expressions.info)'s [regex flavors comparison chart](http://www.regular-expressions.info/refflavors.html) may be of use when writing a translation.
 
+### Capturing Groups
+
+Since a REL term is a tree, it can compute the resulting capturing groups tree with the `matchGroup` val, containing a tree of `MatchGroup`s. The top group corresponds to the entire match: it is unnamed, contains the matched content and has the first-level capturing groups nested as subgroups. When applied to a `Match`, the content of each group is filled. Thus, you can use pattern matching with nested groups to extract any group at several levels of imbrication with little code.
+
+For example, let's say we want to match simple usernames that have the form `user@machine` where both part have only alphabetic characters. We can define the regex:
+
+```scala
+val user     = α.+ \ "user"
+val at       = "@"
+val machine  = α.+ \ "machine"
+val username = (user - at - machine) \ "username"
+```
+
+And make a simple extractor that yields a tuple of Strings:
+
+```scala
+val userMatcher: PartialFunction[MatchGroup, (String, String)] = {
+  case MatchGroup(None, Some(_), List(              // this is the full match ($0)
+      MatchGroup(Some("username"), Some(_), List(   // $1 / username
+        MatchGroup(Some("user"),    Some(u), Nil),  // $2 / user
+        MatchGroup(Some("machine"), Some(m), Nil)   // $3 / machine
+      ))
+    )) => (u, m)
+}
+```
+
+Extraction in a String can be done like this:
+
+```scala
+import ByOptionExtractor._                    // lift (and toPM on further examples)
+val userExtractor = username << lift(userMatcher)
+val users = userExtractor("me@dev, you@dev")  // Iterator[(String, String)]
+users.toList.toString === "List((me,dev), (you,dev))"
+```
+
+Java does not support named capturing groups, and Scala only emulates them, mapping a list of names given at the compilation of the Regex against the indexes of the capturing groups. Thus, it is risky to have multiple instances of the same group name. In practice, using `myMatch.group("myGroup")` seems to always refer to the last occurrence of the `myGroup`.
+
+On the other hand, the `Match` object carries the full list of group names (in its eponymous `groupNames` val), and REL uses it to compute the group tree. Thus, you _can_ reuse the same group name in a single expression.
+
+Say we want to extract items formatted with `username->username`:
+
+```scala
+val interaction = username - "->" - username
+val iaMatcher: PartialFunction[MatchGroup, (String, String)] = {
+  case MatchGroup(None, Some(_), List(
+      MatchGroup(Some("username"), Some(un1), _),
+      MatchGroup(Some("username"), Some(un2), _)
+    )) => (un1, un2)
+}
+val iaExtractor = interaction << lift(iaMatcher)
+val interactions = iaExtractor("me@dev->you@dev, you@dev->me@dev")
+interactions.toList.toString === "List((me@dev,you@dev), (you@dev,me@dev))"
+```
+
+You can of course reuse the same extractor, which can directly provide the extracted object. This requires us to place the extractor one level deeper to avoid the `$0` group:
+
+```scala
+val userMatcher2: PartialFunction[MatchGroup, (String, String)] = {
+  case MatchGroup(Some("username"), Some(_), List(
+        MatchGroup(Some("user"),    Some(u), Nil),
+        MatchGroup(Some("machine"), Some(m), Nil)
+    )) => (u, m)
+}
+val userPattern = toPM(lift(userMatcher2))
+val iaMatcher2: PartialFunction[MatchGroup, (String, String, String, String)] = {
+  case MatchGroup(None, Some(_), List(
+      userPattern(u1, m1),
+      userPattern(u2, m2)
+    )) => (u1, m1, u2, m2)
+}
+val iaExtractor2 = interaction << lift(iaMatcher2)
+val interactions2 = iaExtractor2("me@dev->you@dev, you@dev->me@dev")
+interactions2.toList.toString === "List((me,dev,you,dev), (you,dev,me,dev))"
+```
+
 
 ## TODO
 
@@ -119,7 +194,6 @@ Another example is the [`JavaScriptTranslator`](https://github.com/Imaginatio/RE
     - Parse \[and limit] regex strings inputted to REL, producing REL-only expression trees, thus eliminating some known issues (see below) and opening some possibilities (e.g. generating sample matching strings)
 - Matchers
     - date: consider extracting incorrect dates (like feb. 31st) with some flag
-    - date: also export a date regex that will only accept full forms (with mandatory day, month and year) while keeping the group names so that the DateExtractor still works
 - Utils
     - Generate sample strings that match a regex (e.g. with [Xeger](http://code.google.com/p/xeger/))
     - Source generation or compiler plugin to enable REL independance \[at runtime]
@@ -143,10 +217,6 @@ The string primitives are not parsed (use `esc(str)` to escape a string that sho
 - Any capturing group you pass inside those strings won't be taken into account by REL when the final regex is generated. The following groups and back-references will be shifted so the resulting regex will most probably be incorrect.
 - You still need to escape your expressions to match literally characters that are regex-significant like `+`, `?` or `(`, even in `RECst`. Use `esc(str)` to escape the whole string.
 - Any regex you pass as a string will be kept as-is when translated into different flavors. For instance, the `\w` passed in a string (as opposed to used with `Word`/`μ`) will not be translated by the `DotNETTranslator`.
-
-### Named Capturing Groups
-
-Java does not support named capturing groups, and Scala only emulates them, mapping a list of names given at the compilation of the Regex against the indexes of the capturing groups. Thus, you cannot have multiple instances of the same group name (in practice, doing this seems to always refer to the last occurrence of the identically-named groups).
 
 ### Flavors
 

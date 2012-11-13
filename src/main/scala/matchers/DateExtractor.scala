@@ -8,6 +8,7 @@ import REL.Implicits.RE2Regex
 import scala.util.matching.Regex
 import Regex.Match
 
+import ByOptionExtractor._
 import DateExtractor._
 import AlphaDateExtractor._
 
@@ -25,17 +26,9 @@ import AlphaDateExtractor._
  */
 
 class DateExtractor(
-  val dateMatcher: RE = Date.NUMERIC_FULL,
-  val extract: DateExtractor.MGE = DateExtractor.Numeric)
-extends ByOptionExtractor[List[DateExtractor.Result]] {
-
-  val regex = dateMatcher.r
-
-  def extractMatch(ma: Match): Option[List[Result]] = {
-    (extract orElse NoDate)(dateMatcher.matchGroup(ma).neSubmatches.head)
-  }
-}
-
+  val re: RE = Date.NUMERIC_FULL,
+  val extract: DateExtractor.MGOE = DateExtractor.Numeric)
+extends ByOptionExtractor[List[DateExtractor.Result]](re, firstNES(lift(extract)))
 
 object DateExtractor {
 
@@ -44,10 +37,10 @@ object DateExtractor {
   lazy val NUMERIC_FULL    = new DateExtractor(Date.NUMERIC_FULL)
   lazy val NUMERIC_FULL_US = new DateExtractor(Date.NUMERIC_FULL_US)
 
-  type MGE = MatchGroupExtractor[Option[List[DateExtractor.Result]]]
+  type MGOE = MatchGroupOptionExtractor[List[DateExtractor.Result]]
 
-  val NoDate: MGE = { case _ => None }
-  val NumericSub: MGE = {
+  val NoDate: MGOE = { case _ => None }
+  val NumericSub: MGOE = {
     case  MatchGroup(Some("n_ymd"), Some(n_ymd), _) =>
       val Array(y, m, d) = n_ymd.split(Date.DATE_SEP)
       result(y, m, d, 'YMD_DMY)
@@ -64,7 +57,7 @@ object DateExtractor {
       val Array(m, y) = n_my.split(Date.DATE_SEP)
       result(y, m, "")
   }
-  val Numeric: MGE = {
+  val Numeric: MGOE = {
     case nf @ MatchGroup(Some("n_f"), Some(_), _) =>
       NumericSub(nf.neSubmatches.head)
     case MatchGroup(Some("n_y"), Some(n_y), _)    =>
@@ -132,11 +125,11 @@ object DateExtractor {
 
 abstract class AlphaDateExtractor(
   val alphaDate: AlphaDate,
-  val alphaMGE: MGE,
+  val alphaMGOE: MGOE,
   val fullOnly: Boolean = false)
 extends DateExtractor(
   if (fullOnly) alphaDate.ALL_FULL else alphaDate.ALL,
-  alphaNumeric(alphaMGE)) {
+  alphaNumeric(alphaMGOE)) {
 
   lazy val AlphaNumeric = extract
 
@@ -151,7 +144,7 @@ object AlphaDateExtractor {
 
   def dayNum(alphaDay: String) = NON_DIGITS.replaceAllIn(alphaDay, "")
 
-  protected def alphaNumeric(alphaSub: MGE): MGE = {
+  protected def alphaNumeric(alphaSub: MGOE): MGOE = {
     {
       case mg @ MatchGroup(Some("date"), Some(_), _) =>
         (alphaSub orElse Numeric)(mg.neSubmatches.head)
@@ -166,7 +159,7 @@ package fr {
 package object fr {
   import DateExtractor._
 
-  val AlphaSub: MGE = {
+  val AlphaSub: MGOE = {
     case  MatchGroup(Some("a_f"), Some(_), List(
             MatchGroup(Some("a_d"), od, _),
             MatchGroup(Some("a_m"), Some(m), _),
@@ -186,7 +179,7 @@ package en {
 package object en {
   import DateExtractor._
 
-  val AlphaSub: MGE = {
+  val AlphaSub: MGOE = {
     case  MatchGroup(Some("a_f"), Some(_), List(
             MatchGroup(Some("a_d"), od, _),
             MatchGroup(Some("a_m"), Some(m), _),

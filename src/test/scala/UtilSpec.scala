@@ -2,6 +2,9 @@ package fr.splayce.REL.util
 
 import org.specs2.mutable._
 
+import scala.util.matching.Regex
+import Regex.Match
+
 import fr.splayce.REL._
 import Implicits.{RE2Regex, string2RE}
 
@@ -38,33 +41,6 @@ class UtilSpec extends Specification {
     "return empty for match with not enough groups" in {
       val extract = (("a" \ "g") - "b".g) << NamedGroupExtractor("x")
       extract("ababab").toList must_== Nil
-    }
-  }
-
-
-  "Pattern matching utils" should {
-    val nfDateX = matchers.DateExtractor.NUMERIC_FULL
-    val nfDate  = matchers.Date.NUMERIC_FULL
-    "allow pattern match on a String" in {
-      ("21/10/2000" match {
-        case nfDateX(List(d)) => d.toString == "Y2000 Y00 M10 D21"
-        case _ => false
-      }).must(beTrue)
-    }
-    "allow pattern match on a Match" in {
-      import nfDateX.{matchPattern => nfd}
-      val m = nfDate.r.findFirstMatchIn("21/10/2000").get
-      (m match {
-        case nfd(List(d)) => d.toString == "Y2000 Y00 M10 D21"
-        case _ => false
-      }).must(beTrue)
-    }
-    "allow pattern matching with MatchGroup" in {
-      val m = nfDate.r.findFirstMatchIn("21/10/2000").get
-      (m match {
-        case nfDate.matchGroup(d) => d.name == Some("n_f") && d.matched == Some("21/10/2000")
-        case _ => false
-      }).must(beTrue)
     }
   }
 
@@ -163,4 +139,117 @@ class UtilSpec extends Specification {
     }
   }
 
+  "Pattern matching utils on extractors" should {
+    val nfDateX = matchers.DateExtractor.NUMERIC_FULL
+    val nfDate  = matchers.Date.NUMERIC_FULL
+
+    "allow pattern match on a String" in {
+      ("21/10/2000" match {
+        case nfDateX(List(d)) => d.toString == "Y2000 Y00 M10 D21"
+        case _ => false
+      }).must(beTrue)
+    }
+
+    "allow pattern match on a Match" in {
+      val nfd = nfDateX.toPM
+      val m = nfDate.r.findFirstMatchIn("21/10/2000").get
+      (m match {
+        case nfd(List(d)) => d.toString == "Y2000 Y00 M10 D21"
+        case _ => false
+      }).must(beTrue)
+    }
+
+    "allow pattern matching with MatchGroup" in {
+      val m = nfDate.r.findFirstMatchIn("21/10/2000").get
+      (m match {
+        case nfDate.matchGroup(d) => d.name == Some("n_f") && d.matched == Some("21/10/2000")
+        case _ => false
+      }).must(beTrue)
+    }
+  }
+
+  "Extractor" should {
+    import ByOptionExtractor._
+
+    val re = ((("." \ "a") - (".".? \ "b") - ("." \ "c").?) \ "abc") - (".".? \ "d")
+    val str = "abcdabc"
+    (re.r findAllIn str).matchData.toList map { m => re.matchGroup(m) } match {
+      case MatchGroup(None, Some("abcd"), List(
+            MatchGroup(Some("abc"), Some("abc"), List(
+              MatchGroup(Some("a"), Some("a"), Nil),
+              MatchGroup(Some("b"), Some("b"), Nil),
+              MatchGroup(Some("c"), Some("c"), Nil))),
+            MatchGroup(Some("d"), Some("d"), Nil)))
+        :: MatchGroup(None, Some("abc"), List(
+            MatchGroup(Some("abc"), Some("abc"), List(
+              MatchGroup(Some("a"), Some("a"), Nil),
+              MatchGroup(Some("b"), Some("b"), Nil),
+              MatchGroup(Some("c"), Some("c"), Nil))),
+            MatchGroup(Some("d"), Some(""), Nil)))
+        :: Nil => // ok
+      case mg =>
+        println(mg mkString "\n")
+        throw new RuntimeException("Test precondition failed")
+    }
+
+    "be obtainable from (Match => Option[A])" in {
+      val extract = re << { (m: Match) => Some(m.group("b")) }
+      extract(str).toList must_== List("b", "b")
+    }
+    "be obtainable from Partial(Match => A)" in {
+      val extr: MatchExtractor[String] = {
+        case m if (m.group("c") != null) => m.group("b") }
+      val extract = re << extr
+      extract(str).toList must_== List("b", "b")
+    }
+    "be obtainable from Partial(MatchGroup => A)" in {
+      val extr: MatchGroupExtractor[String] = {
+        case MatchGroup(_, Some(_), List(MatchGroup(Some("abc"), Some(abc), _), _*)) => abc }
+      val extract = re << lift(extr)
+      extract(str).toList must_== List("abc", "abc")
+    }
+    "be obtainable from Partial(MatchGroup => Option[A])" in {
+      val extr: MatchGroupOptionExtractor[String] = {
+        case MatchGroup(_, Some(_), List(MatchGroup(Some("abc"), abc, _), _*)) => abc }
+      val extract = re << lift(extr)
+      extract(str).toList must_== List("abc", "abc")
+    }
+
+    "be obtainable from Partial(MatchGroup => A) with direct dive into first non-empty group" in {
+      val extr: MatchGroupExtractor[String] = {
+        case MatchGroup(Some("abc"), Some(abc), _) => abc }
+      val extract = re << firstNES(lift(extr))
+      extract(str).toList must_== List("abc", "abc")
+    }
+    "be obtainable from Partial(MatchGroup => Option[A]) with direct dive into first non-empty group" in {
+      val extr: MatchGroupOptionExtractor[String] = {
+        case MatchGroup(Some("abc"), abc, _) => abc }
+      val extract = re << firstNES(lift(extr))
+      extract(str).toList must_== List("abc", "abc")
+    }
+
+    "allow pattern matching on multiple instance of a named group" in {
+      import matchers.{Date, DateExtractor}
+      import DateExtractor.{Result => RDate}
+      type DoubleDate = (RDate, RDate)
+
+      val nfDatePattern = toPM(DateExtractor.Numeric)
+      val nfDate  = Date.NUMERIC_FULL
+      val re = (nfDate \ "date") - " TO " - (nfDate \ "date")
+
+      val extr: MatchGroupOptionExtractor[DoubleDate] = {
+        case MatchGroup(None, Some(_),
+              MatchGroup(Some("date"), Some(_), List(nfDatePattern(d1)))
+          ::  MatchGroup(Some("date"), Some(_), List(nfDatePattern(d2)))
+          :: _) => Some((d1.head, d2.head))
+      }
+
+      val extract = re << extr
+      ("21/10/2000 TO 31/10/2000" match {
+        case extract((d1, d2)) =>
+          (d1.toString == "Y2000 Y00 M10 D21") && (d2.toString == "Y2000 Y00 M10 D31")
+        case _ => false
+      }).must(beTrue)
+    }
+  }
 }
