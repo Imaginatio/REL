@@ -21,10 +21,10 @@ class GroupSpec extends Specification {
     }
     "not linearize when direct subpattern is already grouping" in {
       "a".g.ncg.toString  must not startWith("(?:")
-      "a".<?.ncg.toString must not startWith("(?:")
-      "a".<!.ncg.toString must not startWith("(?:")
-      "a".>?.ncg.toString must not startWith("(?:")
-      "a".>!.ncg.toString must not startWith("(?:")
+      "a".?<=.ncg.toString must not startWith("(?:")
+      "a".?<!.ncg.toString must not startWith("(?:")
+      "a".?=.ncg.toString must not startWith("(?:")
+      "a".?!.ncg.toString must not startWith("(?:")
       "a".ag.ncg.toString must not startWith("(?:")
     }
   }
@@ -89,35 +89,44 @@ class GroupSpec extends Specification {
 
   "Positive LookAhead groups" should {
     "linearize with (?=pattern)" in {
-      "a".>?.toString must_== "(?=a)"
+      "a".?=.toString must_== "(?=a)"
     }
     "linearize skipping direct subpattern when non-capturing group" in {
-      "a".ncg.>?.toString must_== ("(?=a)")
+      "a".ncg.?=.toString must_== ("(?=a)")
     }
   }
   "Negative LookAhead groups" should {
     "linearize with (?!pattern)" in {
-      "a".>!.toString must_== "(?!a)"
+      "a".?!.toString must_== "(?!a)"
     }
     "linearize skipping direct subpattern when non-capturing group" in {
-      "a".ncg.>!.toString must_== ("(?!a)")
+      "a".ncg.?!.toString must_== ("(?!a)")
     }
   }
   "Positive LookBehind groups" should {
     "linearize with (?<=pattern)" in {
-      "a".<?.toString must_== "(?<=a)"
+      "a".?<=.toString must_== "(?<=a)"
     }
     "linearize skipping direct subpattern when non-capturing group" in {
-      "a".ncg.<?.toString must_== ("(?<=a)")
+      "a".ncg.?<=.toString must_== ("(?<=a)")
     }
   }
   "Negative LookBehind groups" should {
     "linearize with (?<!pattern)" in {
-      "a".<!.toString must_== "(?<!a)"
+      "a".?<!.toString must_== "(?<!a)"
     }
     "linearize skipping direct subpattern when non-capturing group" in {
-      "a".ncg.<!.toString must_== ("(?<!a)")
+      "a".ncg.?<!.toString must_== ("(?<!a)")
     }
+  }
+
+  "Prefixed notation" should {
+    val a = RE("a")
+    "?>(expr)  --> expr.?>"  in { ?>(a)  === a.?> }
+    "?=(expr)  --> expr.?="  in { ?=(a)  === a.?= }
+    "?!(expr)  --> expr.?!"  in { ?!(a)  === a.?! }
+    "?<=(expr) --> expr.?<=" in { ?<=(a) === a.?<= }
+    "?<!(expr) --> expr.?<!" in { ?<!(a) === a.?<! }
   }
 
 }

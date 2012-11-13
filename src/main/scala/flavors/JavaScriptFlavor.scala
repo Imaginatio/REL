@@ -21,8 +21,8 @@ object JavaScriptFlavor extends Flavor {
     case NotLetter   => notSupported("Unicode categories (including NotLetter)",   true)
 
     // this needs the 'm' flag not to be specified
-    case InputBeginning => LineBeginning
-    case InputEnd       => LineEnd
+    case InputBegin => LineBegin
+    case InputEnd   => LineEnd
 
     case _ => super.translate(re)
   }

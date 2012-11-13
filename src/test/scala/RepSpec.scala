@@ -8,6 +8,24 @@ class RepSpec extends Specification {
   import scala.util.matching.Regex
   import Implicits.RE2Regex
 
+  "Repeater short syntax" should {
+    val a = RE("a")
+    import Implicits._
+
+    "expr {3}   --> {3}"     in { (a{3})    === RepExactlyN(a.ncg, 3) }
+    "expr >  3  --> {3,}"    in { (a >  3)  === RepAtLeastN(a.ncg, 3,    Greedy) }
+    "expr >? 3  --> {3,}?"   in { (a >? 3)  === RepAtLeastN(a.ncg, 3,    Reluctant) }
+    "expr >+ 3  --> {3,}+"   in { (a >+ 3)  === RepAtLeastN(a.ncg, 3,    Possessive) }
+    "expr <  3  --> {0,3}"   in { (a <  3)  ===  RepAtMostN(a.ncg, 3,    Greedy) }
+    "expr.<?(3) --> {0,3}?"  in { (a.<?(3)) ===  RepAtMostN(a.ncg, 3,    Reluctant) }
+    "expr <+ 3  --> {0,3}+"  in { (a <+ 3)  ===  RepAtMostN(a.ncg, 3,    Possessive) }
+    "expr {1->3}  --> {1,3}" in { (a{1->3})   ===   RepNToM(a.ncg, 1, 3, Greedy) }
+    "expr (1,3)   --> {1,3}" in { (a(1,3))    ===   RepNToM(a.ncg, 1, 3, Greedy) }
+    "expr {1 to3} --> {1,3}" in { (a{1 to 3}) ===   RepNToM(a.ncg, 1, 3, Greedy) }
+    "expr(1, 3, Reluctant)  --> {1,3}?" in { (a(1, 3, Reluctant))  === RepNToM(a.ncg, 1, 3, Reluctant) }
+    "expr(1, 3, Possessive) --> {1,3}+" in { (a(1, 3, Possessive)) === RepNToM(a.ncg, 1, 3, Possessive) }
+  }
+
   "Opt greedy repeater" should {
     val alphas = α ?
 
@@ -216,7 +234,7 @@ class RepSpec extends Specification {
   }
 
   "N times repeater (testing with 2)" should {
-    val alphas = α ^ 2
+    val alphas = α{2}
 
     "linearize to {N}" in {
       alphas.toString must endWith("{2}")
@@ -265,7 +283,7 @@ class RepSpec extends Specification {
   }
 
   "N-or-more times greedy repeater (testing with {2,})" should {
-    val alphas = α(2)
+    val alphas = α > 2
 
     "linearize to {N,}" in {
       alphas.toString must endWith("{2,}")

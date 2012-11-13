@@ -37,7 +37,7 @@ class DotNETFlavorSpec extends Specification {
     }
 
     "translate recursively" in {
-      tr(("b" | (μ(3)++)) - "a") must_== "b|(?>(?:(?:[a-zA-Z0-9_]){3,})+)a"
+      tr(("b" | (μ(3)++)) - "a") must_== "b|(?>(?:(?:[a-zA-Z0-9_]){3})+)a"
     }
 
     "not crash when translating Date regexes" in {

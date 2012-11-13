@@ -12,8 +12,8 @@ val sep     = "[- /.]" \ "sep"            // group named "sep"
 val year    = ("19" | "20") ~ """\d\d"""  // ~ is concatenation
 val month   = "0[1-9]" | "1[012]"
 val day     = "0[1-9]" | "[12]\\d" | "3[01]"
-val dateYMD = "^" ~ year  ~ sep ~ month ~ !sep ~ day  ~ "$"
-val dateMDY = "^" ~ month ~ sep ~ day   ~ !sep ~ year ~ "$"
+val dateYMD = ^ ~ year  ~ sep ~ month ~ !sep ~ day  ~ $
+val dateMDY = ^ ~ month ~ sep ~ day   ~ !sep ~ year ~ $
 ```
 
 These value are `RE` objects (trees/subtrees), which can be converted to `scala.util.matching.Regex` instances either implicitly (by importing `REL.Implicits._`) or explicitly (via the `.r` method).
@@ -31,7 +31,7 @@ val b = RE("b")
 ```
 
 - Concatenation:
-    - Protected: `a ~ b` → `(?:a)(?:b)`
+    - Protected:   `a ~ b` → `(?:a)(?:b)`
     - Unprotected: `a - b` → `ab`
 - Alternative: `a | b` → `a|b`
 - Option:
@@ -40,44 +40,53 @@ val b = RE("b")
     - [possessive](http://www.regular-expressions.info/possessive.html): `a.?+` → `(?:a)?+`
 - Repeat:
     - At least one:
-        - greedy: `a.+ ` → `(?:a)+`
-        - reluctant: `a.+? ` → `(?:a)+?`
-        - possessive: `a.++ ` → `(?:a)++`
+        - greedy:     `a.+`  → `(?:a)+`
+        - reluctant:  `a.+?` → `(?:a)+?`
+        - possessive: `a.++` → `(?:a)++`
     - Any number:
-        - greedy: `a.* ` → `(?:a)*`
-        - reluctant: `a.*? ` → `(?:a)*?`
-        - possessive: `a.*+ ` → `(?:a)*+`
-    - In range: `a(1,3)` or `a(1 to 3)` → `(?:a){1,}`
-    - At most: `a(0,3)` → `(?:a){0,3}` (duh)
-    - At least: `a(3)` → `(?:a){3,}`
-    - Exactly: `a^3` → `(?:a){3}`
+        - greedy:     `a.*`  → `(?:a)*`
+        - reluctant:  `a.*?` → `(?:a)*?`
+        - possessive: `a.*+` → `(?:a)*+`
+    - In range:
+        - greedy:     `a(1,3)` or `a(1 to 3)` or `a(1 -> 3)` → `(?:a){1,3}`
+        - reluctant:  `a(1, 3, Reluctant)`  → `(?:a){1,3}?`
+        - possessive: `a(1, 3, Possessive)` → `(?:a){1,3}+`
+    - At most:
+        - greedy:     `a < 3`   → `(?:a){0,3}`
+        - reluctant:  `a.<?(3)` → `(?:a){0,3}?` (dotted form `a.<?(3)` is mandatory, standalone `<?` being syntactically significant in Scala \[XMLSTART])
+        - possessive: `a <+ 3`  → `(?:a){0,3}+`
+    - At least:
+        - greedy:     `a > 3`  → `(?:a){3,}`
+        - reluctant:  `a >? 3` → `(?:a){3,}?`
+        - possessive: `a >+ 3` → `(?:a){3,}+`
+    - Exactly: `a{3}` or `a(3)` → `(?:a){3}`
 - Lookaround:
-    - Lookahead: `a.>?` → `(?=a)`
-    - Lookbehind: `a.<?` → `(?<=a)`
-    - Negative lookahead: `a.>!` → `(?!a)`
-    - Negative lookbehind: `a.<!` → `(?<!a)`
+    - Lookahead:           `?=(a)`  or `a.?=`  → `(?=a)`
+    - Lookbehind:          `?<(a)`  or `a.?<`  → `(?<=a)`
+    - Negative lookahead:  `?!(a)`  or `a.?!`  → `(?!a)`
+    - Negative lookbehind: `?<!(a)` or `a.?<!` → `(?<!a)`
 - Grouping:
     - Named: `a \ "group_a"` → `(a)`; the name `group_a` will be passed to the `Regex` constructor,  queryable on corresponding `Match`es
     - Unnamed: `a.g` → `(a)` (a unique group name is generated internally)
     - Non-capturing: `a.ncg` → `(?:a)` or the short syntax `a.%`
-    - [Atomic](http://www.regular-expressions.info/atomic.html): `a.ag` → `(?>a)` or the short syntax `a.?>`
+    - [Atomic](http://www.regular-expressions.info/atomic.html): `a.ag` → `(?>a)` or the short syntaxes `?>(a)` and `a.?>`
 - Back-reference: `!g` will insert a backreference on group `g`; e.g. `val g = (a|b).g; g - a - !g` → `(a|b)a\1`
 
 ### Constants
 
 A few "constants" (sub-expressions with no repetitions, capturing groups, or unprotected alternatives) are also pre-defined. Some of them have a UTF-8 Greek symbol alias for conciseness (import `REL.Symbols._` to use them), uppercase for negation. You can add your own by instancing case class `RECst(expr)`
 
-- `Epsilon` or `ε` is empty string
-- `AlphaLower` → `[a-z]`, `AlphaUpper` → `[A-Z]`
+- `Epsilon` or `ε` → empty string
+- `AlphaLower` → `[a-z]`,      `AlphaUpper` → `[A-Z]`
 - `Alpha` or `α` → `[a-zA-Z]`, `NotAlpha` or `Α`* → `[^a-zA-Z]`
-- `LetterLower` → `\p{Ll}`, `LetterUpper` → `\p{Lu}` (unicode letters, including)
-- `Letter` or `λ` → `\p{L}`, `NotLetter` or `Λ` → `\P{L}`
-- `Digit` or `δ` → `\d`, `NotDigit` or `Δ` → `\D`
-- `WhiteSpace` or `σ` → `\s`, `NotWhiteSpace` or `Σ` → `\S`
+- `LetterLower` → `\p{Ll}`,    `LetterUpper` → `\p{Lu}` (unicode letters, including diacritics)
+- `Letter` or `λ` → `\p{L}`,   `NotLetter` or `Λ` → `\P{L}`
+- `Digit` or `δ` → `\d`,       `NotDigit` or `Δ` → `\D`
+- `WhiteSpace` or `σ` → `\s`,  `NotWhiteSpace` or `Σ` → `\S`
 - `Word` or `μ` → `\w` (`Alpha` or `_`), `NotWord` or `Μ`* → `\W`
 - `WordBoundary` or `ß` → `\b`, `NotWordBoundary` or `Β`* → `\B`
-- `LineBeginning` → `^`, `LineEnd` → `$`
-- `InputBeginning` → `\A`, `InputEnd` → `\z`
+- `LineBegin` or `^` → `^`,     `LineEnd` or `$` → `$`
+- `InputBegin` or `^^` → `\A`,  `InputEnd` or `$$` → `\z`
 
 _\* Those are uppercase `α`/`ß`/`μ`, not latin `A`/`B`/`M`_
 
@@ -99,9 +108,7 @@ An example of translation into [.NET-flavored regex](http://www.regular-expressi
 ## TODO
 
 - Core
-    - Add missing short notation for non-greedy RepMode in numbered Rep (e.g. `...(0, 3, Reluctant)`)
     - Add character range support (at DSL level), with inversion (`[^...]`)
-    - Shortcuts for `^` and `$` (beware `^` is currently used as exactly-N repeater operator)
     - Add a recursive (sub)tree rewriter, that would allow for instance to rename capturing groups in a second occurrence of a subtree. The reverse operation could be done by a decorator for the `Extractor` trait.
     - Consider using `'symbols` for group names
     - Add options to easily embed match flags`(?idmsux-idmsux)` when generating regex
@@ -115,22 +122,34 @@ An example of translation into [.NET-flavored regex](http://www.regular-expressi
     - Binary tool that would take a REL file, compile it and produce regexes in several flavors / programming langagues
 - Documentation
     - Document cleaners and extractors
+    - Make the present document a simple description and split the documentation part into several linked pages: syntax, matchers, extractors, flavors…
 
 
 ## Known issues
 
-The string primitives are not parsed, so
+### Versionning
 
-- Any group you pass inside those strings won't be taken into account by REL when the final regex is generated. The following groups and back-references will be shifted so the resulting regex will most probably be incorrect.
-- You still need to escape your expressions to match regex-significant characters like `+`, `?` or `(`, even in `RECst` (pending update on this point).
-- Any regex you pass as a string literal will be kept as-is when translated into different flavors. For instance, the dot `.` does not have the same meaning in a JavaScript regex where is does not match a new line `\n`.
+REL version number follows the [Semantic Versionning 2.0 Specification](http://semver.org/). In the current early stage of development, the API is still unstable and backward compatibility may break.
+However, in version (0.Y.Z), a Z-only version is expected to be backard compatible with previous 0.Y.* version. But a Y version change poteantially breaks backward compatibility.
+
+### String primitives
+
+The string primitives are not parsed (use `esc(str)` to escape a string that should be matched literally). Hence:
+
+- Any capturing group you pass inside those strings won't be taken into account by REL when the final regex is generated. The following groups and back-references will be shifted so the resulting regex will most probably be incorrect.
+- You still need to escape your expressions to match literally characters that are regex-significant like `+`, `?` or `(`, even in `RECst`. Use `esc(str)` to escape the whole string.
+- Any regex you pass as a string will be kept as-is when translated into different flavors. For instance, the dot `.` does not have the same meaning in a JavaScript regex where is does not match a new line `\n`.
+
+### Named Capturing Groups
 
 Java does not support named capturing groups, and Scala only emulates them, mapping a list of names given at the compilation of the Regex against the indexes of the capturing groups. Thus, you cannot have multiple instances of the same group name (in practice, doing this seems to always refer to the last occurrence of the identically-named groups).
 
-Besides, JavaScript regexes are very limited and work a bit differently. In [JavaScript flavor](https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/JavaScriptFlavor.scala)
+### Flavors
+
+JavaScript regexes are very limited and work a bit differently. In [JavaScript flavor](https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/JavaScriptFlavor.scala)
 
 - `WordBoundary`/`\b` is kept as-is, but will not have exactly the same semantic because of the lack of Unicode support in JavaScript regex flavor. For instance, in `"fiancé"`, Javascript sees `"\bfianc\bé" where most other flavors see `"\bfiancé\b"`. Same goes for `NotWordBoundary`/`\B`.
-- `InputBeginning` and `InputEnd` are translated to `LineBeginning` and `LineEnd`, but this is only correct if the `m` (multiline) flag is off.
+- `InputBegin` (`^^`) and `InputEnd` (`$$`) are translated to `LineBegin` (`^`) and `LineEnd` (`$`), but this is only correct if the `m` (multiline) flag is off.
 
 In [.NET flavor](https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/DotNETFlavor.scala), the group names are not guaranteed to be valid.
 

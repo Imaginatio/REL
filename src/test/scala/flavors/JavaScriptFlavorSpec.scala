@@ -24,15 +24,15 @@ class JavaScriptFlavorSpec extends Specification {
       tr(RepAtMostN ("a", 2, Possessive)) must throwA[IllegalArgumentException](message = msg)
       tr(RepNToM ("a", 2, 5, Possessive)) must throwA[IllegalArgumentException](message = msg)
     }
-    
+
     "not support look-behind, keep look-ahead" in {
       val msg = "LookBehind is" + notSupported
-      tr("a".<?)    must throwA[IllegalArgumentException](message = msg)
-      tr("a".<!)    must throwA[IllegalArgumentException](message = msg)
-      tr("a".>?)    must_== "(?=a)"
-      tr("a".>!)    must_== "(?!a)"
+      tr("a".?<=)   must throwA[IllegalArgumentException](message = msg)
+      tr("a".?<!)   must throwA[IllegalArgumentException](message = msg)
+      tr("a".?=)   must_== "(?=a)"
+      tr("a".?!)   must_== "(?!a)"
     }
-    
+
     "not support atomic grouping" in {
       val msg = "Atomic grouping is" + notSupported
       tr("a".?>) must throwA[IllegalArgumentException](message = msg)
@@ -48,8 +48,8 @@ class JavaScriptFlavorSpec extends Specification {
     }
 
     "translate \\A and \\z" in {
-      tr(InputBeginning) must_== "^"
-      tr(InputEnd)       must_== "$"
+      tr(^) must_== "^"
+      tr($) must_== "$"
    }
     "keep \\w, \\W, \\b and \\B" in {
       tr(μ) must_== "\\w"
@@ -64,7 +64,7 @@ class JavaScriptFlavorSpec extends Specification {
     }
 
     "translate recursively" in {
-      tr(("b" | (InputBeginning(3)+)) - "a") must_== "b|(?:(?:^){3,})+a"
+      tr(("b" | (^^{3}+)) - "a") must_== "b|(?:(?:^){3})+a"
     }
 
   }

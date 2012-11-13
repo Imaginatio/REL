@@ -1,11 +1,12 @@
 package fr.splayce
 
+import scala.collection.immutable.Map
+import scala.util.matching.Regex
+import Regex.Match
+
+
 package REL {
 
-  import scala.collection.immutable.Map
-  import scala.util.matching.Regex
-  import scala.util.matching.Regex.Match
-  
   abstract sealed class RepMode(val asString: String) {
     override def toString = asString
   }
@@ -33,7 +34,7 @@ package REL {
         case (l: RECst, r @ Alt(_, _))         => l - r.ncg
         case (l, r)                            => l.ncg - r.ncg
       }
-    
+
     def - (that: RE)    =
       (this, that) match {
         case (Epsilon, Epsilon) => Epsilon
@@ -41,31 +42,40 @@ package REL {
         case (l, Epsilon)       => l
         case (l, r)             => Conc(l, r)
       }
-    
+
     def | (that: RE)    = Alt(this, that)
 
     def ?    = Opt(this.ncg)
     def ??   = Opt(this.ncg, Reluctant)
     def ?+   = Opt(this.ncg, Possessive)
-    
+
     def *    = KStar(this.ncg)
     def *?   = KStar(this.ncg, Reluctant)
     def *+   = KStar(this.ncg, Possessive)
-    
+
     def +    = KCross(this.ncg)
     def +?   = KCross(this.ncg, Reluctant)
     def ++   = KCross(this.ncg, Possessive)
 
-    def apply(lb: Int, ub: Int) = RepNToM(this.ncg, lb, ub)
-    def apply(bs: Range): RE    = apply(bs.start, bs.start + bs.length - 1)
-    def apply(lb: Int): RE      = RepAtLeastN(this.ncg, lb)
-    def ^ (n: Int): RE          = RepExactlyN(this.ncg, n)
-    
-    def `>?` = LookAround(this, Ahead)
-    def `>!` = LookAround(this, Ahead, false)
-    def `<?` = LookAround(this, Behind)
-    def `<!` = LookAround(this, Behind, false)
-    
+    def apply(lb: Int, ub: Int, mode: RepMode = Greedy) = RepNToM(this.ncg, lb, ub, mode)
+    def apply(rg: Range): RE      = apply(rg.start, rg.start + rg.length - 1)
+    def apply(rg: (Int, Int)): RE = apply(rg._1, rg._2)
+
+    def apply(n: Int): RE = RepExactlyN(this.ncg, n)
+    def `>`  (n: Int): RE = RepAtLeastN(this.ncg, n)
+    def `>?` (n: Int): RE = RepAtLeastN(this.ncg, n, Reluctant)
+    def `>+` (n: Int): RE = RepAtLeastN(this.ncg, n, Possessive)
+    def `<`  (n: Int): RE = RepAtMostN (this.ncg, n)
+    // dotted form expr.<?(n) is mandatory,
+    // standalone <? being syntactically significant in Scala (XMLSTART)
+    def `<?` (n: Int): RE = RepAtMostN (this.ncg, n, Reluctant)
+    def `<+` (n: Int): RE = RepAtMostN (this.ncg, n, Possessive)
+
+    def `?=` : RE = LookAround(this, Ahead)
+    def `?!` : RE = LookAround(this, Ahead, false)
+    def `?<=`: RE = LookAround(this, Behind)
+    def `?<!`: RE = LookAround(this, Behind, false)
+
     def g(name: String): Group = this match {
       case NCGroup(re) => re.g(name)
       case _ => Group(name, this)
@@ -74,7 +84,7 @@ package REL {
     def `\\` (name: String) = g(name)
     def apply(name: String) = g(name)
     def apply() = g()
-    
+
     def ncg: RE = this match {
       case re: LookAround => this
       case re: AGroup     => this
@@ -83,7 +93,7 @@ package REL {
       case _              => NCGroup(this)
     }
     def % = ncg
-    
+
     def ag: RE = this match {
       case re: Rep if (re.mode == Possessive) => this
       case re: AGroup                         => this
@@ -91,16 +101,16 @@ package REL {
       case _                                  => AGroup(this)
     }
     def ?> = ag
-    
+
     protected[REL] def linear(groupNames: List[String] = Nil): (String, List[String])
-    
+
     lazy val r: Regex = {
       val lin = linear()
       new Regex(lin._1, lin._2.toArray: _*)
     }
-    
+
     override def toString = this.r.toString
-   
+
   }
 
   abstract sealed class RE2(val lRe: RE, val rRe: RE) extends RE {
@@ -117,14 +127,14 @@ package REL {
     override def linear(groupNames: List[String]) =
       linear(_ + _, groupNames)
   }
-  
+
   case class Alt(override val lRe: RE,
       override val rRe: RE) extends RE2(lRe, rRe) {
     override def linear(groupNames: List[String]) =
       linear(_ + "|" + _, groupNames)
   }
-  
-  
+
+
   sealed abstract class RE1(val re: RE) extends RE {
     protected def linear(fn: String => String,
         groupNames: List[String]) = {
@@ -158,7 +168,7 @@ package REL {
       case NCGroup(re) => Group(name, re).linear(groupNames)
       case _           => linear("(" + _ + ")", groupNames ::: List(name))
     }
-    
+
     def unary_! = GroupRef(name)
   }
 
@@ -170,7 +180,7 @@ package REL {
       case _ => linear("(?" + direction + (if (positive) "=" else "!") + _ + ")", groupNames)
     }
   }
-  
+
   sealed abstract class Rep(override val re: RE,
       val lb: Int,
       val ub: Option[Int] = None,
@@ -248,20 +258,20 @@ package REL {
     override def linear(groupNames: List[String]) =
       (re.toString, groupNames)
   }
-  
-  case class Literal(val value: String) extends RE0 {
+
+  case class Escaped(val value: String) extends RE0 {
     def this(s: Symbol) = this(s.toString.substring(1))
 
-    lazy val reStr = RE.escape(value)
+    lazy val reStr = RE.escapeRegex(value)
     override def toString = reStr
   }
 
   abstract class RECst(val reStr: String) extends RE0 {
     override def toString = reStr
   }
-  
+
   case class Digit(val i: Int) extends RECst(i.toString)
-  
+
   case object Epsilon         extends RECst("")
   case object AlphaLower      extends RECst("[a-z]")
   case object AlphaUpper      extends RECst("[A-Z]")
@@ -279,27 +289,28 @@ package REL {
   case object NotWord         extends RECst("""\W""")
   case object WordBoundary    extends RECst("""\b""")
   case object NotWordBoundary extends RECst("""\B""")
-  case object LineBeginning   extends RECst("^")
+  case object LineBegin       extends RECst("^")
   case object LineEnd         extends RECst("$")
-  case object InputBeginning  extends RECst("""\A""")
+  case object InputBegin      extends RECst("""\A""")
   case object InputEnd        extends RECst("""\z""")
 
 
   object RE {
     val escapeChars = "\\^$()[]{}?*+.|"
-    val escapeMap = escapeChars map { c => c -> List('\\', c) } toMap
-    def escapeChar(c: Char) = escapeMap.getOrElse(c, c :: Nil)
-    def escape(s: String) = s flatMap escapeChar
+    val escapeMap   = escapeChars map { c => c -> List('\\', c) } toMap
+    def escapeRegex(c: Char): List[Char] = escapeMap.getOrElse(c, c :: Nil)
+    def escapeRegex(s: String): String   = s flatMap escapeRegex
 
-    def literal(s: String) = new Literal(s)
+    def escape(s: String) = new Escaped(s)
+    def escape(r: Regex)  = new Escaped(r.toString)
 
-    def apply(s: Symbol) = new Literal(s)
+    def apply(s: Symbol) = new Escaped(s)
     def apply(s: String) = new Atom(s.r)
     def apply(r: Regex)  = new Atom(r)
     def apply(i: Int)    = new Digit(i)
   }
 
-  
+
   object Implicits {
     implicit def regex2RE(r: Regex): RE    = RE(r)
     implicit def string2RE(s: String): RE  = RE(s)
@@ -314,20 +325,33 @@ package REL {
 
 package object REL {
 
+  // prefixed notation: ?>(a) is a.?>
+  def `?>` (re: RE) = re.?>
+  def `?=` (re: RE) = re.?=
+  def `?!` (re: RE) = re.?!
+  def `?<=`(re: RE) = re.?<=
+  def `?<!`(re: RE) = re.?<!
+
+  def esc(str: String) = RE.escape(str)
+
   object Symbols {
-    val ε = Epsilon
-    val α = Alpha
-    val Α = NotAlpha
-    val λ = Letter
-    val Λ = NotLetter
-    val δ = Digit
-    val Δ = NotDigit
-    val σ = WhiteSpace
-    val Σ = NotWhiteSpace
-    val μ = Word
-    val Μ = NotWord
-    val ß = WordBoundary
-    val Β = NotWordBoundary
+    val ^  = LineBegin
+    val $  = LineEnd
+    val ^^ = InputBegin
+    val $$ = InputEnd
+    val ε  = Epsilon
+    val α  = Alpha
+    val Α  = NotAlpha
+    val λ  = Letter
+    val Λ  = NotLetter
+    val δ  = Digit
+    val Δ  = NotDigit
+    val σ  = WhiteSpace
+    val Σ  = NotWhiteSpace
+    val μ  = Word
+    val Μ  = NotWord
+    val ß  = WordBoundary
+    val Β  = NotWordBoundary
   }
 
 }

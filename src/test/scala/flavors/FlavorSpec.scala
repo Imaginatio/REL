@@ -22,16 +22,16 @@ class FlavorSpec extends Specification {
       tr(a?)                  must_== "(?:b)?"
       tr(a+)                  must_== "(?:b)+"
       tr(a*)                  must_== "(?:b)*"
-      tr(a^2)                 must_== "(?:b){2}"
-      tr(a(1 to 3))           must_== "(?:b){1,3}"
-      tr(a(3))                must_== "(?:b){3,}"
-      tr(RepAtMostN(a,3))     must_== "b{0,3}"
+      tr(a{2})                must_== "(?:b){2}"
+      tr(a(1 -> 3))           must_== "(?:b){1,3}"
+      tr(a > 3)               must_== "(?:b){3,}"
+      tr(a < 3)               must_== "(?:b){0,3}"
       tr(a | c)               must_== "b|d"
       tr(a - c)               must_== "bd"
       tr(a ~ c)               must_== "(?:b)(?:d)"
       tr(a \ "g")             must_== "(b)"
-      tr(a.>?)                must_== "(?=b)"
-      tr((c | (a(3)++)) - a)  must_== "d|(?:(?:b){3,})++b"
+      tr(a.?=)               must_== "(?=b)"
+      tr((c | (a{3}++)) - a)  must_== "d|(?:(?:b){3})++b"
     }
 
   }
