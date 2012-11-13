@@ -85,7 +85,7 @@ _\* Those are uppercase `α`/`ß`/`μ`, not latin `A`/`B`/`M`_
 
 The `.r` method on any `RE` (sub)tree returns a compiled `scala.util.matching.Regex`. The `.toString` method returns the source pattern (equivalent to `.r.toString`, so the pattern is verified).
 
-For other regex flavors, a translation mechanism is provided: you may subclass `Flavor`, which exposes a `.express(re: RE)` method, returning a `Tuple[String, List[String]]`. The first element is the translated regex string, the second is a list of the group names (in order of appearance). A subclass of `Flavor` should override `.translate(re: RE)`, using pattern matching to recursively translate Java regex subtree with matching subtree in the destination regex Flavor. It should call `super.translate` in the default case to ensure proper recusion.
+For other regex flavors, a translation mechanism is provided: you may subclass `Flavor`, which exposes a `.express(re: RE)` method, returning a `Tuple[String, List[String]]`. The first element is the translated regex string, the second is a list of the group names (in order of appearance), allowing you to perform a mapping to capturing group indexes (like Scala does) if needed. A subclass of `Flavor` should override `.translate(re: RE)`, using pattern matching to recursively translate Java regex subtree with matching subtree in the destination regex Flavor. It should call `super.translate` in the default case to ensure proper recusion.
 
 An example of translation into [.NET-flavored regex](http://www.regular-expressions.info/dotnet.html) is provided ([`DotNETFlavor`](https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/DotNETFlavor.scala)), that
 
@@ -102,11 +102,13 @@ An example of translation into [.NET-flavored regex](http://www.regular-expressi
     - Add missing short notation for non-greedy RepMode in numbered Rep (e.g. `...(0, 3, Reluctant)`)
     - Add character range support (at DSL level), with inversion (`[^...]`)
     - Shortcuts for `^` and `$` (beware `^` is currently used as exactly-N repeater operator)
+    - Add a recursive (sub)tree rewriter, that would allow for instance to rename capturing groups in a second occurrence of a subtree. The reverse operation could be done by a decorator for the `Extractor` trait.
     - Consider using `'symbols` for group names
     - Add options to easily embed match flags`(?idmsux-idmsux)` when generating regex
     - Parse \[and limit] regex strings inputted to REL, producing REL-only expression trees, thus eliminating some known issues (see below) and opening some possibilities (e.g. generating sample matching strings)
 - Matchers
     - date: consider extracting incorrect dates (like feb. 31st) with some flag
+    - date: also export a date regex that will only accept full forms (with mandatory day, month and year) while keeping the group names so that the DateExtractor still works
 - Utils
     - Generate sample strings that match a regex (e.g. with [Xeger](http://code.google.com/p/xeger/))
     - Source generation or compiler plugin to enable REL independance \[at runtime]
@@ -123,10 +125,14 @@ The string primitives are not parsed, so
 - You still need to escape your expressions to match regex-significant characters like `+`, `?` or `(`, even in `RECst` (pending update on this point).
 - Any regex you pass as a string literal will be kept as-is when translated into different flavors. For instance, the dot `.` does not have the same meaning in a JavaScript regex where is does not match a new line `\n`.
 
+Java does not support named capturing groups, and Scala only emulates them, mapping a list of names given at the compilation of the Regex against the indexes of the capturing groups. Thus, you cannot have multiple instances of the same group name (in practice, doing this seems to always refer to the last occurrence of the identically-named groups).
+
 Besides, JavaScript regexes are very limited and work a bit differently. In [JavaScript flavor](https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/JavaScriptFlavor.scala)
 
 - `WordBoundary`/`\b` is kept as-is, but will not have exactly the same semantic because of the lack of Unicode support in JavaScript regex flavor. For instance, in `"fiancé"`, Javascript sees `"\bfianc\bé" where most other flavors see `"\bfiancé\b"`. Same goes for `NotWordBoundary`/`\B`.
 - `InputBeginning` and `InputEnd` are translated to `LineBeginning` and `LineEnd`, but this is only correct if the `m` (multiline) flag is off.
+
+In [.NET flavor](https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/DotNETFlavor.scala), the group names are not guaranteed to be valid.
 
 
 ## Usage and downloads
