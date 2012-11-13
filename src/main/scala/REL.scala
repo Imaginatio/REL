@@ -103,13 +103,11 @@ package REL {
     def ?> = ag
 
     protected[REL] def linear(groupNames: List[String] = Nil): (String, List[String])
+    lazy val lin = linear()
 
-    lazy val r: Regex = {
-      val lin = linear()
-      new Regex(lin._1, lin._2.toArray: _*)
-    }
+    lazy val r: Regex = new Regex(lin._1, lin._2.toArray: _*)
 
-    override def toString = this.r.toString
+    override def toString = lin._1
 
   }
 
