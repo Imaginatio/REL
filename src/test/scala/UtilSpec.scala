@@ -43,18 +43,26 @@ class UtilSpec extends Specification {
 
 
   "Pattern matching utils" should {
-    val nfDate = matchers.DateExtractor.NUMERIC_FULL
+    val nfDateX = matchers.DateExtractor.NUMERIC_FULL
+    val nfDate  = matchers.Date.NUMERIC_FULL
     "allow pattern match on a String" in {
       ("21/10/2000" match {
-        case nfDate(List(d)) => d.toString == "Y2000 Y00 M10 D21"
+        case nfDateX(List(d)) => d.toString == "Y2000 Y00 M10 D21"
         case _ => false
       }).must(beTrue)
     }
     "allow pattern match on a Match" in {
-      import nfDate.{matchPattern => nfd}
-      val m = nfDate.regex.findFirstMatchIn("21/10/2000").get
+      import nfDateX.{matchPattern => nfd}
+      val m = nfDate.r.findFirstMatchIn("21/10/2000").get
       (m match {
         case nfd(List(d)) => d.toString == "Y2000 Y00 M10 D21"
+        case _ => false
+      }).must(beTrue)
+    }
+    "allow pattern matching with MatchGroup" in {
+      val m = nfDate.r.findFirstMatchIn("21/10/2000").get
+      (m match {
+        case nfDate.matchGroup(d) => d.name == Some("n_f") && d.matched == Some("21/10/2000")
         case _ => false
       }).must(beTrue)
     }

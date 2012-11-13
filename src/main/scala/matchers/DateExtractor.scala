@@ -2,10 +2,15 @@ package fr.splayce.REL.matchers
 
 import _root_.fr.splayce.REL
 import REL.util._
+import REL.RE
 import REL.Implicits.RE2Regex
 
 import scala.util.matching.Regex
 import Regex.Match
+
+import DateExtractor._
+import AlphaDateExtractor._
+
 
 /**
  * Extract a list of possible date interpretations, considering ambiguity
@@ -19,35 +24,16 @@ import Regex.Match
  *     - MDY_L | DMY_L when B <= 12 (and A != B)
  */
 
-class DateExtractor(val regex: Regex = Date.NUMERIC)
+class DateExtractor(
+  val dateMatcher: RE = Date.NUMERIC_FULL,
+  val extract: DateExtractor.MGE = DateExtractor.Numeric)
 extends ByOptionExtractor[List[DateExtractor.Result]] {
-  import MatchGroups._
-  import DateExtractor._
+
+  val regex = dateMatcher.r
 
   def extractMatch(ma: Match): Option[List[Result]] = {
-    if (ma.groupCount == 0) {
-      return None
-    }
-
-    val n_y = get(ma, "n_y")
-    if (n_y.isDefined) {
-      return Some(List(Result(Some(n_y.get.toInt))))
-    }
-
-    val n_f = get(ma, "n_f")
-    if (n_f.isDefined)
-      n_f.get.split(Date.DATE_SEP) match {
-        case Array(y, m, d) if (has(ma, "n_ymd")) => result(y, m, d, 'YMD_DMY)
-        case Array(d, m, y) if (has(ma, "n_dmy")) => result(y, m, d)
-        case Array(m, d, y) if (has(ma, "n_mdy")) => result(y, m, d, 'MDY_YMD, 'MDY_DMY)
-        case Array(y, m)    if (has(ma, "n_ym"))  => result(y, m, "")
-        case Array(m, y)    if (has(ma, "n_my"))  => result(y, m, "")
-        case _ => None
-      }
-    else extractAlpha(ma)
+    (extract orElse NoDate)(dateMatcher.matchGroup(ma).neSubmatches.head)
   }
-
-  def extractAlpha(ma: Match): Option[List[Result]] = None
 }
 
 
@@ -57,6 +43,33 @@ object DateExtractor {
   lazy val NUMERIC_US      = new DateExtractor(Date.NUMERIC_US)
   lazy val NUMERIC_FULL    = new DateExtractor(Date.NUMERIC_FULL)
   lazy val NUMERIC_FULL_US = new DateExtractor(Date.NUMERIC_FULL_US)
+
+  type MGE = MatchGroupExtractor[Option[List[DateExtractor.Result]]]
+
+  val NoDate: MGE = { case _ => None }
+  val NumericSub: MGE = {
+    case  MatchGroup(Some("n_ymd"), Some(n_ymd), _) =>
+      val Array(y, m, d) = n_ymd.split(Date.DATE_SEP)
+      result(y, m, d, 'YMD_DMY)
+    case  MatchGroup(Some("n_dmy"), Some(n_dmy), _) =>
+      val Array(d, m, y) = n_dmy.split(Date.DATE_SEP)
+      result(y, m, d)
+    case  MatchGroup(Some("n_mdy"), Some(n_mdy), _) =>
+      val Array(m, d, y) = n_mdy.split(Date.DATE_SEP)
+      result(y, m, d, 'MDY_YMD, 'MDY_DMY)
+    case  MatchGroup(Some("n_ym"), Some(n_ym), _) =>
+      val Array(y, m) = n_ym.split(Date.DATE_SEP)
+      result(y, m, "")
+    case  MatchGroup(Some("n_my"), Some(n_my), _) =>
+      val Array(m, y) = n_my.split(Date.DATE_SEP)
+      result(y, m, "")
+  }
+  val Numeric: MGE = {
+    case nf @ MatchGroup(Some("n_f"), Some(_), _) =>
+      NumericSub(nf.neSubmatches.head)
+    case MatchGroup(Some("n_y"), Some(n_y), _)    =>
+      Some(List(Result(Some(n_y.toInt))))
+  }
 
   val DAYS_IN_MONTH = Array(0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 
@@ -117,37 +130,82 @@ object DateExtractor {
 }
 
 
-class AlphaDateExtractor(dateMatcher: AlphaDate, fullOnly: Boolean = false)
-extends DateExtractor(if (fullOnly) dateMatcher.ALL_FULL else dateMatcher.ALL) {
-  import MatchGroups.get
-  import DateExtractor._
+abstract class AlphaDateExtractor(
+  val alphaDate: AlphaDate,
+  val alphaMGE: MGE,
+  val fullOnly: Boolean = false)
+extends DateExtractor(
+  if (fullOnly) alphaDate.ALL_FULL else alphaDate.ALL,
+  alphaNumeric(alphaMGE)) {
 
-  lazy val ALPHA_MONTHS_RE = dateMatcher.ALPHA_MONTHS.map(_.r.pattern)
-  val NON_DIGITS = """\D""".r
+  lazy val AlphaNumeric = extract
+
+  lazy val ALPHA_MONTHS_RE = alphaDate.ALPHA_MONTHS.map(_.r.pattern)
 
   def monthNum(alphaMonth: String) =
     ALPHA_MONTHS_RE.indexWhere(_.matcher(alphaMonth).matches) + 1
+}
+object AlphaDateExtractor {
+
+  val NON_DIGITS = """\D""".r
 
   def dayNum(alphaDay: String) = NON_DIGITS.replaceAllIn(alphaDay, "")
 
-  override def extractAlpha(ma: Regex.Match): Option[List[Result]] = {
-    val am = get(ma, "a_m")
-    if (am.isDefined)
-      result(
-        get(ma, "a_y"),
-        monthNum(am.get),
-        get(ma, "a_d").map(dayNum _))
-    else
-      None
+  protected def alphaNumeric(alphaSub: MGE): MGE = {
+    {
+      case mg @ MatchGroup(Some("date"), Some(_), _) =>
+        (alphaSub orElse Numeric)(mg.neSubmatches.head)
+    }
   }
 }
 
 package fr {
-  object     DateExtractor extends AlphaDateExtractor(Date)
-  object FullDateExtractor extends AlphaDateExtractor(Date, true)
+  object     DateExtractor extends AlphaDateExtractor(Date, AlphaSub)
+  object FullDateExtractor extends AlphaDateExtractor(Date, AlphaSub, true)
+}
+package object fr {
+  import DateExtractor._
+
+  val AlphaSub: MGE = {
+    case  MatchGroup(Some("a_f"), Some(_), List(
+            MatchGroup(Some("a_d"), od, _),
+            MatchGroup(Some("a_m"), Some(m), _),
+            MatchGroup(Some("a_y"), oy, _)
+          )) =>
+      result(
+        oy,
+        monthNum(m),
+        od.map(dayNum _))
+  }
 }
 
 package en {
-  object     DateExtractor extends AlphaDateExtractor(Date)
-  object FullDateExtractor extends AlphaDateExtractor(Date, true)
+  object     DateExtractor extends AlphaDateExtractor(Date, AlphaSub)
+  object FullDateExtractor extends AlphaDateExtractor(Date, AlphaSub, true)
+}
+package object en {
+  import DateExtractor._
+
+  val AlphaSub: MGE = {
+    case  MatchGroup(Some("a_f"), Some(_), List(
+            MatchGroup(Some("a_d"), od, _),
+            MatchGroup(Some("a_m"), Some(m), _),
+            _, _,
+            MatchGroup(Some("a_y"), oy, _)
+          )) =>
+      result(
+        oy,
+        monthNum(m),
+        od.map(dayNum _))
+    case  MatchGroup(Some("a_f"), Some(_), List(
+            _, _,
+            MatchGroup(Some("a_m"), Some(m), _),
+            MatchGroup(Some("a_d"), od, _),
+            MatchGroup(Some("a_y"), oy, _)
+          )) =>
+      result(
+        oy,
+        monthNum(m),
+        od.map(dayNum _))
+  }
 }

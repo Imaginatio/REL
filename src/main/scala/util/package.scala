@@ -9,6 +9,7 @@ package object util {
   type Rewriter = PartialFunction[RE, RE]
 
   type MatchExtractor[+A]       = PartialFunction[Match, A]
+  type MatchGroupExtractor[+A]  = PartialFunction[MatchGroup, A]
   type MatchOptionExtractor[+A] = Match => Option[A]
 
   /** Reverse of PartialFunction's lift method
@@ -50,7 +51,7 @@ package util {
 
     def apply(in: String): Iterator[A] =
       regex.findAllIn(in).matchData.flatMap(extractMatch(_))
-    
+
     def apply(m: Match): Option[A] =
       extractMatch(m)
 
@@ -58,7 +59,7 @@ package util {
 
   }
 
-  
+
   // Utility for pattern matching on Match objects
 
   trait MatchPattern[+A] {

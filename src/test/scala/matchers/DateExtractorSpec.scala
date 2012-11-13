@@ -53,9 +53,21 @@ class DateExtractorsSpec extends Specification {
       extractAll("01-02-2000") must haveSingleDate("Y2000 Y00 M02 D01")
     }
   }
+  "Numeric FullDate Extractor" should {
+    val extractAll = DateExtractor.NUMERIC_FULL
+
+    "extract and normalize only full numeric date" in {
+      extractAll("21/10/2000") must haveSingleDate("Y2000 Y00 M10 D21")
+      extractAll("00-10-1")    must haveSingleDate("Y00 M10 D01")
+      extractAll("10 2000")    must be empty;
+      extractAll("2000 11")    must be empty;
+      extractAll("1999")       must be empty;
+      extractAll("abc")        must be empty
+    }
+  }
 
   "Numeric-US Date Extractor" should {
-    val extractAll = new DateExtractor(Date.NUMERIC_US.r)
+    val extractAll = DateExtractor.NUMERIC_US
 
     "extract and normalize numeric date" in {
       extractAll("21/10/2000") must haveSingleDate("Y2000 Y00 M10 D21")
@@ -95,6 +107,18 @@ class DateExtractorsSpec extends Specification {
       extractAll("01-02-2000") must haveSingleDate("Y2000 Y00 M01 D02", "Y2000 Y00 M02 D01")
     }
   }
+  "Numeric FullDate Extractor" should {
+    val extractAll = DateExtractor.NUMERIC_FULL_US
+
+    "extract and normalize only full numeric date" in {
+      extractAll("21/10/2000") must haveSingleDate("Y2000 Y00 M10 D21")
+      extractAll("00-10-1")    must haveSingleDate("Y00 M10 D01")
+      extractAll("10 2000")    must be empty;
+      extractAll("2000 11")    must be empty;
+      extractAll("1999")       must be empty;
+      extractAll("abc")        must be empty
+    }
+  }
 
   "French date extractor" should {
     import fr.DateExtractor.{apply => extractAll}
@@ -119,6 +143,29 @@ class DateExtractorsSpec extends Specification {
       extractAll("nov.")             must haveSingleDate("M11")
     }
   }
+  "French full date extractor" should {
+    import fr.FullDateExtractor.{apply => extractAll}
+
+    "still extract and normalize numeric date, full only" in {
+      extractAll("01/10/2000") must haveSingleDate("Y2000 Y00 M10 D01")
+      extractAll("00-10-1")    must haveSingleDate("Y00 M10 D01")
+      extractAll("10 2000")    must be empty;
+      extractAll("2000 11")    must be empty;
+      extractAll("1999")       must be empty
+    }
+    "extract and normalize alpha date, full only" in {
+      extractAll("1 octobre 2000")   must haveSingleDate("Y2000 Y00 M10 D01")
+      extractAll("1er octobre 2000") must haveSingleDate("Y2000 Y00 M10 D01")
+      extractAll("01oct2000")        must haveSingleDate("Y2000 Y00 M10 D01")
+      extractAll("1 oct. 00")        must haveSingleDate("Y00 M10 D01")
+      extractAll("novembre 2000")    must be empty;
+      extractAll("nov2000")          must be empty;
+      extractAll("nov. 2000")        must be empty;
+      extractAll("novembre")         must be empty;
+      extractAll("nov")              must be empty;
+      extractAll("nov.")             must be empty
+    }
+  }
 
   "English date extractor" should {
     import en.DateExtractor.{apply => extractAll}
@@ -131,11 +178,11 @@ class DateExtractorsSpec extends Specification {
       extractAll("1999")       must haveSingleDate("Y1999 Y99")
     }
     "extract and normalize alpha date" in {
-      //extractAll("1 october 2000")    must haveSingleDate("Y2000 Y00 M10 D01")
-      //extractAll("1st october, 2000") must haveSingleDate("Y2000 Y00 M10 D01")
+      extractAll("1 october 2000")    must haveSingleDate("Y2000 Y00 M10 D01")
+      extractAll("1st october, 2000") must haveSingleDate("Y2000 Y00 M10 D01")
       extractAll("october 1 2000")    must haveSingleDate("Y2000 Y00 M10 D01")
       extractAll("october 1st, 2000") must haveSingleDate("Y2000 Y00 M10 D01")
-      //extractAll("01oct2000")         must haveSingleDate("Y2000 Y00 M10 D01")
+      extractAll("01oct2000")         must haveSingleDate("Y2000 Y00 M10 D01")
       extractAll("oct. 1, 00")        must haveSingleDate("Y00 M10 D01")
       extractAll("november 2000")     must haveSingleDate("Y2000 Y00 M11")
       extractAll("nov2000")           must haveSingleDate("Y2000 Y00 M11")
@@ -143,6 +190,31 @@ class DateExtractorsSpec extends Specification {
       extractAll("november")          must haveSingleDate("M11")
       extractAll("nov")               must haveSingleDate("M11")
       extractAll("nov.")              must haveSingleDate("M11")
+    }
+  }
+  "English full date extractor" should {
+    import en.FullDateExtractor.{apply => extractAll}
+
+    "still extract and normalize numeric (US) date, full only" in {
+      extractAll("10/21/2000") must haveSingleDate("Y2000 Y00 M10 D21")
+      extractAll("00-10-1")    must haveSingleDate("Y00 M10 D01")
+      extractAll("10 2000")    must be empty;
+      extractAll("2000 11")    must be empty;
+      extractAll("1999")       must be empty
+    }
+    "extract and normalize alpha date, full only" in {
+      extractAll("1 october 2000")    must haveSingleDate("Y2000 Y00 M10 D01")
+      extractAll("1st october, 2000") must haveSingleDate("Y2000 Y00 M10 D01")
+      extractAll("october 1 2000")    must haveSingleDate("Y2000 Y00 M10 D01")
+      extractAll("october 1st, 2000") must haveSingleDate("Y2000 Y00 M10 D01")
+      extractAll("01oct2000")         must haveSingleDate("Y2000 Y00 M10 D01")
+      extractAll("oct. 1, 00")        must haveSingleDate("Y00 M10 D01")
+      extractAll("november 2000")     must be empty;
+      extractAll("nov2000")           must be empty;
+      extractAll("nov. 2000")         must be empty;
+      extractAll("november")          must be empty;
+      extractAll("nov")               must be empty;
+      extractAll("nov.")              must be empty
     }
   }
 }

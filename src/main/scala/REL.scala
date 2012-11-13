@@ -115,6 +115,9 @@ package REL {
       (tr lift)(this) getOrElse recurseMap(tr)
     protected def recurseMap(tr: Rewriter): RE
 
+    lazy val matchGroup: MatchGroup = MatchGroup(None, None, groups)
+    val groups: List[MatchGroup]
+
     def <<[A](extract: MatchExtractor[A]): Extractor[A] = {
       val extractMatch = extract.lift andThen { o => o.iterator }
       Extractor { (in: String) => (r findAllIn in).matchData.flatMap(extractMatch) }
@@ -133,6 +136,9 @@ package REL {
       val linR = rRe.linear(linL._2)
       (fn(linL._1, linR._1), linR._2)
     }
+
+    override lazy val groups =
+      lRe.groups ::: rRe.groups
   }
 
   case class Conc(override val lRe: RE,
@@ -160,6 +166,9 @@ package REL {
       val lin = re.linear(groupNames)
       (fn(lin._1), lin._2)
     }
+
+    override lazy val groups =
+      re.groups
   }
 
   case class NCGroup(override val re: RE) extends RE1(re) {
@@ -196,6 +205,9 @@ package REL {
 
     override def recurseMap(tr: Rewriter) =
       Group(name, re map tr)
+
+    override lazy val groups =
+      List(MatchGroup(Some(name), None, re.groups))
 
     def unary_! = GroupRef(name)
   }
@@ -308,6 +320,7 @@ package REL {
 
     override def recurseMap(tr: Rewriter) = this
 
+    override lazy val groups = Nil
   }
 
   case class GroupRef(val name: String) extends RE0 {
