@@ -1,4 +1,4 @@
-package fr.splayce.REL
+package fr.splayce.rel
 
 package object matchers {
 

@@ -1,4 +1,4 @@
-package fr.splayce.REL
+package fr.splayce.rel
 
 import scala.util.matching.Regex
 import Regex.Match

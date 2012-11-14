@@ -1,4 +1,4 @@
-package fr.splayce.REL
+package fr.splayce.rel
 
 import scala.util.matching.Regex
 import Regex.Match
@@ -15,7 +15,7 @@ package object util {
   /** Reverse of PartialFunction's lift method
     *
     * Use with parcimony if f is costly, for it may be called twice.
-    * For example in such case, prefer using [[fr.splayce.REL.ByOptionExtractor]]
+    * For example in such case, prefer using [[fr.splayce.rel.ByOptionExtractor]]
     * over using unlift to make a MatchExtractor.
     */
   def unlift[A, B](f: Function1[A, Option[B]]): PartialFunction[A, B] = {
@@ -47,8 +47,8 @@ package util {
 
 
   /** Utility for instanciating pattern matchers on various objects.
-    * See [[fr.splayce.REL.ByOptionExtractor#toPM]],
-    * [[fr.splayce.REL.ByOptionExtractor.toPM]].
+    * See [[fr.splayce.rel.ByOptionExtractor#toPM]],
+    * [[fr.splayce.rel.ByOptionExtractor.toPM]].
     */
   class PatternMatcher[-A, +B](val extract: A => Option[B]) {
     def this(partialExtractor: PartialFunction[A, B]) = this(partialExtractor lift)

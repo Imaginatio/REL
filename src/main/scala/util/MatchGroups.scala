@@ -1,4 +1,4 @@
-package fr.splayce.REL.util
+package fr.splayce.rel.util
 
 import scala.util.matching.Regex
 import Regex.Match
@@ -42,19 +42,19 @@ object MatchGroups {
   def has(ma: Match, groupName: String): Boolean =
     get(ma, groupName).isDefined
 
-  
+
   /** Allows direct pattern matching against a match's capturing groups.
     *
     * List match against the Match's group(i) values, meaning
     * groups may be null or empty. The following matches a Match
     * whose 1st group matched "lit", 2nd empty, any 3rd, 4th null
     * (i.e. wasn't matched, e.g. in an unmatched alternative),
-    * any 5th group (extracted), and 0 or more groups afterward: 
+    * any 5th group (extracted), and 0 or more groups afterward:
     * {{{
     * case MatchGroups("lit", "", _, null, extr, _*) => extr
     * }}}
     */
-  def unapplySeq(m: Match): Option[List[String]] = 
+  def unapplySeq(m: Match): Option[List[String]] =
     if (m.groupCount == 0) None
     else Some((1 to m.groupCount).map { i => m.group(i) } toList)
 
@@ -72,7 +72,7 @@ object MatchGroups {
 
     /** Allows pattern matching with a Map of name -> option
       * (None if group value is null, Some(str) otherwise).
-      * 
+      *
       * In case of multiple groups with the same name,
       * the last occurrence will prevail.
       * {{{
@@ -86,7 +86,7 @@ object MatchGroups {
     }
     /** Allows pattern matching with a List of name -> option pairs
       * (None if group value is null, Some(str) otherwise).
-      * 
+      *
       * {{{
       * case MatchGroups.NotNull.NamedPairs(("a", a), _*) => a
       * }}}
@@ -113,7 +113,7 @@ object MatchGroups {
 
     /** Allows pattern matching with a Map of name -> option
       * (None if group value is null or empty, Some(str) otherwise).
-      * 
+      *
       * In case of multiple groups with the same name,
       * the last occurrence will prevail.
       * {{{
@@ -127,7 +127,7 @@ object MatchGroups {
     }
     /** Allows pattern matching with a List of name -> option pairs
       * (None if group value is null or empty, Some(str) otherwise).
-      * 
+      *
       * {{{
       * case MatchGroups.NotEmpty.NamedPairs(("a", a), _*) => a
       * }}}

@@ -5,7 +5,7 @@ REL is a small utility Scala library for people dealing with complex, modular re
 Consider the following YYYY-MM-DD date regex: `^(?:19|20)\d\d([- /.])(?:0[1-9]|1[012])\1(?:0[1-9]|[12]\d|3[01])$`. It is a bit more readable and reusable expressed like this:
 
 ```scala
-import fr.splayce.REL._
+import fr.splayce.rel._
 import Implicits._
 
 val sep     = "[- /.]" \ "sep"            // group named "sep"
@@ -16,7 +16,7 @@ val dateYMD = ^ ~ year  ~ sep ~ month ~ !sep ~ day  ~ $
 val dateMDY = ^ ~ month ~ sep ~ day   ~ !sep ~ year ~ $
 ```
 
-These value are `RE` objects (also named _terms_ or _trees_/_subtrees_), which can be converted to `scala.util.matching.Regex` instances either implicitly (by importing `REL.Implicits._`) or explicitly (via the `.r` method).
+These value are `RE` objects (also named _terms_ or _trees_/_subtrees_), which can be converted to `scala.util.matching.Regex` instances either implicitly (by importing `rel.Implicits._`) or explicitly (via the `.r` method).
 
 The embedded [Date regexes](https://github.com/Imaginatio/REL/blob/master/src/main/scala/matchers/Date.scala) and [extractors](https://github.com/Imaginatio/REL/blob/master/src/main/scala/matchers/DateExtractor.scala) will give you more complete examples, matching several date formats at once with little prior knowledge.
 
@@ -24,7 +24,7 @@ The embedded [Date regexes](https://github.com/Imaginatio/REL/blob/master/src/ma
 
 > Examples are noted `DSL expression` → `resulting regex`. They assume:
 > ```scala
-import fr.splayce.REL._
+import fr.splayce.rel._
 import Implicits._
 val a = RE("a")
 val b = RE("b")
@@ -74,7 +74,7 @@ val b = RE("b")
 
 ### Constants
 
-A few "constants" (expression terms with no repetitions, capturing groups, or unprotected alternatives) are also pre-defined. Some of them have a UTF-8 Greek symbol alias for conciseness (import `REL.Symbols._` to use them), uppercase for negation. You can add your own by instancing case class `RECst(expr)`
+A few "constants" (expression terms with no repetitions, capturing groups, or unprotected alternatives) are also pre-defined. Some of them have a UTF-8 Greek symbol alias for conciseness (import `rel.Symbols._` to use them), uppercase for negation. You can add your own by instancing case class `RECst(expr)`
 
 - `Epsilon` or `ε` → empty string
 - `Dot` or `τ` → `.`,          `LineTerminator` or `Τ`* → `.` ([line terminators](http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html#lt))

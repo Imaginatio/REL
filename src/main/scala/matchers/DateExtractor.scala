@@ -1,9 +1,9 @@
-package fr.splayce.REL.matchers
+package fr.splayce.rel.matchers
 
-import _root_.fr.splayce.REL
-import REL.util._
-import REL.RE
-import REL.Implicits.RE2Regex
+import _root_.fr.splayce.rel
+import rel.util._
+import rel.RE
+import rel.Implicits.RE2Regex
 
 import scala.util.matching.Regex
 import Regex.Match

@@ -1,4 +1,4 @@
-package fr.splayce.REL
+package fr.splayce.rel
 
 import org.specs2.mutable._
 

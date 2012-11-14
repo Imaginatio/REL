@@ -1,10 +1,10 @@
-package fr.splayce.REL.matchers
+package fr.splayce.rel.matchers
 
 import org.specs2.mutable._
 
-import _root_.fr.splayce.REL
-import REL.Implicits.RE2Regex
-import REL.test._
+import _root_.fr.splayce.rel
+import rel.Implicits.RE2Regex
+import rel.test._
 
 
 class DateSpec extends Specification {

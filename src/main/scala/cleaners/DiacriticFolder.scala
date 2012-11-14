@@ -1,6 +1,6 @@
-package fr.splayce.REL.cleaners
+package fr.splayce.rel.cleaners
 
-import fr.splayce.REL.util.Cleaner
+import fr.splayce.rel.util.Cleaner
 import java.text.Normalizer
 
 

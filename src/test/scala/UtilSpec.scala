@@ -1,11 +1,11 @@
-package fr.splayce.REL.util
+package fr.splayce.rel.util
 
 import org.specs2.mutable._
 
 import scala.util.matching.Regex
 import Regex.Match
 
-import fr.splayce.REL._
+import fr.splayce.rel._
 import Implicits.{RE2Regex, string2RE}
 
 

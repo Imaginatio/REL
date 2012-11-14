@@ -5,7 +5,7 @@ import scala.util.matching.Regex
 import Regex.Match
 
 
-package REL {
+package rel {
 
   import util._
 
@@ -97,7 +97,7 @@ package REL {
     }
     def ?> = ag
 
-    protected[REL] def linear(groupNames: List[String] = Nil): (String, List[String])
+    protected[rel] def linear(groupNames: List[String] = Nil): (String, List[String])
     lazy val lin = linear()
 
     lazy val r: Regex = new Regex(lin._1, lin._2.toArray: _*)
@@ -305,7 +305,7 @@ package REL {
 
   sealed abstract class RE0 extends RE {
 
-    protected[REL] def linear(groupNames: List[String]) =
+    protected[rel] def linear(groupNames: List[String]) =
       (toString, groupNames)
 
     override def recurseMap(tr: Rewriter) = this
@@ -396,7 +396,7 @@ package REL {
 }
 
 
-package object REL {
+package object rel {
 
   // prefixed notation: ?>(a) is a.?>
   def `?>` (re: RE) = re.?>

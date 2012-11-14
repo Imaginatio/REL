@@ -1,6 +1,6 @@
-package fr.splayce.REL.flavors
+package fr.splayce.rel.flavors
 
-import fr.splayce.REL._
+import fr.splayce.rel._
 import util.Rewriter
 
 

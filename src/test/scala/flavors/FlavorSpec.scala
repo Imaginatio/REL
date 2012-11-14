@@ -1,8 +1,8 @@
-package fr.splayce.REL.flavors
+package fr.splayce.rel.flavors
 
 import org.specs2.mutable._
 
-import fr.splayce.REL._
+import fr.splayce.rel._
 import util._
 
 

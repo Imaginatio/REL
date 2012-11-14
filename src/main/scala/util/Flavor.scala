@@ -1,9 +1,9 @@
-package fr.splayce.REL.util
+package fr.splayce.rel.util
 
 import scala.util.matching.Regex
 import Regex.Match
 
-import fr.splayce.REL._
+import fr.splayce.rel._
 
 
 case class Flavor(translator: Rewriter) {

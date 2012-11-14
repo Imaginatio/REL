@@ -1,7 +1,7 @@
-package fr.splayce.REL.matchers
+package fr.splayce.rel.matchers
 
 import org.specs2.mutable._
-import _root_.fr.splayce.REL.test._
+import _root_.fr.splayce.rel.test._
 
 
 class DateExtractorsSpec extends Specification {

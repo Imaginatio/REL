@@ -1,6 +1,6 @@
-package fr.splayce.REL.matchers
+package fr.splayce.rel.matchers
 
-import _root_.fr.splayce.REL._
+import _root_.fr.splayce.rel._
 import Implicits._
 import Symbols._
 

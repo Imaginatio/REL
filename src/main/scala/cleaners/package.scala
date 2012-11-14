@@ -1,6 +1,6 @@
-package fr.splayce.REL
+package fr.splayce.rel
 
-import fr.splayce.REL.util.Cleaner
+import fr.splayce.rel.util.Cleaner
 
 import scala.util.matching.Regex.Match
 

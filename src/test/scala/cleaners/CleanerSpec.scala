@@ -1,8 +1,8 @@
-package fr.splayce.REL.cleaners
+package fr.splayce.rel.cleaners
 
 import org.specs2.mutable._
 
-import fr.splayce.REL.util.Cleaner
+import fr.splayce.rel.util.Cleaner
 
 
 class CleanerSpec extends Specification {
