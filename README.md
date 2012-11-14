@@ -188,6 +188,7 @@ interactions2.toList.toString === "List((me,dev,you,dev), (you,dev,me,dev))"
 
 - Core
     - Add character range support (at DSL level), with inversion (`[^...]`)
+    - Compatibility with Scala Parsers?
     - Consider using `'symbols` for group names
     - Support regex [compilation flags](http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html#field_summary). Add options to easily embed match flags`(?idmsux-idmsux)` when generating regex.
     - Parse \[and limit] regex strings inputted to REL, producing REL-only expression trees, thus eliminating some known issues (see below) and opening some possibilities (e.g. generating sample matching strings)
