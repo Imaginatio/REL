@@ -339,7 +339,7 @@ package rel {
 
   abstract class RECst(val reCst: String) extends REStr(reCst) with Wrapped
 
-  case class Digit(val i: Int)
+  case class DigitCst(val i: Int)
   extends RECst(if (i < 10) i.toString else "(?:" + i.toString + ")")
 
   case object Epsilon         extends RECst("")
@@ -380,7 +380,7 @@ package rel {
     def apply(s: Symbol) = new Escaped(s)
     def apply(s: String) = new Atom(s.r)
     def apply(r: Regex)  = new Atom(r)
-    def apply(i: Int)    = new Digit(i)
+    def apply(i: Int)    = new DigitCst(i)
   }
 
 
