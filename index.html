@@ -34,18 +34,18 @@
 
 <p>Consider the following YYYY-MM-DD date regex: <code>^(?:19|20)\d\d([- /.])(?:0[1-9]|1[012])\1(?:0[1-9]|[12]\d|3[01])$</code>. It is a bit more readable and reusable expressed like this:</p>
 
-<div class="highlight"><pre><span class="k">import</span> <span class="nn">fr.splayce.REL._</span>
+<div class="highlight"><pre><span class="k">import</span> <span class="nn">fr.splayce.rel._</span>
 <span class="k">import</span> <span class="nn">Implicits._</span>
 
 <span class="k">val</span> <span class="n">sep</span>     <span class="k">=</span> <span class="s">"[- /.]"</span> <span class="o">\</span> <span class="s">"sep"</span>            <span class="c1">// group named "sep"</span>
 <span class="k">val</span> <span class="n">year</span>    <span class="k">=</span> <span class="o">(</span><span class="s">"19"</span> <span class="o">|</span> <span class="s">"20"</span><span class="o">)</span> <span class="o">~</span> <span class="s">"""\d\d"""</span>  <span class="c1">// ~ is concatenation</span>
 <span class="k">val</span> <span class="n">month</span>   <span class="k">=</span> <span class="s">"0[1-9]"</span> <span class="o">|</span> <span class="s">"1[012]"</span>
 <span class="k">val</span> <span class="n">day</span>     <span class="k">=</span> <span class="s">"0[1-9]"</span> <span class="o">|</span> <span class="s">"[12]\\d"</span> <span class="o">|</span> <span class="s">"3[01]"</span>
-<span class="k">val</span> <span class="n">dateYMD</span> <span class="k">=</span> <span class="s">"^"</span> <span class="o">~</span> <span class="n">year</span>  <span class="o">~</span> <span class="n">sep</span> <span class="o">~</span> <span class="n">month</span> <span class="o">~</span> <span class="o">!</span><span class="n">sep</span> <span class="o">~</span> <span class="n">day</span>  <span class="o">~</span> <span class="s">"$"</span>
-<span class="k">val</span> <span class="n">dateMDY</span> <span class="k">=</span> <span class="s">"^"</span> <span class="o">~</span> <span class="n">month</span> <span class="o">~</span> <span class="n">sep</span> <span class="o">~</span> <span class="n">day</span>   <span class="o">~</span> <span class="o">!</span><span class="n">sep</span> <span class="o">~</span> <span class="n">year</span> <span class="o">~</span> <span class="s">"$"</span>
+<span class="k">val</span> <span class="n">dateYMD</span> <span class="k">=</span> <span class="o">^</span> <span class="o">~</span> <span class="n">year</span>  <span class="o">~</span> <span class="n">sep</span> <span class="o">~</span> <span class="n">month</span> <span class="o">~</span> <span class="o">!</span><span class="n">sep</span> <span class="o">~</span> <span class="n">day</span>  <span class="o">~</span> <span class="n">$</span>
+<span class="k">val</span> <span class="n">dateMDY</span> <span class="k">=</span> <span class="o">^</span> <span class="o">~</span> <span class="n">month</span> <span class="o">~</span> <span class="n">sep</span> <span class="o">~</span> <span class="n">day</span>   <span class="o">~</span> <span class="o">!</span><span class="n">sep</span> <span class="o">~</span> <span class="n">year</span> <span class="o">~</span> <span class="n">$</span>
 </pre></div>
 
-<p>These value are <code>RE</code> objects (trees/subtrees), which can be converted to <code>scala.util.matching.Regex</code> instances either implicitly (by importing <code>REL.Implicits._</code>) or explicitly (via the <code>.r</code> method).</p>
+<p>These value are <code>RE</code> objects (also named <em>terms</em> or <em>trees</em>/_subtrees_), which can be converted to <code>scala.util.matching.Regex</code> instances either implicitly (by importing <code>rel.Implicits._</code>) or explicitly (via the <code>.r</code> method).</p>
 
 <p>The embedded <a href="https://github.com/Imaginatio/REL/blob/master/src/main/scala/matchers/Date.scala">Date regexes</a> and <a href="https://github.com/Imaginatio/REL/blob/master/src/main/scala/matchers/DateExtractor.scala">extractors</a> will give you more complete examples, matching several date formats at once with little prior knowledge.</p>
 
@@ -54,7 +54,7 @@
 <blockquote>
 <p>Examples are noted <code>DSL expression</code> → <code>resulting regex</code>. They assume:</p>
 
-<div class="highlight"><pre><span class="k">import</span> <span class="nn">fr.splayce.REL._</span>
+<div class="highlight"><pre><span class="k">import</span> <span class="nn">fr.splayce.rel._</span>
 <span class="k">import</span> <span class="nn">Implicits._</span>
 <span class="k">val</span> <span class="n">a</span> <span class="k">=</span> <span class="nc">RE</span><span class="o">(</span><span class="s">"a"</span><span class="o">)</span>
 <span class="k">val</span> <span class="n">b</span> <span class="k">=</span> <span class="nc">RE</span><span class="o">(</span><span class="s">"b"</span><span class="o">)</span>
@@ -65,7 +65,7 @@
 <li>Concatenation:
 
 <ul>
-<li>Protected: <code>a ~ b</code> → <code>(?:a)(?:b)</code>
+<li>Protected:   <code>a ~ b</code> → <code>(?:a)(?:b)</code>
 </li>
 <li>Unprotected: <code>a - b</code> → <code>ab</code>
 </li>
@@ -92,9 +92,9 @@
 <li>At least one:
 
 <ul>
-<li>greedy: <code>a.+</code> → <code>(?:a)+</code>
+<li>greedy:     <code>a.+</code>  → <code>(?:a)+</code>
 </li>
-<li>reluctant: <code>a.+?</code> → <code>(?:a)+?</code>
+<li>reluctant:  <code>a.+?</code> → <code>(?:a)+?</code>
 </li>
 <li>possessive: <code>a.++</code> → <code>(?:a)++</code>
 </li>
@@ -103,33 +103,60 @@
 <li>Any number:
 
 <ul>
-<li>greedy: <code>a.*</code> → <code>(?:a)*</code>
+<li>greedy:     <code>a.*</code>  → <code>(?:a)*</code>
 </li>
-<li>reluctant: <code>a.*?</code> → <code>(?:a)*?</code>
+<li>reluctant:  <code>a.*?</code> → <code>(?:a)*?</code>
 </li>
 <li>possessive: <code>a.*+</code> → <code>(?:a)*+</code>
 </li>
 </ul>
 </li>
-<li>In range: <code>a(1,3)</code> or <code>a(1 to 3)</code> → <code>(?:a){1,}</code>
+<li>In range:
+
+<ul>
+<li>greedy:     <code>a(1,3)</code> or <code>a(1 to 3)</code> or <code>a(1 -&gt; 3)</code> → <code>(?:a){1,3}</code>
 </li>
-<li>At most: <code>a(0,3)</code> → <code>(?:a){0,3}</code> (duh)</li>
-<li>At least: <code>a(3)</code> → <code>(?:a){3,}</code>
+<li>reluctant:  <code>a(1, 3, Reluctant)</code>  → <code>(?:a){1,3}?</code>
 </li>
-<li>Exactly: <code>a^3</code> → <code>(?:a){3}</code>
+<li>possessive: <code>a(1, 3, Possessive)</code> → <code>(?:a){1,3}+</code>
+</li>
+</ul>
+</li>
+<li>At most:
+
+<ul>
+<li>greedy:     <code>a &lt; 3</code>   → <code>(?:a){0,3}</code>
+</li>
+<li>reluctant:  <code>a.&lt;?(3)</code> → <code>(?:a){0,3}?</code> (dotted form <code>a.&lt;?(3)</code> is mandatory, standalone <code>&lt;?</code> being syntactically significant in Scala: <code>XMLSTART</code>)</li>
+<li>possessive: <code>a &lt;+ 3</code>  → <code>(?:a){0,3}+</code>
+</li>
+</ul>
+</li>
+<li>At least:
+
+<ul>
+<li>greedy:     <code>a &gt; 3</code>  → <code>(?:a){3,}</code>
+</li>
+<li>reluctant:  <code>a &gt;? 3</code> → <code>(?:a){3,}?</code>
+</li>
+<li>possessive: <code>a &gt;+ 3</code> → <code>(?:a){3,}+</code>
+</li>
+</ul>
+</li>
+<li>Exactly: <code>a{3}</code> or <code>a(3)</code> → <code>(?:a){3}</code>
 </li>
 </ul>
 </li>
 <li>Lookaround:
 
 <ul>
-<li>Lookahead: <code>a.&gt;?</code> → <code>(?=a)</code>
+<li>Lookahead:           <code>?=(a)</code>  or <code>a.?=</code>  → <code>(?=a)</code>
 </li>
-<li>Lookbehind: <code>a.&lt;?</code> → <code>(?&lt;=a)</code>
+<li>Lookbehind:          <code>?&lt;(a)</code>  or <code>a.?&lt;</code>  → <code>(?&lt;=a)</code>
 </li>
-<li>Negative lookahead: <code>a.&gt;!</code> → <code>(?!a)</code>
+<li>Negative lookahead:  <code>?!(a)</code>  or <code>a.?!</code>  → <code>(?!a)</code>
 </li>
-<li>Negative lookbehind: <code>a.&lt;!</code> → <code>(?&lt;!a)</code>
+<li>Negative lookbehind: <code>?&lt;!(a)</code> or <code>a.?&lt;!</code> → <code>(?&lt;!a)</code>
 </li>
 </ul>
 </li>
@@ -141,7 +168,7 @@
 <li>Non-capturing: <code>a.ncg</code> → <code>(?:a)</code> or the short syntax <code>a.%</code>
 </li>
 <li>
-<a href="http://www.regular-expressions.info/atomic.html">Atomic</a>: <code>a.ag</code> → <code>(?&gt;a)</code> or the short syntax <code>a.?&gt;</code>
+<a href="http://www.regular-expressions.info/atomic.html">Atomic</a>: <code>a.ag</code> → <code>(?&gt;a)</code> or the short syntaxes <code>?&gt;(a)</code> and <code>a.?&gt;</code>
 </li>
 </ul>
 </li>
@@ -149,27 +176,31 @@
 </li>
 </ul><h3>Constants</h3>
 
-<p>A few "constants" (sub-expressions with no repetitions, capturing groups, or unprotected alternatives) are also pre-defined. Some of them have a UTF-8 Greek symbol alias for conciseness (import <code>REL.Symbols._</code> to use them), uppercase for negation. You can add your own by instancing case class <code>RECst(expr)</code></p>
+<p>A few "constants" (expression terms with no repetitions, capturing groups, or unprotected alternatives) are also pre-defined. Some of them have a UTF-8 Greek symbol alias for conciseness (import <code>rel.Symbols._</code> to use them), uppercase for negation. You can add your own by instancing case class <code>RECst(expr)</code></p>
 
 <ul>
 <li>
-<code>Epsilon</code> or <code>ε</code> is empty string</li>
+<code>Epsilon</code> or <code>ε</code> → empty string</li>
 <li>
-<code>AlphaLower</code> → <code>[a-z]</code>, <code>AlphaUpper</code> → <code>[A-Z]</code>
+<code>Dot</code> or <code>τ</code> → <code>.</code>,          <code>LineTerminator</code> or <code>Τ</code>* → <code>.</code> (<a href="http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html#lt">line terminators</a>)</li>
+<li>
+<code>MLDot</code> or <code>ττ</code> → <code>[\s\S]</code> (will match any char, including line terminators, even when the <a href="http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html#DOTALL"><code>DOTALL</code></a> or <a href="http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html#MULTILINE"><code>MULTILINE</code></a> modes are disabled)</li>
+<li>
+<code>AlphaLower</code> → <code>[a-z]</code>,      <code>AlphaUpper</code> → <code>[A-Z]</code>
 </li>
 <li>
 <code>Alpha</code> or <code>α</code> → <code>[a-zA-Z]</code>, <code>NotAlpha</code> or <code>Α</code>* → <code>[^a-zA-Z]</code>
 </li>
 <li>
-<code>LetterLower</code> → <code>\p{Ll}</code>, <code>LetterUpper</code> → <code>\p{Lu}</code> (unicode letters, including)</li>
+<code>LetterLower</code> → <code>\p{Ll}</code>,    <code>LetterUpper</code> → <code>\p{Lu}</code> (unicode letters, including diacritics)</li>
 <li>
-<code>Letter</code> or <code>λ</code> → <code>\p{L}</code>, <code>NotLetter</code> or <code>Λ</code> → <code>\P{L}</code>
+<code>Letter</code> or <code>λ</code> → <code>\p{L}</code>,   <code>NotLetter</code> or <code>Λ</code> → <code>\P{L}</code>
 </li>
 <li>
-<code>Digit</code> or <code>δ</code> → <code>\d</code>, <code>NotDigit</code> or <code>Δ</code> → <code>\D</code>
+<code>Digit</code> or <code>δ</code> → <code>\d</code>,       <code>NotDigit</code> or <code>Δ</code> → <code>\D</code>
 </li>
 <li>
-<code>WhiteSpace</code> or <code>σ</code> → <code>\s</code>, <code>NotWhiteSpace</code> or <code>Σ</code> → <code>\S</code>
+<code>WhiteSpace</code> or <code>σ</code> → <code>\s</code>,  <code>NotWhiteSpace</code> or <code>Σ</code> → <code>\S</code>
 </li>
 <li>
 <code>Word</code> or <code>μ</code> → <code>\w</code> (<code>Alpha</code> or <code>_</code>), <code>NotWord</code> or <code>Μ</code>* → <code>\W</code>
@@ -178,26 +209,98 @@
 <code>WordBoundary</code> or <code>ß</code> → <code>\b</code>, <code>NotWordBoundary</code> or <code>Β</code>* → <code>\B</code>
 </li>
 <li>
-<code>LineBeginning</code> → <code>^</code>, <code>LineEnd</code> → <code>$</code>
+<code>LineBegin</code> or <code>^</code> → <code>^</code>,     <code>LineEnd</code> or <code>$</code> → <code>$</code>
 </li>
 <li>
-<code>InputBeginning</code> → <code>\A</code>, <code>InputEnd</code> → <code>\z</code>
+<code>InputBegin</code> or <code>^^</code> → <code>\A</code>,  <code>InputEnd</code> or <code>$$</code> → <code>\z</code>
 </li>
-</ul><p><em>* Those are uppercase <code>α</code>/<code>ß</code>/<code>μ</code>, not latin <code>A</code>/<code>B</code>/<code>M</code></em></p>
+</ul><p><em>* Those are uppercase <code>α</code>/<code>ß</code>/<code>μ</code>/<code>τ</code>, not latin <code>A</code>/<code>B</code>/<code>M</code>/<code>T</code></em></p>
 
 <h3>Exporting regexes (and other regex flavors)</h3>
 
-<p>The <code>.r</code> method on any <code>RE</code> (sub)tree returns a compiled <code>scala.util.matching.Regex</code>. The <code>.toString</code> method returns the source pattern (equivalent to <code>.r.toString</code>, so the pattern is verified).</p>
+<p>The <code>.r</code> method on any <code>RE</code> term returns a compiled <code>scala.util.matching.Regex</code>. The <code>.toString</code> method returns the source pattern (equivalent to <code>.r.toString</code>, so the pattern is verified).</p>
 
-<p>For other regex flavors, a translation mechanism is provided: you may subclass <code>Flavor</code>, which exposes a <code>.express(re: RE)</code> method, returning a <code>Tuple[String, List[String]]</code>. The first element is the translated regex string, the second is a list of the group names (in order of appearance). A subclass of <code>Flavor</code> should override <code>.translate(re: RE)</code>, using pattern matching to recursively translate Java regex subtree with matching subtree in the destination regex Flavor. It should call <code>super.translate</code> in the default case to ensure proper recusion.</p>
+<p>For other regex flavors, a translation mechanism is provided: you may instanciate a <a href="https://github.com/Imaginatio/REL/blob/master/src/main/scala/util/Flavor.scala"><code>Flavor</code></a>, which exposes two methods: <code>.express(re: RE)</code> and <code>.translate(re: RE)</code>. The first one returns a <code>Tuple2[String, List[String]]</code>, whose first element is the translated regex string and whose second is a list of the group names (in order of appearance) allowing you to perform a mapping to capturing group indexes (like Scala does) if needed. The second method only performs the translation of a <code>RE</code> term into another.</p>
 
-<p>An example of translation into <a href="http://www.regular-expressions.info/dotnet.html">.NET-flavored regex</a> is provided (<a href="https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/DotNETFlavor.scala"><code>DotNETFlavor</code></a>), that</p>
+<p>An example of translation into <a href="http://www.regular-expressions.info/dotnet.html">.NET-flavored regex</a> is provided. <a href="https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/DotNETTranslator.scala"><code>DotNETTranslator</code></a> contains the actual translation, <code>DotNETFlavor</code> being declared in the <a href="https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/package.scala"><code>flavors</code> package object</a>. The translation:</p>
 
 <ul>
-<li>translates <code>\w</code> to <code>[a-zA-Z0-9_]</code> (as .NET's <code>\w</code> covers UTF-8 letters including accented, while Java's covers only ASCII)</li>
+<li>changes <code>\w</code> to <code>[a-zA-Z0-9_]</code> (when used with <code>Word</code>/<code>μ</code>), since .NET's <code>\w</code> covers UTF-8 letters including accented, while Java's covers only ASCII</li>
 <li>turns any possessive quantifier into a greedy quantifier wrapped in an atomic group (which is a longer equivalent)</li>
 <li>inlines named groups and their references into the .NET <code>(?&lt;name&gt;expr)</code> syntax</li>
-</ul><p><a href="http://www.regular-expressions.info">Regular-expression.info</a>'s <a href="http://www.regular-expressions.info/refflavors.html">regex flavors comparison chart</a> may be of use when writing a translation.</p>
+</ul><p>Another example is the <a href="https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/JavaScriptTranslator.scala"><code>JavaScriptTranslator</code></a>, which will mainly throw an exception when you try to translate a <code>RE</code> term that is not supported in the <a href="http://www.regular-expressions.info/javascript.html">JavaScript regex flavor</a>.</p>
+
+<p><a href="http://www.regular-expressions.info">Regular-expression.info</a>'s <a href="http://www.regular-expressions.info/refflavors.html">regex flavors comparison chart</a> may be of use when writing a translation.</p>
+
+<h3>Capturing Groups</h3>
+
+<p>Since a REL term is a tree, it can compute the resulting capturing groups tree with the <code>matchGroup</code> val, containing a tree of <code>MatchGroup</code>s. The top group corresponds to the entire match: it is unnamed, contains the matched content and has the first-level capturing groups nested as subgroups. When applied to a <code>Match</code>, the content of each group is filled. Thus, you can use pattern matching with nested groups to extract any group at several levels of imbrication with little code.</p>
+
+<p>For example, let's say we want to match simple usernames that have the form <code>user@machine</code> where both part have only alphabetic characters. We can define the regex:</p>
+
+<div class="highlight"><pre><span class="k">val</span> <span class="n">user</span>     <span class="k">=</span> <span class="n">α</span><span class="o">.+</span> <span class="o">\</span> <span class="s">"user"</span>
+<span class="k">val</span> <span class="n">at</span>       <span class="k">=</span> <span class="s">"@"</span>
+<span class="k">val</span> <span class="n">machine</span>  <span class="k">=</span> <span class="n">α</span><span class="o">.+</span> <span class="o">\</span> <span class="s">"machine"</span>
+<span class="k">val</span> <span class="n">username</span> <span class="k">=</span> <span class="o">(</span><span class="n">user</span> <span class="o">-</span> <span class="n">at</span> <span class="o">-</span> <span class="n">machine</span><span class="o">)</span> <span class="o">\</span> <span class="s">"username"</span>
+</pre></div>
+
+<p>And make a simple extractor that yields a tuple of Strings:</p>
+
+<div class="highlight"><pre><span class="k">val</span> <span class="n">userMatcher</span><span class="k">:</span> <span class="kt">PartialFunction</span><span class="o">[</span><span class="kt">MatchGroup</span>, <span class="o">(</span><span class="kt">String</span>, <span class="kt">String</span><span class="o">)]</span> <span class="k">=</span> <span class="o">{</span>
+  <span class="k">case</span> <span class="nc">MatchGroup</span><span class="o">(</span><span class="nc">None</span><span class="o">,</span> <span class="nc">Some</span><span class="o">(</span><span class="k">_</span><span class="o">),</span> <span class="nc">List</span><span class="o">(</span>              <span class="c1">// this is the full match ($0)</span>
+      <span class="nc">MatchGroup</span><span class="o">(</span><span class="nc">Some</span><span class="o">(</span><span class="s">"username"</span><span class="o">),</span> <span class="nc">Some</span><span class="o">(</span><span class="k">_</span><span class="o">),</span> <span class="nc">List</span><span class="o">(</span>   <span class="c1">// $1 / username</span>
+        <span class="nc">MatchGroup</span><span class="o">(</span><span class="nc">Some</span><span class="o">(</span><span class="s">"user"</span><span class="o">),</span>    <span class="nc">Some</span><span class="o">(</span><span class="n">u</span><span class="o">),</span> <span class="nc">Nil</span><span class="o">),</span>  <span class="c1">// $2 / user</span>
+        <span class="nc">MatchGroup</span><span class="o">(</span><span class="nc">Some</span><span class="o">(</span><span class="s">"machine"</span><span class="o">),</span> <span class="nc">Some</span><span class="o">(</span><span class="n">m</span><span class="o">),</span> <span class="nc">Nil</span><span class="o">)</span>   <span class="c1">// $3 / machine</span>
+      <span class="o">))</span>
+    <span class="o">))</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">u</span><span class="o">,</span> <span class="n">m</span><span class="o">)</span>
+<span class="o">}</span>
+</pre></div>
+
+<p>Extraction in a String can be done like this:</p>
+
+<div class="highlight"><pre><span class="k">import</span> <span class="nn">ByOptionExtractor._</span>                    <span class="c1">// lift (and toPM on further examples)</span>
+<span class="k">val</span> <span class="n">userExtractor</span> <span class="k">=</span> <span class="n">username</span> <span class="o">&lt;&lt;</span> <span class="n">lift</span><span class="o">(</span><span class="n">userMatcher</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">users</span> <span class="k">=</span> <span class="n">userExtractor</span><span class="o">(</span><span class="s">"me@dev, you@dev"</span><span class="o">)</span>  <span class="c1">// Iterator[(String, String)]</span>
+<span class="n">users</span><span class="o">.</span><span class="n">toList</span><span class="o">.</span><span class="n">toString</span> <span class="o">===</span> <span class="s">"List((me,dev), (you,dev))"</span>
+</pre></div>
+
+<p>Java does not support named capturing groups, and Scala only emulates them, mapping a list of names given at the compilation of the Regex against the indexes of the capturing groups. Thus, it is risky to have multiple instances of the same group name. In practice, using <code>myMatch.group("myGroup")</code> seems to always refer to the last occurrence of the <code>myGroup</code>.</p>
+
+<p>On the other hand, the <code>Match</code> object carries the full list of group names (in its eponymous <code>groupNames</code> val), and REL uses it to compute the group tree. Thus, you <em>can</em> reuse the same group name in a single expression.</p>
+
+<p>Say we want to extract items formatted with <code>username-&gt;username</code>:</p>
+
+<div class="highlight"><pre><span class="k">val</span> <span class="n">interaction</span> <span class="k">=</span> <span class="n">username</span> <span class="o">-</span> <span class="s">"-&gt;"</span> <span class="o">-</span> <span class="n">username</span>
+<span class="k">val</span> <span class="n">iaMatcher</span><span class="k">:</span> <span class="kt">PartialFunction</span><span class="o">[</span><span class="kt">MatchGroup</span>, <span class="o">(</span><span class="kt">String</span>, <span class="kt">String</span><span class="o">)]</span> <span class="k">=</span> <span class="o">{</span>
+  <span class="k">case</span> <span class="nc">MatchGroup</span><span class="o">(</span><span class="nc">None</span><span class="o">,</span> <span class="nc">Some</span><span class="o">(</span><span class="k">_</span><span class="o">),</span> <span class="nc">List</span><span class="o">(</span>
+      <span class="nc">MatchGroup</span><span class="o">(</span><span class="nc">Some</span><span class="o">(</span><span class="s">"username"</span><span class="o">),</span> <span class="nc">Some</span><span class="o">(</span><span class="n">un1</span><span class="o">),</span> <span class="k">_</span><span class="o">),</span>
+      <span class="nc">MatchGroup</span><span class="o">(</span><span class="nc">Some</span><span class="o">(</span><span class="s">"username"</span><span class="o">),</span> <span class="nc">Some</span><span class="o">(</span><span class="n">un2</span><span class="o">),</span> <span class="k">_</span><span class="o">)</span>
+    <span class="o">))</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">un1</span><span class="o">,</span> <span class="n">un2</span><span class="o">)</span>
+<span class="o">}</span>
+<span class="k">val</span> <span class="n">iaExtractor</span> <span class="k">=</span> <span class="n">interaction</span> <span class="o">&lt;&lt;</span> <span class="n">lift</span><span class="o">(</span><span class="n">iaMatcher</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">interactions</span> <span class="k">=</span> <span class="n">iaExtractor</span><span class="o">(</span><span class="s">"me@dev-&gt;you@dev, you@dev-&gt;me@dev"</span><span class="o">)</span>
+<span class="n">interactions</span><span class="o">.</span><span class="n">toList</span><span class="o">.</span><span class="n">toString</span> <span class="o">===</span> <span class="s">"List((me@dev,you@dev), (you@dev,me@dev))"</span>
+</pre></div>
+
+<p>You can of course reuse the same extractor, which can directly provide the extracted object. This requires us to place the extractor one level deeper to avoid the <code>$0</code> group:</p>
+
+<div class="highlight"><pre><span class="k">val</span> <span class="n">userMatcher2</span><span class="k">:</span> <span class="kt">PartialFunction</span><span class="o">[</span><span class="kt">MatchGroup</span>, <span class="o">(</span><span class="kt">String</span>, <span class="kt">String</span><span class="o">)]</span> <span class="k">=</span> <span class="o">{</span>
+  <span class="k">case</span> <span class="nc">MatchGroup</span><span class="o">(</span><span class="nc">Some</span><span class="o">(</span><span class="s">"username"</span><span class="o">),</span> <span class="nc">Some</span><span class="o">(</span><span class="k">_</span><span class="o">),</span> <span class="nc">List</span><span class="o">(</span>
+        <span class="nc">MatchGroup</span><span class="o">(</span><span class="nc">Some</span><span class="o">(</span><span class="s">"user"</span><span class="o">),</span>    <span class="nc">Some</span><span class="o">(</span><span class="n">u</span><span class="o">),</span> <span class="nc">Nil</span><span class="o">),</span>
+        <span class="nc">MatchGroup</span><span class="o">(</span><span class="nc">Some</span><span class="o">(</span><span class="s">"machine"</span><span class="o">),</span> <span class="nc">Some</span><span class="o">(</span><span class="n">m</span><span class="o">),</span> <span class="nc">Nil</span><span class="o">)</span>
+    <span class="o">))</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">u</span><span class="o">,</span> <span class="n">m</span><span class="o">)</span>
+<span class="o">}</span>
+<span class="k">val</span> <span class="n">userPattern</span> <span class="k">=</span> <span class="n">toPM</span><span class="o">(</span><span class="n">lift</span><span class="o">(</span><span class="n">userMatcher2</span><span class="o">))</span>
+<span class="k">val</span> <span class="n">iaMatcher2</span><span class="k">:</span> <span class="kt">PartialFunction</span><span class="o">[</span><span class="kt">MatchGroup</span>, <span class="o">(</span><span class="kt">String</span>, <span class="kt">String</span>, <span class="kt">String</span>, <span class="kt">String</span><span class="o">)]</span> <span class="k">=</span> <span class="o">{</span>
+  <span class="k">case</span> <span class="nc">MatchGroup</span><span class="o">(</span><span class="nc">None</span><span class="o">,</span> <span class="nc">Some</span><span class="o">(</span><span class="k">_</span><span class="o">),</span> <span class="nc">List</span><span class="o">(</span>
+      <span class="n">userPattern</span><span class="o">(</span><span class="n">u1</span><span class="o">,</span> <span class="n">m1</span><span class="o">),</span>
+      <span class="n">userPattern</span><span class="o">(</span><span class="n">u2</span><span class="o">,</span> <span class="n">m2</span><span class="o">)</span>
+    <span class="o">))</span> <span class="k">=&gt;</span> <span class="o">(</span><span class="n">u1</span><span class="o">,</span> <span class="n">m1</span><span class="o">,</span> <span class="n">u2</span><span class="o">,</span> <span class="n">m2</span><span class="o">)</span>
+<span class="o">}</span>
+<span class="k">val</span> <span class="n">iaExtractor2</span> <span class="k">=</span> <span class="n">interaction</span> <span class="o">&lt;&lt;</span> <span class="n">lift</span><span class="o">(</span><span class="n">iaMatcher2</span><span class="o">)</span>
+<span class="k">val</span> <span class="n">interactions2</span> <span class="k">=</span> <span class="n">iaExtractor2</span><span class="o">(</span><span class="s">"me@dev-&gt;you@dev, you@dev-&gt;me@dev"</span><span class="o">)</span>
+<span class="n">interactions2</span><span class="o">.</span><span class="n">toList</span><span class="o">.</span><span class="n">toString</span> <span class="o">===</span> <span class="s">"List((me,dev,you,dev), (you,dev,me,dev))"</span>
+</pre></div>
 
 <h2>TODO</h2>
 
@@ -205,12 +308,11 @@
 <li>Core
 
 <ul>
-<li>Add <code>RECst.literal(string)</code> (aliased by <code>RE.literal(string)</code>) for auto-escaped literal sequence ; consider <code>RE.apply('symbol)</code> to be another alias</li>
-<li>Add missing short notation for non-greedy RepMode in numbered Rep</li>
 <li>Add character range support (at DSL level), with inversion (<code>[^...]</code>)</li>
-<li>Shortcuts for <code>^</code> and <code>$</code> (beware <code>^</code> is currently used as exactly-N repeater operator)</li>
+<li>Compatibility with Scala Parsers?</li>
 <li>Consider using <code>'symbols</code> for group names</li>
-<li>Add options to easily embed match flags<code>(?idmsux-idmsux)</code> when generating regex</li>
+<li>Support regex <a href="http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html#field_summary">compilation flags</a>. Add options to easily embed match flags<code>(?idmsux-idmsux)</code> when generating regex.</li>
+<li>Parse [and limit] regex strings inputted to REL, producing REL-only expression trees, thus eliminating some known issues (see below) and opening some possibilities (e.g. generating sample matching strings)</li>
 </ul>
 </li>
 <li>Matchers
@@ -224,22 +326,43 @@
 <ul>
 <li>Generate sample strings that match a regex (e.g. with <a href="http://code.google.com/p/xeger/">Xeger</a>)</li>
 <li>Source generation or compiler plugin to enable REL independance [at runtime]</li>
+<li>Binary tool that would take a REL file, compile it and produce regexes in several flavors / programming langagues</li>
 </ul>
 </li>
 <li>Documentation
 
 <ul>
-<li>Document cleaners and extractors</li>
+<li>Document cleaners, extractors, matchers</li>
+<li>Make the present document a simple description and split the documentation part into several linked pages: syntax, matchers, extractors, flavors…</li>
 </ul>
 </li>
 </ul><h2>Known issues</h2>
 
-<p>The string primitives are not parsed, so</p>
+<h3>Versionning</h3>
+
+<p>REL version number follows the <a href="http://semver.org/">Semantic Versionning 2.0 Specification</a>. In the current early stage of development, the API is still unstable and backward compatibility may break.
+However, in version (0.Y.Z), a Z-only version is expected to be backard compatible with previous 0.Y.* version. But a Y version change poteantially breaks backward compatibility.</p>
+
+<h3>String primitives</h3>
+
+<p>The string primitives are not parsed (use <code>esc(str)</code> to escape a string that should be matched literally). Hence:</p>
 
 <ul>
-<li><p>Any group you pass inside those strings won't be taken into account by REL when the final regex is generated. The following groups and back-references will be shifted so the resulting regex will most probably be incorrect.</p></li>
-<li><p>You still need to escape your expressions to match regex-significant characters like <code>+</code>, <code>?</code> or <code>(</code>, even in <code>RECst</code> (pending update on this point)</p></li>
-</ul><h2>Usage and downloads</h2>
+<li>Any capturing group you pass inside those strings won't be taken into account by REL when the final regex is generated. The following groups and back-references will be shifted so the resulting regex will most probably be incorrect.</li>
+<li>You still need to escape your expressions to match literally characters that are regex-significant like <code>+</code>, <code>?</code> or <code>(</code>, even in <code>RECst</code>. Use <code>esc(str)</code> to escape the whole string.</li>
+<li>Any regex you pass as a string will be kept as-is when translated into different flavors. For instance, the <code>\w</code> passed in a string (as opposed to used with <code>Word</code>/<code>μ</code>) will not be translated by the <code>DotNETTranslator</code>.</li>
+</ul><h3>Flavors</h3>
+
+<p>JavaScript regexes are very limited and work a bit differently. In <a href="https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/JavaScriptTranslator.scala">JavaScript flavor</a></p>
+
+<ul>
+<li>
+<code>WordBoundary</code>/<code>\b</code> is kept as-is, but will not have exactly the same semantic because of the lack of Unicode support in JavaScript regex flavor. For instance, in <code>"fiancé"</code>, Javascript sees <code>"\bfianc\bé"</code> where most other flavors see <code>"\bfiancé\b"</code>. Same goes for <code>NotWordBoundary</code>/<code>\B</code>.</li>
+<li>
+<code>InputBegin</code> (<code>^^</code>) and <code>InputEnd</code> (<code>$$</code>) are translated to <code>LineBegin</code> (<code>^</code>) and <code>LineEnd</code> (<code>$</code>), but this is only correct if the <code>m</code> (multiline) flag is off.</li>
+</ul><p>In <a href="https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/DotNETTranslator.scala">.NET flavor</a>, the group names are not guaranteed to be valid.</p>
+
+<h2>Usage and downloads</h2>
 
 <ul>
 <li>download the <a href="https://github.com/Imaginatio/REL">source from github</a> and build the library with SBT</li>
