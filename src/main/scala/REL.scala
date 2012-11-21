@@ -26,11 +26,10 @@ package rel {
 
     def ~ (that: RE)    =
       (this, that) match {
-        case (Epsilon, Epsilon)                => Epsilon
-        case (Epsilon, r)                      => r
-        case (l, Epsilon)                      => l
-        case (l: RECst, r @ Alt(_, _))         => l - r.ncg
-        case (l, r)                            => l.ncg - r.ncg
+        case (Epsilon, Epsilon)          => Epsilon
+        case (Epsilon, r)                => r
+        case (l, Epsilon)                => l
+        case (l, r)                      => l.ncg - r.ncg
       }
 
     def - (that: RE)    =
@@ -167,7 +166,11 @@ package rel {
   case class NCGroup(override val re: RE) extends RE1(re) with Wrapped {
     override def linear(groupNames: List[String]) = re match {
       case re: Wrapped => re.linear(groupNames)
-      case _           => linear("(?:" + _ + ")", groupNames)
+      case _           => linear(
+        { s =>
+          if (RE.nonBreakingEntity.pattern.matcher(s).matches) s
+          else "(?:" + s + ")"
+        }, groupNames)
     }
 
     override def recurseMap(tr: Rewriter) =
@@ -369,6 +372,13 @@ package rel {
 
 
   object RE {
+    /** Non-breaking = does not need NCGroup protection.
+      * This regex matches:
+      * - single characters: `a`, `\w`, `\cX`, `\u0f1f`, `\h1f`, `\0123`
+      * - character classes `\p{...}`, `[...]`
+      */
+    val nonBreakingEntity = """^(?:\\?.|\\c.|\\u[\da-fA-F]{4}|\\x[\da-fA-F]{2}|\\0[0-3]?[0-7]{1,2}|\\[pP]\{\w+\}|\[[^\]]*+\])$""".r
+
     val escapeChars = "\\^$()[]{}?*+.|"
     val escapeMap   = escapeChars map { c => c -> List('\\', c) } toMap
     def escapeRegex(c: Char): List[Char] = escapeMap.getOrElse(c, c :: Nil)

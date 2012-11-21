@@ -15,9 +15,9 @@ class DotNETFlavorSpec extends Specification {
     val tr = { (re: RE) => DotNETFlavor.express(re)._1 }
 
     "translate possessive quantifiers" in {
-      tr("a" ?+)    must_== "(?>(?:a)?)"
-      tr(RE("a")++) must_== "(?>(?:a)+)"
-      tr("a" *+)    must_== "(?>(?:a)*)"
+      tr("a" ?+)    must_== "(?>a?)"
+      tr(RE("a")++) must_== "(?>a+)"
+      tr("a" *+)    must_== "(?>a*)"
       tr(RepAtLeastN("a", 2, Possessive)) must_== "(?>a{2,})"
       tr(RepAtMostN ("a", 2, Possessive)) must_== "(?>a{0,2})"
       tr(RepNToM ("a", 2, 5, Possessive)) must_== "(?>a{2,5})"

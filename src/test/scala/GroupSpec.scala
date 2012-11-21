@@ -11,21 +11,35 @@ class GroupSpec extends Specification {
 
 
   "Non-capturing groups" should {
-    val group = "a" %
+    val group = "ab" %
 
-    "linearize with (?:pattern)" in {
-      group.toString must_== "(?:a)"
+    "linearize without (?:) on non-breaking subexpression" in {
+      """a"""      .%.toString must_== """a"""
+      """\\"""     .%.toString must_== """\\"""
+      """^"""      .%.toString must_== """^"""
+      """\t"""     .%.toString must_== """\t"""
+      """\w"""     .%.toString must_== """\w"""
+      """\cC"""    .%.toString must_== """\cC"""
+      """\u00FF""" .%.toString must_== """\u00FF"""
+      """\x0F"""   .%.toString must_== """\x0F"""
+      """\0123"""  .%.toString must_== """\0123"""
+      """\p{Lu}""" .%.toString must_== """\p{Lu}"""
+      """[a-z]"""  .%.toString must_== """[a-z]"""
+      """[^a-z]""" .%.toString must_== """[^a-z]"""
+    }
+    "linearize with (?:pattern) otherwise" in {
+      group.toString must_== "(?:ab)"
     }
     "linearize only once when nested" in {
-      group.ncg.toString must_== "(?:a)"
+      group.ncg.toString must_== "(?:ab)"
     }
     "not linearize when direct subpattern is already grouping" in {
-      "a".g.ncg.toString  must not startWith("(?:")
-      "a".?<=.ncg.toString must not startWith("(?:")
-      "a".?<!.ncg.toString must not startWith("(?:")
-      "a".?=.ncg.toString must not startWith("(?:")
-      "a".?!.ncg.toString must not startWith("(?:")
-      "a".ag.ncg.toString must not startWith("(?:")
+      "ab".g  .ncg.toString must not startWith("(?:")
+      "ab".?<=.ncg.toString must not startWith("(?:")
+      "ab".?<!.ncg.toString must not startWith("(?:")
+      "ab".?= .ncg.toString must not startWith("(?:")
+      "ab".?! .ncg.toString must not startWith("(?:")
+      "ab".ag .ncg.toString must not startWith("(?:")
     }
   }
 

@@ -26,51 +26,51 @@ The embedded [Date regexes](https://github.com/Imaginatio/REL/blob/master/src/ma
 > ```scala
 import fr.splayce.rel._
 import Implicits._
-val a = RE("a")
-val b = RE("b")
+val a = RE("aa")
+val b = RE("bb")
 ```
 
 - Concatenation:
-    - Protected:   `a ~ b` → `(?:a)(?:b)`
-    - Unprotected: `a - b` → `ab`
-- Alternative: `a | b` → `a|b`
+    - Protected:   `a ~ b` → `(?:aa)(?:bb)`
+    - Unprotected: `a - b` → `aabb`
+- Alternative: `a | b` → `aa|bb`
 - Option:
-    - [greedy](http://www.regular-expressions.info/repeat.html#greedy) `a.?` → `(?:a)?` ; you can also skip the dot `a ?` but the former has clearer priority in a complex expression
-    - [reluctant / lazy](http://www.regular-expressions.info/repeat.html#lazy): `a.??` → `(?:a)??`
-    - [possessive](http://www.regular-expressions.info/possessive.html): `a.?+` → `(?:a)?+`
+    - [greedy](http://www.regular-expressions.info/repeat.html#greedy) `a.?` → `(?:aa)?` ; you can also skip the dot `a ?` but the former has clearer priority in a complex expression
+    - [reluctant / lazy](http://www.regular-expressions.info/repeat.html#lazy): `a.??` → `(?:aa)??`
+    - [possessive](http://www.regular-expressions.info/possessive.html): `a.?+` → `(?:aa)?+`
 - Repeat:
     - At least one:
-        - greedy:     `a.+`  → `(?:a)+`
-        - reluctant:  `a.+?` → `(?:a)+?`
-        - possessive: `a.++` → `(?:a)++`
+        - greedy:     `a.+`  → `(?:aa)+`
+        - reluctant:  `a.+?` → `(?:aa)+?`
+        - possessive: `a.++` → `(?:aa)++`
     - Any number:
-        - greedy:     `a.*`  → `(?:a)*`
-        - reluctant:  `a.*?` → `(?:a)*?`
-        - possessive: `a.*+` → `(?:a)*+`
+        - greedy:     `a.*`  → `(?:aa)*`
+        - reluctant:  `a.*?` → `(?:aa)*?`
+        - possessive: `a.*+` → `(?:aa)*+`
     - In range:
-        - greedy:     `a(1,3)` or `a(1 to 3)` or `a(1 -> 3)` → `(?:a){1,3}`
-        - reluctant:  `a(1, 3, Reluctant)`  → `(?:a){1,3}?`
-        - possessive: `a(1, 3, Possessive)` → `(?:a){1,3}+`
+        - greedy:     `a(1,3)` or `a(1 to 3)` or `a(1 -> 3)` → `(?:aa){1,3}`
+        - reluctant:  `a(1, 3, Reluctant)`  → `(?:aa){1,3}?`
+        - possessive: `a(1, 3, Possessive)` → `(?:aa){1,3}+`
     - At most:
-        - greedy:     `a < 3`   → `(?:a){0,3}`
-        - reluctant:  `a.<?(3)` → `(?:a){0,3}?` (dotted form `a.<?(3)` is mandatory, standalone `<?` being syntactically significant in Scala: `XMLSTART`)
-        - possessive: `a <+ 3`  → `(?:a){0,3}+`
+        - greedy:     `a < 3`   → `(?:aa){0,3}`
+        - reluctant:  `a.<?(3)` → `(?:aa){0,3}?` (dotted form `a.<?(3)` is mandatory, standalone `<?` being syntactically significant in Scala: `XMLSTART`)
+        - possessive: `a <+ 3`  → `(?:aa){0,3}+`
     - At least:
-        - greedy:     `a > 3`  → `(?:a){3,}`
-        - reluctant:  `a >? 3` → `(?:a){3,}?`
-        - possessive: `a >+ 3` → `(?:a){3,}+`
-    - Exactly: `a{3}` or `a(3)` → `(?:a){3}`
+        - greedy:     `a > 3`  → `(?:aa){3,}`
+        - reluctant:  `a >? 3` → `(?:aa){3,}?`
+        - possessive: `a >+ 3` → `(?:aa){3,}+`
+    - Exactly: `a{3}` or `a(3)` → `(?:aa){3}`
 - Lookaround:
-    - Lookahead:           `?=(a)`  or `a.?=`  → `(?=a)`
-    - Lookbehind:          `?<(a)`  or `a.?<`  → `(?<=a)`
-    - Negative lookahead:  `?!(a)`  or `a.?!`  → `(?!a)`
-    - Negative lookbehind: `?<!(a)` or `a.?<!` → `(?<!a)`
+    - Lookahead:           `?=(a)`  or `a.?=`  → `(?=aa)`
+    - Lookbehind:          `?<(a)`  or `a.?<`  → `(?<=aa)`
+    - Negative lookahead:  `?!(a)`  or `a.?!`  → `(?!aa)`
+    - Negative lookbehind: `?<!(a)` or `a.?<!` → `(?<!aa)`
 - Grouping:
-    - Named: `a \ "group_a"` → `(a)`; the name `group_a` will be passed to the `Regex` constructor,  queryable on corresponding `Match`es
-    - Unnamed: `a.g` → `(a)` (a unique group name is generated internally)
-    - Non-capturing: `a.ncg` → `(?:a)` or the short syntax `a.%`
-    - [Atomic](http://www.regular-expressions.info/atomic.html): `a.ag` → `(?>a)` or the short syntaxes `?>(a)` and `a.?>`
-- Back-reference: `!g` will insert a backreference on group `g`; e.g. `val g = (a|b).g; g - a - !g` → `(a|b)a\1`
+    - Named: `a \ "group_a"` → `(aa)`; the name `group_a` will be passed to the `Regex` constructor,  queryable on corresponding `Match`es
+    - Unnamed: `a.g` → `(aa)` (a unique group name is generated internally)
+    - Non-capturing: `a.ncg` → `(?:aa)` or the short syntax `a.%`; will try not to uselessly wrap non-breaking entities (i.e. single letters like `a` or `\u00F0` and character classes like `\w`, `[^a-z]` or `\p{Lu}`) to produce ever-so-slightly less unreadable output
+    - [Atomic](http://www.regular-expressions.info/atomic.html): `a.ag` → `(?>aa)` or the short syntaxes `?>(a)` and `a.?>`
+- Back-reference: `!g` will insert a backreference on group `g`; e.g. `val g = (a|b).g; g - a - !g` → `(aa|bb)aa\1`
 
 ### Constants
 
