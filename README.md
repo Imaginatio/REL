@@ -77,7 +77,7 @@ val b = RE("bb")
 A few "constants" (expression terms with no repetitions, capturing groups, or unprotected alternatives) are also pre-defined. Some of them have a UTF-8 Greek symbol alias for conciseness (import `rel.Symbols._` to use them), uppercase for negation. You can add your own by instancing case class `RECst(expr)`
 
 - `Epsilon` or `ε` → empty string
-- `Dot` or `τ` → `.`,          `LineTerminator` or `Τ`* → `.` ([line terminators](http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html#lt))
+- `Dot` or `τ` → `.`,          `LineTerminator` or `Τ`* → `(?:\r\n?|[\n\u0085\u2028\u2029])` ([line terminators](http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html#lt))
 - `MLDot` or `ττ` → `[\s\S]` (will match any char, including line terminators, even when the [`DOTALL`](http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html#DOTALL) or [`MULTILINE`](http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html#MULTILINE) modes are disabled)
 - `AlphaLower` → `[a-z]`,      `AlphaUpper` → `[A-Z]`
 - `Alpha` or `α` → `[a-zA-Z]`, `NotAlpha` or `Α`* → `[^a-zA-Z]`
