@@ -10,22 +10,24 @@ object Date {
   val s  = "n_sep"
   lazy val S  = DATE_SEP \ s
 
-  lazy val YYYY = ("1[7-9]" | "20") ~ (δ - δ)
-  lazy val MM   = "0[1-9]" | "1[012]"
-  lazy val DD   = "0[1-9]" | DD1
-  lazy val DD1  = "[12][0-9]" | "3[01]"
+  lazy val DD1 = "[12][0-9]" | "3[01]"
+  lazy val CC  = "1[7-9]" | "20"
 
   lazy val YY = δ - δ
   lazy val M  = "[1-9]" | "1[012]"
   lazy val D  = "[1-9]" | DD1
 
+  lazy val YYYY = CC.ncg - YY
+  lazy val MM   = "0[1-9]" | "1[012]"
+  lazy val DD   = "0[1-9]" | DD1
+
   lazy val DATE_YMD_L = YYYY - S ~ MM - !S ~ DD
   lazy val DATE_DMY_L = DD   ~ S ~ MM - !S - YYYY
   lazy val DATE_MDY_L = MM   ~ S ~ DD - !S - YYYY
 
-  lazy val DATE_YMD_S = YY - S ~ M - !S ~ D
-  lazy val DATE_DMY_S = D  ~ S ~ M - !S - YY
-  lazy val DATE_MDY_S = M  ~ S ~ D - !S - YY
+  lazy val DATE_YMD_S = CC.? - YY - S ~ M - !S ~ D
+  lazy val DATE_DMY_S =         D ~ S ~ M - !S - CC.? - YY
+  lazy val DATE_MDY_S =         M ~ S ~ D - !S - CC.? - YY
 
   lazy val DATE_YMD = (DATE_YMD_L | DATE_YMD_S) \ "n_ymd"
   lazy val DATE_DMY = (DATE_DMY_L | DATE_DMY_S) \ "n_dmy"

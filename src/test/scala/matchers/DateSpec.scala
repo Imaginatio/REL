@@ -30,10 +30,10 @@ class DateSpec extends Specification {
       NUMERIC.findAllIn("test 1996 98 2004 12 ok 2012") must have size(3)
     }
 
-    "match D-M-YY"       in { "1-1-00"     must     be matching(NUMERIC) }
-    "not match D-M-YYYY" in { "1-1-2000"   must not be matching(NUMERIC) }
-    "match DD-MM-YYYY"   in { "01-10-2000" must     be matching(NUMERIC) }
-    "not match DD-MM-YY" in { "01-10-00"   must not be matching(NUMERIC) }
+        "match D-M-YY"     in { "1-1-00"     must     be matching(NUMERIC) }
+        "match D-M-YYYY"   in { "1-1-2000"   must     be matching(NUMERIC) }
+        "match DD-MM-YYYY" in { "01-10-2000" must     be matching(NUMERIC) }
+    "not match DD-MM-YY"   in { "01-10-00"   must not be matching(NUMERIC) }
     "not match XX-MM-YY where XX can't be a day" in {
       "00-10-00" must not be matching(NUMERIC)
       "32-10-00" must not be matching(NUMERIC)
@@ -42,20 +42,20 @@ class DateSpec extends Specification {
       "99-10-00" must not be matching(NUMERIC)
     }
 
-    "match YY-M-D"       in { "00-1-1"     must     be matching(NUMERIC) }
-    "match YYYY-M-D"     in { "2000-1-1"   must not be matching(NUMERIC) }
-    "match YYYY-MM-DD"   in { "2000-10-01" must     be matching(NUMERIC) }
-    "not match YY-MM-DD" in { "00-10-01"   must not be matching(NUMERIC) }
+        "match YY-M-D"     in { "00-1-1"     must     be matching(NUMERIC) }
+        "match YYYY-M-D"   in { "2000-1-1"   must     be matching(NUMERIC) }
+        "match YYYY-MM-DD" in { "2000-10-01" must     be matching(NUMERIC) }
+    "not match YY-MM-DD"   in { "00-10-01"   must not be matching(NUMERIC) }
 
     "not match M-DD-YY"    in { "1-21-00"    must not be matching(NUMERIC) }
     "not match MM-DD-YY"   in { "01-21-00"   must not be matching(NUMERIC) }
-    "not match M-DD-YYYY"  in { "1-21-2000"  must not be matching(NUMERIC) }
+        "match M-DD-YYYY"  in { "1-21-2000"  must not be matching(NUMERIC) }
     "not match MM-DD-YYYY" in { "01-21-2000" must not be matching(NUMERIC) }
 
-    "match MM-YYYY"  in { "01-2000" must     be matching(NUMERIC) }
-    "match YYYY-MM"  in { "2000-01" must     be matching(NUMERIC) }
-    "not match M-YY" in { "1-00"    must not be matching(NUMERIC) }
-    "not match YY-M" in { "00-1"    must not be matching(NUMERIC) }
+        "match MM-YYYY" in { "01-2000" must     be matching(NUMERIC) }
+        "match YYYY-MM" in { "2000-01" must     be matching(NUMERIC) }
+    "not match M-YY"    in { "1-00"    must not be matching(NUMERIC) }
+    "not match YY-M"    in { "00-1"    must not be matching(NUMERIC) }
 
     "match with separators [ -/._]" in {
       "01 10 2000" must be matching(NUMERIC)
@@ -83,10 +83,12 @@ class DateSpec extends Specification {
       (NUMERIC findAllIn        "test01-03-2012ok") must have size(1)
       (NUMERIC findAllIn        "test03-2012ok")    must have size(1)
       (NUMERIC findAllIn        "test1-3-12ok")     must have size(1)
+      (NUMERIC findAllIn        "test1-3-2012ok")   must have size(1)
       (NUMERIC findFirstMatchIn "test2012ok")       must haveGroup("n_y", "2012")
       (NUMERIC findFirstMatchIn "test01-03-2012ok") must haveGroup("n_dmy", "01-03-2012")
       (NUMERIC findFirstMatchIn "test03-2012ok")    must haveGroup("n_my", "03-2012")
       (NUMERIC findFirstMatchIn "test1-3-12ok")     must haveGroup("n_dmy", "1-3-12")
+      (NUMERIC findFirstMatchIn "test1-3-2012ok")   must haveGroup("n_dmy", "1-3-2012")
     }
     "not match inside a number" in {
       (NUMERIC findAllIn   "test02012ok")            must be empty;
@@ -110,8 +112,10 @@ class DateSpec extends Specification {
       List("01/10/2000", "00-10-1", "01 10 2000") must allBeMatching(NUMERIC_FULL)
       (NUMERIC_FULL findAllIn        "test01-03-2012ok") must have size(1)
       (NUMERIC_FULL findAllIn        "test1-3-12ok")     must have size(1)
+      (NUMERIC_FULL findAllIn        "test1-3-2012ok")   must have size(1)
       (NUMERIC_FULL findFirstMatchIn "test01-03-2012ok") must haveGroup("n_dmy", "01-03-2012")
       (NUMERIC_FULL findFirstMatchIn "test1-3-12ok")     must haveGroup("n_dmy", "1-3-12")
+      (NUMERIC_FULL findFirstMatchIn "test1-3-2012ok")   must haveGroup("n_dmy", "1-3-2012")
       (NUMERIC_FULL findFirstMatchIn "test21-3-12ok")    must haveGroup("n_ymd", "21-3-12")
       (NUMERIC_FULL findFirstMatchIn "test22-1-41ok")    must haveGroup("n_dmy", "22-1-41")
     }
@@ -127,17 +131,18 @@ class DateSpec extends Specification {
     import Date.NUMERIC_US
 
     "still match numeric" in {
-      List("01/10/2000", "00-10-1", "10 2000", "2000 11", "1999") must allBeMatching(NUMERIC_US)
+      List("01/10/2000", "1/3/2000", "00-10-1", "10 2000", "2000 11", "1999") must allBeMatching(NUMERIC_US)
     }
 
         "match M-DD-YY"    in { "1-21-00"    must     be matching(NUMERIC_US) }
         "match MM-DD-YYYY" in { "01-21-2000" must     be matching(NUMERIC_US) }
     "not match MM-DD-YY"   in { "01-21-00"   must not be matching(NUMERIC_US) }
-    "not match M-DD-YYYY"  in { "1-21-2000"  must not be matching(NUMERIC_US) }
+        "match M-DD-YYYY"  in { "1-21-2000"  must     be matching(NUMERIC_US) }
 
     "match MDY > YMD > DMY when ambiguous" in {
       (NUMERIC_US findFirstMatchIn "11-11-2011") must haveGroup("n_mdy", "11-11-2011")
       (NUMERIC_US findFirstMatchIn "22-11-2011") must haveGroup("n_dmy", "22-11-2011")
+      (NUMERIC_US findFirstMatchIn "1-1-2011")   must haveGroup("n_mdy", "1-1-2011")
       (NUMERIC_US findFirstMatchIn "1-1-11")     must haveGroup("n_mdy", "1-1-11")
       (NUMERIC_US findFirstMatchIn "22-1-11")    must haveGroup("n_ymd", "22-1-11")
       (NUMERIC_US findFirstMatchIn "22-1-41")    must haveGroup("n_dmy", "22-1-41")
@@ -148,9 +153,10 @@ class DateSpec extends Specification {
     import Date.NUMERIC_FULL_US
 
     "still match numeric (with MDY > YMD > DMY)" in {
-      List("01/10/2000", "00-10-1", "01 10 2000") must allBeMatching(NUMERIC_FULL_US)
-      List("1-21-00", "01-21-2000")               must allBeMatching(NUMERIC_FULL_US)
+      List("01/10/2000", "1/3/2000", "00-10-1", "01 10 2000") must allBeMatching(NUMERIC_FULL_US)
+      List("1-21-00", "3-21-2000", "01-21-2000")              must allBeMatching(NUMERIC_FULL_US)
       (NUMERIC_FULL_US findFirstMatchIn "01/10/2000") must haveGroup("n_mdy", "01/10/2000")
+      (NUMERIC_FULL_US findFirstMatchIn "3/1/2000")   must haveGroup("n_mdy", "3/1/2000")
       (NUMERIC_FULL_US findFirstMatchIn "11-11-2011") must haveGroup("n_mdy", "11-11-2011")
       (NUMERIC_FULL_US findFirstMatchIn "22-11-2011") must haveGroup("n_dmy", "22-11-2011")
       (NUMERIC_FULL_US findFirstMatchIn "1-1-11")     must haveGroup("n_mdy", "1-1-11")
@@ -158,11 +164,14 @@ class DateSpec extends Specification {
 
       (NUMERIC_FULL_US findAllIn        "test01-03-2012ok") must have size(1)
       (NUMERIC_FULL_US findAllIn        "test1-3-12ok")     must have size(1)
+      (NUMERIC_FULL_US findAllIn        "test1-3-2012ok")   must have size(1)
       (NUMERIC_FULL_US findFirstMatchIn "test01-03-2012ok") must haveGroup("n_mdy", "01-03-2012")
       (NUMERIC_FULL_US findFirstMatchIn "test21-03-2012ok") must haveGroup("n_dmy", "21-03-2012")
       (NUMERIC_FULL_US findFirstMatchIn "test1-3-12ok")     must haveGroup("n_mdy", "1-3-12")
       (NUMERIC_FULL_US findFirstMatchIn "test21-3-12ok")    must haveGroup("n_ymd", "21-3-12")
       (NUMERIC_FULL_US findFirstMatchIn "test22-1-41ok")    must haveGroup("n_dmy", "22-1-41")
+      (NUMERIC_FULL_US findFirstMatchIn "test1-3-2012ok")   must haveGroup("n_mdy", "1-3-2012")
+      (NUMERIC_FULL_US findFirstMatchIn "test21-3-2012ok")  must haveGroup("n_dmy", "21-3-2012")
     }
     "not match partial date" in {
       List("10 2000", "2000 11", "1999") must noneBeMatching(NUMERIC_FULL_US)
@@ -186,10 +195,12 @@ class DateSpec extends Specification {
       (FR_ALL findAllIn        "test01-03-2012ok") must have size(1)
       (FR_ALL findAllIn        "test03-2012ok")    must have size(1)
       (FR_ALL findAllIn        "test1-3-12ok")     must have size(1)
+      (FR_ALL findAllIn        "test1-3-2012ok")   must have size(1)
       (FR_ALL findFirstMatchIn "test2012ok")       must haveGroup("n_y", "2012")
       (FR_ALL findFirstMatchIn "test01-03-2012ok") must haveGroup("n_dmy", "01-03-2012")
       (FR_ALL findFirstMatchIn "test03-2012ok")    must haveGroup("n_my", "03-2012")
       (FR_ALL findFirstMatchIn "test1-3-12ok")     must haveGroup("n_dmy", "1-3-12")
+      (FR_ALL findFirstMatchIn "test1-3-2012ok")   must haveGroup("n_dmy", "1-3-2012")
       (FR_ALL findFirstMatchIn "test21-3-12ok")    must haveGroup("n_ymd", "21-3-12")
       (FR_ALL findFirstMatchIn "test22-1-41ok")    must haveGroup("n_dmy", "22-1-41")
     }
@@ -297,8 +308,10 @@ class DateSpec extends Specification {
       List("01/10/2000", "00-10-1", "01 10 2000") must allBeMatching(FR_FULL)
       (FR_FULL findAllIn        "test01-03-2012ok") must have size(1)
       (FR_FULL findAllIn        "test1-3-12ok")     must have size(1)
+      (FR_FULL findAllIn        "test1-3-2012ok")   must have size(1)
       (FR_FULL findFirstMatchIn "test01-03-2012ok") must haveGroup("n_dmy", "01-03-2012")
       (FR_FULL findFirstMatchIn "test1-3-12ok")     must haveGroup("n_dmy", "1-3-12")
+      (FR_FULL findFirstMatchIn "test1-3-2012ok")   must haveGroup("n_dmy", "1-3-2012")
       (FR_FULL findFirstMatchIn "test21-3-12ok")    must haveGroup("n_ymd", "21-3-12")
       (FR_FULL findFirstMatchIn "test22-1-41ok")    must haveGroup("n_dmy", "22-1-41")
     }
@@ -368,21 +381,26 @@ class DateSpec extends Specification {
     }
 
     "still match numeric (with MDY > YMD > DMY)" in {
-      List("01/10/2000", "00-10-1", "10 2000", "2000 11", "1999") must allBeMatching(EN_ALL)
-      List("1-21-00", "01-21-2000")                               must allBeMatching(Date.NUMERIC_US)
-      List("1-21-00", "01-21-2000")                               must allBeMatching(EN_ALL)
+      List("01/10/2000", "1/3/2000", "00-10-1",
+        "10 2000", "2000 11", "1999") must allBeMatching(EN_ALL)
+      List("1-21-00", "1/21/2000", "01-21-2000")   must allBeMatching(Date.NUMERIC_US)
+      List("1-21-00", "1/21/2000", "01-21-2000")   must allBeMatching(EN_ALL)
       (EN_ALL findFirstMatchIn "01/10/2000") must haveGroup("n_mdy", "01/10/2000")
       (EN_ALL findFirstMatchIn "11-11-2011") must haveGroup("n_mdy", "11-11-2011")
       (EN_ALL findFirstMatchIn "22-11-2011") must haveGroup("n_dmy", "22-11-2011")
       (EN_ALL findFirstMatchIn "1-1-11")     must haveGroup("n_mdy", "1-1-11")
       (EN_ALL findFirstMatchIn "22-1-11")    must haveGroup("n_ymd", "22-1-11")
+      (EN_ALL findFirstMatchIn "1-3-2011")   must haveGroup("n_mdy", "1-3-2011")
+      (EN_ALL findFirstMatchIn "22-1-2011")  must haveGroup("n_dmy", "22-1-2011")
 
       (EN_ALL findAllIn        "test2012ok")       must have size(1)
       (EN_ALL findAllIn        "test01-03-2012ok") must have size(1)
+      (EN_ALL findAllIn        "test1-3-2012ok")   must have size(1)
       (EN_ALL findAllIn        "test03-2012ok")    must have size(1)
       (EN_ALL findAllIn        "test1-3-12ok")     must have size(1)
       (EN_ALL findFirstMatchIn "test2012ok")       must haveGroup("n_y", "2012")
       (EN_ALL findFirstMatchIn "test01-03-2012ok") must haveGroup("n_mdy", "01-03-2012")
+      (EN_ALL findFirstMatchIn "test1-3-2012ok")   must haveGroup("n_mdy", "1-3-2012")
       (EN_ALL findFirstMatchIn "test21-03-2012ok") must haveGroup("n_dmy", "21-03-2012")
       (EN_ALL findFirstMatchIn "test03-2012ok")    must haveGroup("n_my", "03-2012")
       (EN_ALL findFirstMatchIn "test1-3-12ok")     must haveGroup("n_mdy", "1-3-12")
@@ -541,21 +559,27 @@ class DateSpec extends Specification {
     import en.Date.{ALL_FULL => EN_FULL}
 
     "still match numeric (with MDY > YMD > DMY)" in {
-      List("01/10/2000", "00-10-1", "01 10 2000") must allBeMatching(EN_FULL)
-      List("1-21-00", "01-21-2000")               must allBeMatching(EN_FULL)
+      List("01/10/2000", "00-10-1", "01 10 2000", "1 10 2000") must allBeMatching(EN_FULL)
+      List("1-21-00", "01-21-2000", "1-21-2000")               must allBeMatching(EN_FULL)
       (EN_FULL findFirstMatchIn "01/10/2000") must haveGroup("n_mdy", "01/10/2000")
+      (EN_FULL findFirstMatchIn "1/10/2000")  must haveGroup("n_mdy", "1/10/2000")
       (EN_FULL findFirstMatchIn "11-11-2011") must haveGroup("n_mdy", "11-11-2011")
       (EN_FULL findFirstMatchIn "22-11-2011") must haveGroup("n_dmy", "22-11-2011")
+      (EN_FULL findFirstMatchIn "22-1-2011")  must haveGroup("n_dmy", "22-1-2011")
       (EN_FULL findFirstMatchIn "1-1-11")     must haveGroup("n_mdy", "1-1-11")
+      (EN_FULL findFirstMatchIn "1-1-2011")   must haveGroup("n_mdy", "1-1-2011")
       (EN_FULL findFirstMatchIn "22-1-11")    must haveGroup("n_ymd", "22-1-11")
 
       (EN_FULL findAllIn        "test01-03-2012ok") must have size(1)
       (EN_FULL findAllIn        "test1-3-12ok")     must have size(1)
+      (EN_FULL findAllIn        "test1-3-2012ok")   must have size(1)
       (EN_FULL findFirstMatchIn "test01-03-2012ok") must haveGroup("n_mdy", "01-03-2012")
       (EN_FULL findFirstMatchIn "test21-03-2012ok") must haveGroup("n_dmy", "21-03-2012")
       (EN_FULL findFirstMatchIn "test1-3-12ok")     must haveGroup("n_mdy", "1-3-12")
       (EN_FULL findFirstMatchIn "test21-3-12ok")    must haveGroup("n_ymd", "21-3-12")
       (EN_FULL findFirstMatchIn "test22-1-41ok")    must haveGroup("n_dmy", "22-1-41")
+      (EN_FULL findFirstMatchIn "test1-3-2012ok")   must haveGroup("n_mdy", "1-3-2012")
+      (EN_FULL findFirstMatchIn "test21-3-2012ok")  must haveGroup("n_dmy", "21-3-2012")
     }
     "still not match partial date" in {
       List("10 2000", "2000 11", "1999") must noneBeMatching(EN_FULL)
