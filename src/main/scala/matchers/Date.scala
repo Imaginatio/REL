@@ -82,18 +82,18 @@ package fr {
   object Date extends AlphaDate {
 
     override val ALPHA_MONTHS = Array(
-      """janv(?:ier|\.)?""",
-      """f[ée]v(?:rier|\.|r\.?)?""",
+      """janv(?>ier|\.)?""",
+      """f[ée]v(?>rier|\.|r\.?)?""",
       """mars""",
-      """avr(?:il|\.)?""",
+      """avr(?>il|\.)?""",
       """mai""",
       """juin""",
-      """juil(?:let|\.|l\.?)?""",
+      """juil(?>let|\.|l\.?)?""",
       """ao[uû]t""",
-      """sept(?:embre|\.)?""",
-      """oct(?:obre|\.)?""",
-      """nov(?:embre|\.)?""",
-      """d[ée]c(?:embre|\.)?""")
+      """sept(?>embre|\.)?""",
+      """oct(?>obre|\.)?""",
+      """nov(?>embre|\.)?""",
+      """d[ée]c(?>embre|\.)?""")
 
     val DAY = ("""1er\b""" | DD | D) \ "a_d"
     override val ALPHA      = ((δ.?<! - DAY ~ S.?+) | ß) ~ ALPHA_MONTH ~ (YEAR | BREAK)
@@ -113,18 +113,18 @@ package en {
     override val NUM_FULL = NUMERIC_FULL_US
 
     override val ALPHA_MONTHS = Array(
-      """jan(?:uary|\.)?""",
-      """feb(?:ruary|r?\.?)?""",
-      """mar(?:ch|\.)?""",
-      """apr(?:il|\.)?""",
+      """jan(?>uary|\.)?""",
+      """feb(?>ruary|r?\.?)?""",
+      """mar(?>ch|\.)?""",
+      """apr(?>il|\.)?""",
       """may""",
-      """jun(?:e|\.)?""",
-      """jul(?:y|\.)?""",
-      """aug(?:ust|\.)?""",
-      """sep(?:tember|t?\.?)?""",
-      """oct(?:ober|\.)?""",
-      """nov(?:ember|\.)?""",
-      """dec(?:ember|\.)?""")
+      """jun(?>e|\.)?""",
+      """jul(?>y|\.)?""",
+      """aug(?>ust|\.)?""",
+      """sep(?>tember|t?\.?)?""",
+      """oct(?>ober|\.)?""",
+      """nov(?>ember|\.)?""",
+      """dec(?>ember|\.)?""")
 
     val DAY = ?>("(?:(?:[23]?1)st|(?:2?2)nd|(?:2?3)rd|(?:[12]?[4-9]|[123]0)th)\\b"
       | DD | D ) \ "a_d"
