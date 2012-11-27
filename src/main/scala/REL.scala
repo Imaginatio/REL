@@ -42,17 +42,17 @@ package rel {
 
     def | (that: RE)    = Alt(this, that)
 
-    def ?    = Opt(this.ncg)
-    def ??   = Opt(this.ncg, Reluctant)
-    def ?+   = Opt(this.ncg, Possessive)
+    lazy val ?  = Opt(this.ncg)
+    lazy val ?? = Opt(this.ncg, Reluctant)
+    lazy val ?+ = Opt(this.ncg, Possessive)
 
-    def *    = KStar(this.ncg)
-    def *?   = KStar(this.ncg, Reluctant)
-    def *+   = KStar(this.ncg, Possessive)
+    lazy val *  = KStar(this.ncg)
+    lazy val *? = KStar(this.ncg, Reluctant)
+    lazy val *+ = KStar(this.ncg, Possessive)
 
-    def +    = KCross(this.ncg)
-    def +?   = KCross(this.ncg, Reluctant)
-    def ++   = KCross(this.ncg, Possessive)
+    lazy val +  = KCross(this.ncg)
+    lazy val +? = KCross(this.ncg, Reluctant)
+    lazy val ++ = KCross(this.ncg, Possessive)
 
     def apply(lb: Int, ub: Int, mode: RepMode = Greedy) = RepNToM(this.ncg, lb, ub, mode)
     def apply(rg: Range): RE      = apply(rg.start, rg.start + rg.length - 1)
@@ -68,10 +68,10 @@ package rel {
     def `<?` (n: Int): RE = RepAtMostN (this.ncg, n, Reluctant)
     def `<+` (n: Int): RE = RepAtMostN (this.ncg, n, Possessive)
 
-    def `?=` : RE = LookAround(this, Ahead)
-    def `?!` : RE = LookAround(this, Ahead, false)
-    def `?<=`: RE = LookAround(this, Behind)
-    def `?<!`: RE = LookAround(this, Behind, false)
+    lazy val `?=` : RE = LookAround(this, Ahead)
+    lazy val `?!` : RE = LookAround(this, Ahead, false)
+    lazy val `?<=`: RE = LookAround(this, Behind)
+    lazy val `?<!`: RE = LookAround(this, Behind, false)
 
     def g(name: String): Group = this match {
       case NCGroup(re) => re.g(name)
@@ -82,19 +82,19 @@ package rel {
     def apply(name: String) = g(name)
     def apply() = g()
 
-    def ncg: RE = this match {
+    lazy val ncg: RE = this match {
       case re: Wrapped => this
       case _           => NCGroup(this)
     }
-    def % = ncg
+    lazy val % = ncg
 
-    def ag: RE = this match {
+    lazy val ag: RE = this match {
       case re: Rep if (re.mode == Possessive) => this
       case re: AGroup                         => this
       case NCGroup(re)                        => re.ag
       case _                                  => AGroup(this)
     }
-    def ?> = ag
+    lazy val ?> = ag
 
     protected[rel] def linear(groupNames: List[String] = Nil): (String, List[String])
     lazy val lin = linear()
@@ -202,7 +202,7 @@ package rel {
     override lazy val groups =
       List(MatchGroup(Some(name), None, re.groups))
 
-    def unary_! = GroupRef(name)
+    lazy val unary_! = GroupRef(name)
   }
 
   case class LookAround(override val re: RE,
@@ -321,7 +321,7 @@ package rel {
     override def linear(groupNames: List[String]) =
       ("\\" + (groupNames.lastIndexOf(name) + 1), groupNames)
 
-    def unary_! = this
+    lazy val unary_! = this
   }
 
   case class Atom(val re: Regex) extends RE0 {
