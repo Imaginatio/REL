@@ -62,7 +62,7 @@ val b = RE("bb")
     - Exactly: `a{3}` or `a(3)` → `(?:aa){3}`
 - Lookaround:
     - Lookahead:           `?=(a)`  or `a.?=`  → `(?=aa)`
-    - Lookbehind:          `?<(a)`  or `a.?<`  → `(?<=aa)`
+    - Lookbehind:          `?<=(a)` or `a.?<=` → `(?<=aa)`
     - Negative lookahead:  `?!(a)`  or `a.?!`  → `(?!aa)`
     - Negative lookbehind: `?<!(a)` or `a.?<!` → `(?<!aa)`
 - Grouping:
