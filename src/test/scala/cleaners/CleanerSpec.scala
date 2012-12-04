@@ -15,11 +15,28 @@ class CleanerSpec extends Specification {
   }
 
   "WhiteSpace Cleaner" should {
-    "Remove multiple whitespaces" in {
+    "Remove multiple ASCII whitespaces" in {
       WhiteSpaceCleaner("  double  spaces  ") must_== " double spaces "
     }
-    "Translate other whitespaces to spaces" in {
+    "Translate other ASCII whitespaces to spaces" in {
       WhiteSpaceCleaner("list:\n\tfirst\r\n\tsecond") must_== "list: first second"
+    }
+  }
+  "WhiteSpace Normalizers" should {
+    "Translate Unicode white spaces and tabs to ASCII spaces" in {
+      WhiteSpaceNormalizer(" \u0009\u001F\u0020\u00A0\u180E\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000")
+        .must_==("                     ")
+    }
+    "Translate Unicode line separators to ASCII new lines" in {
+      LineSeparatorNormalizer("\r\n \u000A\u000B\u000C\u000D\u001C\u001D\u001E\u0085\u2028\u2029")
+        .must_==("\n \n\n\n\n\n\n\n\n\n\n")
+    }
+  }
+  "All WhiteSpace Cleaner" should {
+    "Remove multiple Unicode whitespaces and line separators" in {
+      AllWhiteSpaceCleaner("  double  spaces  ") must_== " double spaces "
+      AllWhiteSpaceCleaner("A" + " \u0009\u001F\u0020\u00A0\u180E\u1680\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u202F\u205F\u3000\r\n \u000A\u000B\u000C\u000D\u001C\u001D\u001E\u0085\u2028\u2029"
+          + "B") must_== "A B"
     }
   }
 
