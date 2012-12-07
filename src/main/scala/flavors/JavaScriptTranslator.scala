@@ -4,14 +4,17 @@ import fr.splayce.rel._
 import util.Rewriter
 
 
+/** @see [[fr.splayce.rel.flavors.JavaScriptFlavor]]
+  * @todo variant for XRegExp with Unicode http://xregexp.com/plugins/#unicode
+  */
 object JavaScriptTranslator {
 
   val translate: Rewriter = {
 
     // JavaScript regexes are pretty limited...
-    case LookAround(_, Behind, _)         => notSupported("LookBehind")
+    case LookAround(_, Behind, _)         => notSupported("LookBehind", false)
     case r: Rep if (r.mode == Possessive) => notSupported("Possessive quantifiers", true)
-    case AGroup(_)                        => notSupported("Atomic grouping")
+    case AGroup(_)                        => notSupported("Atomic grouping", false)
 
     // Javascript doesn't support Unicode categories natively
     // although one may use XRegExp with Unicode plugin:
@@ -27,9 +30,6 @@ object JavaScriptTranslator {
 
   }
 
-  private def notSupported(what: String, plural: Boolean = false) =
-    throw new IllegalArgumentException((what
-        :: (if (plural) "are" else "is")
-        :: "not supported in JavaScript" :: Nil) mkString " ")
+  private val notSupported = unsupported("JavaScript")(_, _)
 
 }

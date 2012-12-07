@@ -20,7 +20,7 @@ These value are `RE` objects (also named _terms_ or _trees_/_subtrees_), which c
 
 The embedded [Date regexes](https://github.com/Imaginatio/REL/blob/master/src/main/scala/matchers/Date.scala) and [extractors](https://github.com/Imaginatio/REL/blob/master/src/main/scala/matchers/DateExtractor.scala) will give you more complete examples, matching several date formats at once with little prior knowledge.
 
-### Supported opperators
+### Syntax
 
 > Examples are noted `DSL expression` → `resulting regex`. They assume:
 > ```scala
@@ -104,13 +104,15 @@ An example of translation into [.NET-flavored regex](http://www.regular-expressi
 - turns any possessive quantifier into a greedy quantifier wrapped in an atomic group (which is a longer equivalent)
 - inlines named groups and their references into the .NET `(?<name>expr)` syntax
 
-Another example is the [`JavaScriptTranslator`](https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/JavaScriptTranslator.scala), which will mainly throw an exception when you try to translate a `RE` term that is not supported in the [JavaScript regex flavor](http://www.regular-expressions.info/javascript.html).
+Another example is the [`JavaScriptTranslator`](https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/JavaScriptTranslator.scala), which will mainly throw an exception when you try to translate a `RE` term that is not supported in the [JavaScript regex flavor](http://www.regular-expressions.info/javascript.html) (e.g. LookBehind).
+
+The [`LegacyRubyTranslator`](https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/LegacyRubyTranslator.scala) works similarly for the [Ruby 1.8 regex flavor](http://www.regular-expressions.info/ruby.html) which [does not support Unicode](http://www.regular-expressions.info/unicode8bit.html), unlike [Oniguruma](http://www.geocities.jp/kosako3/oniguruma/) when the `/u` flag is set. You shouldn't need to translate a REL regex to use it with Oniguruma, which also fully supports LookBehind and possessive quantifiers, and is the default regex implementation in Ruby 1.9.
 
 [Regular-expression.info](http://www.regular-expressions.info)'s [regex flavors comparison chart](http://www.regular-expressions.info/refflavors.html) may be of use when writing a translation.
 
 ### Capturing Groups
 
-Since a REL term is a tree, it can compute the resulting capturing groups tree with the `matchGroup` val, containing a tree of `MatchGroup`s. The top group corresponds to the entire match: it is unnamed, contains the matched content and has the first-level capturing groups nested as subgroups. When applied to a `Match`, the content of each group is filled. Thus, you can use pattern matching with nested groups to extract any group at several levels of imbrication with little code.
+Since a REL term is a tree, it can compute the resulting capturing groups tree with the `matchGroup` val, containing a tree of `MatchGroup`s. The top group corresponds to the entire match: it is unnamed, contains the matched content and has the first-level capturing groups nested as subgroups. When applied to a `Match`, it returns a copy of the capturing groups tree with the content filled for each group that matched. Thus, you can use pattern matching with nested groups to extract any group at several levels of imbrication with little code.
 
 For example, let's say we want to match simple usernames that have the form `user@machine` where both part have only alphabetic characters. We can define the regex:
 
@@ -199,7 +201,7 @@ interactions2.toList.toString === "List((me,dev,you,dev), (you,dev,me,dev))"
     - Source generation or compiler plugin to enable REL independance \[at runtime]
     - Binary tool that would take a REL file, compile it and produce regexes in several flavors / programming langagues
 - Documentation
-    - Document cleaners, extractors, matchers
+    - Document cleaners, extractors, matchers, flavors
     - Make the present document a simple description and split the documentation part into several linked pages: syntax, matchers, extractors, flavors…
 
 
@@ -208,7 +210,7 @@ interactions2.toList.toString === "List((me,dev,you,dev), (you,dev,me,dev))"
 ### Versionning
 
 REL version number follows the [Semantic Versionning 2.0 Specification](http://semver.org/). In the current early stage of development, the API is still unstable and backward compatibility may break.
-However, in version (0.Y.Z), a Z-only version is expected to be backard compatible with previous 0.Y.* version. But a Y version change poteantially breaks backward compatibility.
+As an additional rule, in version `0.Y.Z`, a `Z`-only version change is expected to be backard compatible with previous `0.Y.*` versions. But a `Y` version change poteantially breaks backward compatibility.
 
 ### String primitives
 

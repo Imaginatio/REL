@@ -27,15 +27,15 @@ class JavaScriptFlavorSpec extends Specification {
 
     "not support look-behind, keep look-ahead" in {
       val msg = "LookBehind is" + notSupported
-      tr("a".?<=)   must throwA[IllegalArgumentException](message = msg)
-      tr("a".?<!)   must throwA[IllegalArgumentException](message = msg)
-      tr("a".?=)   must_== "(?=a)"
-      tr("a".?!)   must_== "(?!a)"
+      tr(?<=("a"))  must throwA[IllegalArgumentException](message = msg)
+      tr(?<!("a"))  must throwA[IllegalArgumentException](message = msg)
+      tr( ?=("a"))  must_== "(?=a)"
+      tr( ?!("a"))  must_== "(?!a)"
     }
 
     "not support atomic grouping" in {
       val msg = "Atomic grouping is" + notSupported
-      tr("a".?>) must throwA[IllegalArgumentException](message = msg)
+      tr(?>("a")) must throwA[IllegalArgumentException](message = msg)
     }
 
     "not support unicode categories" in {
@@ -50,7 +50,7 @@ class JavaScriptFlavorSpec extends Specification {
     "translate \\A and \\z" in {
       tr(^) must_== "^"
       tr($) must_== "$"
-   }
+    }
     "keep \\w, \\W, \\b and \\B" in {
       tr(μ) must_== "\\w"
       tr(Μ) must_== "\\W"

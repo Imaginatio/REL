@@ -4,29 +4,24 @@ import fr.splayce.rel._
 import util.Rewriter
 
 
+/** @see [[fr.splayce.rel.flavors.DotNETFlavor]] */
 object DotNETTranslator {
 
-  class Cst(val c: String) extends REStr(c)
+  private val ASCIIWord    = new TranslatedRECst("[a-zA-Z0-9_]")
+  private val NotASCIIWord = new TranslatedRECst("[^a-zA-Z0-9_]")
 
-  val translate: Rewriter = {
+  lazy val translate: Rewriter = {
 
     // named groups & their references
     case    Group(name, re) => Wrapper(re map translate, "(?<" + name + ">", ")", List(name))
-    case GroupRef(name)     => new Cst("""\k<""" + name + ">")
+    case GroupRef(name)     => new TranslatedREStr("""\k<""" + name + ">")
 
-    // no possessive repeater but can be translated
-    // to greedy repeater in an atomic group
-    case         Opt(re,        Possessive) =>         Opt(re map translate,       Greedy).ag
-    case       KStar(re,        Possessive) =>       KStar(re map translate,       Greedy).ag
-    case      KCross(re,        Possessive) =>      KCross(re map translate,       Greedy).ag
-    case     RepNToM(re, n, m,  Possessive) =>     RepNToM(re map translate, n, m, Greedy).ag
-    case RepAtLeastN(re, n,     Possessive) => RepAtLeastN(re map translate, n,    Greedy).ag
-    case  RepAtMostN(re, n,     Possessive) =>  RepAtMostN(re map translate, n,    Greedy).ag
+    // .NET's \w would also match letters with diacritics
+    case Word               => ASCIIWord
+    case NotWord            => NotASCIIWord
 
-    // .NET's \w would match letters with diacritics
-    case Word    => new Cst("[a-zA-Z0-9_]")
-    case NotWord => new Cst("[^a-zA-Z0-9_]")
-
+    // Also, no possessive quantifiers
+    case rep: Rep if rep.mode == Possessive => possessiveToAtomic(translate)(rep)
   }
 
 }
