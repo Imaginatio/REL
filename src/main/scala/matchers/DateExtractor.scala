@@ -13,16 +13,15 @@ import DateExtractor._
 import AlphaDateExtractor._
 
 
-/**
- * Extract a list of possible date interpretations, considering ambiguity
+/** Extract a list of possible date interpretations, considering ambiguity
  *
- * Ambiguous cases are (in expr A/B/C):
- * - for Date.NUMERIC and Date.NUMERIC_US:
- *     - YMD_S | DMY_S when 10 <= A <= 31 and C >= 10 (and A != C)
- * - for Date.NUMERIC_US
- *     - MDY_S | YMD_S when 0 < C <= 12 && B <= 12 (and (A != C or B != C))
- *     - MDY_S | DMY_S when B <= 12 (and A != B)
- *     - MDY_L | DMY_L when B <= 12 (and A != B)
+ *  Ambiguous cases are (in expression `A/B/C`):
+ *  - for `Date.NUMERIC` and `Date.NUMERIC_US`:
+ *    - `YMD_S | DMY_S` when `10 <= A <= 31 and C >= 10 (and A != C)`
+ *  - for `Date.NUMERIC_US`
+ *    - `MDY_S | YMD_S` when `0 < C <= 12 && B <= 12 (and (A != C or B != C))`
+ *    - `MDY_S | DMY_S` when `B <= 12 (and A != B)`
+ *    - `MDY_L | DMY_L` when `B <= 12 (and A != B)`
  */
 
 class DateExtractor(

@@ -5,8 +5,8 @@ import util.Rewriter
 
 
 /** @see [[fr.splayce.rel.flavors.LegacyRubyFlavor]]
-  * @todo add endianness/charset variations that translate Unicode into multibytes
-  */
+ *  @todo add endianness/charset variations that translate Unicode into multibytes
+ */
 object LegacyRubyTranslator {
 
   private val ASCIILineTerminator = new TranslatedRECst("""(?:\r\n?|\n)""")

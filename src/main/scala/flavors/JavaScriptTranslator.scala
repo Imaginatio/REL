@@ -5,8 +5,8 @@ import util.Rewriter
 
 
 /** @see [[fr.splayce.rel.flavors.JavaScriptFlavor]]
-  * @todo variant for XRegExp with Unicode http://xregexp.com/plugins/#unicode
-  */
+ *  @todo variant for XRegExp with Unicode http://xregexp.com/plugins/#unicode
+ */
 object JavaScriptTranslator {
 
   val translate: Rewriter = {

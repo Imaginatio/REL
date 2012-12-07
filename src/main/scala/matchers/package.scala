@@ -9,10 +9,10 @@ package object matchers {
     else escapeRegex(expr)
 
   /** Build a RE term matching an escaped expression
-   * @param expr expression to match
-   * @param by   escape prefix
-   * @param lb   use LookBehind (WARNING: unbound LookBehind, only works
-   *             in .NET flavor, will throw a PatternSyntaxException in Java)
+   *  @param expr expression to match
+   *  @param by   escape prefix
+   *  @param lb   use LookBehind (WARNING: unbound LookBehind, only works
+   *              in .NET flavor, will throw a PatternSyntaxException in Java)
    */
   def   escaped(expr: RE, by: String = "\\", lb: Boolean = false): RE = {
     val ncgBy = ncgEsc(by)
@@ -21,10 +21,10 @@ package object matchers {
   }
 
   /** Build a RE term matching an unescaped expression
-   * @param expr expression to match
-   * @param by   escape prefix
-   * @param lb   use LookBehind (WARNING: unbound LookBehind, only works
-   *             in .NET flavor, will throw a PatternSyntaxException in Java)
+   *  @param expr expression to match
+   *  @param by   escape prefix
+   *  @param lb   use LookBehind (WARNING: unbound LookBehind, only works
+   *              in .NET flavor, will throw a PatternSyntaxException in Java)
    */
   def unescaped(expr: RE, by: String = "\\", lb: Boolean = false): RE = {
     val prefix = RE("(?:" + ncgEsc(by) + "{2})*")
