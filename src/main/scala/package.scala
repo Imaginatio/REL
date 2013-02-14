@@ -113,4 +113,11 @@ package rel {
     val Β  = NotWordBoundary
   }
 
+  object TraversalOrder extends Enumeration {
+    val Prefixed    = Value("prefixed")
+    val InfixedPre  = Value("infixed-pre")
+    val InfixedPost = Value("infixed-post")
+    val Postfixed   = Value("postfixed")
+  }
+
 }

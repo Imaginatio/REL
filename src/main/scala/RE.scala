@@ -146,6 +146,14 @@ abstract sealed class RE {
     (tr lift)(this) getOrElse recurseMap(tr)
   protected def recurseMap(tr: Rewriter): RE
 
+  /** Return a traversable for this order */
+  def traverse(order: RE.TraversalOrder): Traversable[RE] = new Traversable[RE] {
+    override def foreach[U](f: RE => U) {
+      RE.this.foreach(order)(f)
+    }
+  }
+  def foreach[U](order: RE.TraversalOrder)(f: RE => U)
+
   /** Corresponding MatchGroup tree, with containing unnamed `\$0` MatchGroup */
   lazy val matchGroup: MatchGroup = MatchGroup(None, None, groups)
   /** Corresponding MatchGroup tree, without containing unnamed `\$0` MatchGroup */
@@ -163,6 +171,8 @@ abstract sealed class RE {
 }
 
 object RE {
+  type TraversalOrder = TraversalOrder.Value
+
   /** Regex for non-breaking entities = that does not need NCGroup protection.
    *
    *  This regex matches:
@@ -210,6 +220,18 @@ abstract sealed class RE2(val lRe: RE, val rRe: RE) extends RE {
 
   override lazy val groups =
     lRe.groups ::: rRe.groups
+
+  override def foreach[U](order: RE.TraversalOrder)(f: RE => U) {
+    order match {
+      case TraversalOrder.Prefixed  =>
+        f(this) ; lRe.foreach(order)(f) ; rRe.foreach(order)(f)
+      case TraversalOrder.InfixedPre | TraversalOrder.InfixedPost =>
+        lRe.foreach(order)(f) ; f(this) ; rRe.foreach(order)(f)
+      case TraversalOrder.Postfixed =>
+        lRe.foreach(order)(f) ; rRe.foreach(order)(f) ; f(this)
+    }
+  }
+
 }
 
 /** Concatenation RE tree node */
@@ -243,6 +265,15 @@ sealed abstract class RE1(val re: RE) extends RE {
 
   override lazy val groups =
     re.groups
+
+  override def foreach[U](order: RE.TraversalOrder)(f: RE => U) {
+    order match {
+      case TraversalOrder.Prefixed | TraversalOrder.InfixedPre =>
+        f(this) ; re.foreach(order)(f)
+      case TraversalOrder.Postfixed | TraversalOrder.InfixedPost =>
+        re.foreach(order)(f) ; f(this)
+    }
+  }
 }
 
 /** Non-capturing group */
@@ -410,6 +441,10 @@ sealed abstract class RE0 extends RE {
   override def recurseMap(tr: Rewriter) = this
 
   override lazy val groups = Nil
+
+  override def foreach[U](order: RE.TraversalOrder)(f: RE => U) {
+    f(this)
+  }
 }
 
 /** Reference on a (named) capturing group */
