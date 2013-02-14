@@ -18,8 +18,8 @@ object Java7Flavor extends Flavor("Java 7") with EmbedGroupNames {
 
 /** PCRE Flavor (C, PHP, Ruby 1.9 / Oniguruma…).
  *
- * Embeds group names and named references (snake-case),
- * and uses `\R` short syntax for `LineTerminator`. */
+ *  Embeds group names and named references (snake-case),
+ *  and uses `\R` short syntax for `LineTerminator`. */
 object PCREFlavor extends Flavor("PCRE") with EmbedGroupNames {
   private val SimpleLineTerminator = new TranslatedRECst("""\R""")
   override val translator: Rewriter = {
@@ -34,16 +34,16 @@ class TranslatedRECst(val s: String) extends RECst(s)
 
 /** Embeds validly-named capturing groups and references, Java 7-style (`(?<name>expr)` and `(\k<name>)`).
  *
- * Keeps Scala-style group names at Regex instanciation.
+ *  Keeps Scala-style group names at Regex instanciation.
  *
- * Valid inline group names are those matching the overridable
- * `groupNamingValidator` regex, `RE.snakeGroupName` by default.
- * This validation is post-checked, so that an extending Flavor's
- * `translator` can alter group names beforehand.
+ *  Valid inline group names are those matching the overridable
+ *  `groupNamingValidator` regex, `RE.snakeGroupName` by default.
+ *  This validation is post-checked, so that an extending Flavor's
+ *  `translator` can alter group names beforehand.
  *
- * @see [[java.util.regex.Pattern]]
- * @see [[scala.util.matching.Regex]]
- * @see [[fr.splayce.rel.flavors.GroupNameSimplifier]]
+ *  @see [[java.util.regex.Pattern]]
+ *  @see [[scala.util.matching.Regex]]
+ *  @see [[fr.splayce.rel.flavors.GroupNameSimplifier]]
  */
 trait EmbedGroupNames extends FlavorLike {
   val groupNamingStyle: GroupNamingStyle = ChevNamingStyle
@@ -68,9 +68,9 @@ trait EmbedGroupNames extends FlavorLike {
 
 /** Strips inline-named capturing groups and references, Java 6-style (`(expr)` and `(\n)`).
  *
- * Keeps Scala-style group names at Regex instanciation.
- * @see [[java.util.regex.Pattern]]
- * @see [[scala.util.matching.Regex]]
+ *  Keeps Scala-style group names at Regex instanciation.
+ *  @see [[java.util.regex.Pattern]]
+ *  @see [[scala.util.matching.Regex]]
  */
 trait StripGroupNames extends FlavorLike {
   lazy val sgn: Rewriter = {
@@ -108,9 +108,9 @@ object PossessiveToAtomic {
 
 /** Mimick atomic grouping and possessive quantifiers with capturing LookAheads.
  *
- * Transforms atomic grouping and possessive quantifiers into a capturing
- * LookAhead + immediate backreference: `(?>a)` becomes `(?:(?=(a))\1)` and
- * `a++` becomes `(?:(?=(a+))\1)`
+ *  Transforms atomic grouping and possessive quantifiers into a capturing
+ *  LookAhead + immediate backreference: `(?>a)` becomes `(?:(?=(a))\1)` and
+ *  `a++` becomes `(?:(?=(a+))\1)`
  *
  *  This permits the usage of atomic groups (and consequently, possessive quantifiers)
  *  in flavors that don't support them but do support LookAhead.

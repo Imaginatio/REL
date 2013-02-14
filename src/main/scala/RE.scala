@@ -70,8 +70,8 @@ abstract sealed class RE {
   def `<`  (n: Int): RE = RepAtMostN (this.ncg, n)
   /** At-most-N quantifier, reluctant
    *
-   * Dotted form `expr.<?(n)` is mandatory, standalone `<?` being
-   * syntactically significant in Scala (`XMLSTART`)
+   *  Dotted form `expr.<?(n)` is mandatory, standalone `<?` being
+   *  syntactically significant in Scala (`XMLSTART`)
    */
   def `<?` (n: Int): RE = RepAtMostN (this.ncg, n, Reluctant)
   /** At-most-N quantifier, possessive */
@@ -146,9 +146,9 @@ abstract sealed class RE {
     (tr lift)(this) getOrElse recurseMap(tr)
   protected def recurseMap(tr: Rewriter): RE
 
-  /** Corresponding MatchGroup tree, with containing unnamed `$0` MatchGroup */
+  /** Corresponding MatchGroup tree, with containing unnamed `\$0` MatchGroup */
   lazy val matchGroup: MatchGroup = MatchGroup(None, None, groups)
-  /** Corresponding MatchGroup tree, without containing unnamed `$0` MatchGroup */
+  /** Corresponding MatchGroup tree, without containing unnamed `\$0` MatchGroup */
   val groups: List[MatchGroup]
 
   /** Generate an Extractor for this extracting function */
@@ -385,7 +385,7 @@ extends Rep(re, 1, mode = mode) {
 
 /** Utility all-purpose subtree wrapper.
  *
- * Should mainly be used to implement Flavors / tree transformations.
+ *  Should mainly be used to implement Flavors / tree transformations.
  */
 case class Wrapper(
   override val re: RE,

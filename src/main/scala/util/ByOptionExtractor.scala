@@ -18,13 +18,13 @@ extends Extractor[A] {
   def apply(m: Match): Option[A] =
     extractMatch(m)
 
-  /** For pattern matching on a Match
-    * (Extractors being naturally able
-    * to pattern matching on a String)
-    */
+  /** For pattern matching on a Match (Extractors being
+   *  already able to pattern matching on a String)
+   */
   lazy val toPM = new PatternMatcher[Match, A](extractMatch)
 
 }
+
 object ByOptionExtractor {
   import Predef.{DummyImplicit => DI} // avoid "Same erasure" error
 

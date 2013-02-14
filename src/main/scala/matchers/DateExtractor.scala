@@ -107,10 +107,10 @@ object DateExtractor {
     val m: Option[Int] = None,
     val d: Option[Int] = None
   ) {
-    require (y.isDefined || m.isDefined)
-    require (y.isEmpty   || (0 <= y.get))
-    require (m.isEmpty   || (0 <  m.get && m.get <= 12))
-    require (d.isEmpty   || (0 <  d.get && d.get <= 31))
+    require (y.isDefined || m.isDefined, "A Date Result needs at least a year or a month")
+    require (y.isEmpty   || (0 <= y.get), "Incorrect year: " + y.get)
+    require (m.isEmpty   || (0 <  m.get && m.get <= 12), "Incorrect month: " + m.get)
+    require (d.isEmpty   || (0 <  d.get && d.get <= 31), "Incorrect day: " + m.get)
 
     lazy val str = {
       y.map(i => year(i)) .toList :::

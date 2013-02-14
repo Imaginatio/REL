@@ -22,11 +22,11 @@ package object util {
   type MatchGroupOptionExtractor[+A] = MatchGroupExtractor[Option[A]]
 
   /** Reverse of PartialFunction's lift method
-    *
-    * Use with parcimony if f is costly, for it may be called twice.
-    * For example in such case, prefer using [[fr.splayce.rel.ByOptionExtractor]]
-    * over using unlift to make a MatchExtractor.
-    */
+   *
+   *  Use with parcimony if f is costly, for it may be called twice.
+   *  For example in such case, prefer using [[fr.splayce.rel.ByOptionExtractor]]
+   *  over using unlift to make a MatchExtractor.
+   */
   def unlift[A, B](f: Function1[A, Option[B]]): PartialFunction[A, B] = {
     case o if (f(o).isDefined) => f(o).get
   }
@@ -56,9 +56,10 @@ package util {
 
 
   /** Utility for instanciating pattern matchers on various objects.
-    * See [[fr.splayce.rel.ByOptionExtractor#toPM]],
-    * [[fr.splayce.rel.ByOptionExtractor.toPM]].
-    */
+   *
+   *  @see [[fr.splayce.rel.ByOptionExtractor#toPM]]
+   *  @see [[fr.splayce.rel.ByOptionExtractor.toPM]]
+   */
   class PatternMatcher[-A, +B](val extract: A => Option[B]) {
     def this(partialExtractor: PartialFunction[A, B]) = this(partialExtractor lift)
     def unapply(a: A) = extract(a)

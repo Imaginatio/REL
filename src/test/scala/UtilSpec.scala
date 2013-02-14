@@ -66,9 +66,9 @@ class UtilSpec extends Specification {
 
     "allow pattern matching on Option(captured groups) (Some = not null)" in {
       val pf: MES = {
-        case NotNull(_,       _,       Some(c))           => c
-        case NotNull(_,       Some(b), None) if (b != "") => b
-        case NotNull(Some(a), _, _)                       => a
+        case NotNull(_,       _,       Some(c))              => c
+        case NotNull(_,       Some(b), None)    if (b != "") => b
+        case NotNull(Some(a), _,       _)                    => a
       }
       val extract = re << pf
       extract("123") .toList must_== List("3")
