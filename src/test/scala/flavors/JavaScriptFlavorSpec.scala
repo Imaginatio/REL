@@ -28,7 +28,7 @@ class JavaScriptFlavorSpec extends Specification {
     "transform atomic grouping" in {
       val ga = a.g
       tr(?>(a)) must_== (?=(ga) - !ga).ncg.toString
-      
+
       // checking the atomic nature
       new Regex(tr(?>("abc|ab")) + "c").findFirstMatchIn("abc") must beNone
     }
@@ -40,7 +40,7 @@ class JavaScriptFlavorSpec extends Specification {
       tr(RepAtLeastN(a, 2, Possessive)) must_== "(?:(?=(a{2,}))\\1)"
       tr(RepAtMostN (a, 2, Possessive)) must_== "(?:(?=(a{0,2}))\\1)"
       tr(RepNToM (a, 2, 5, Possessive)) must_== "(?:(?=(a{2,5}))\\1)"
-      
+
       // checking the possessive nature
       new Regex(tr(a?+) + "a").findFirstMatchIn("a")                              must beNone
       new Regex(tr(a++) + "a").findFirstMatchIn("aa")                             must beNone
@@ -57,6 +57,10 @@ class JavaScriptFlavorSpec extends Specification {
       tr(LetterUpper) must throwA[IllegalArgumentException](message = msg("LetterUpper"))
       tr(λ)           must throwA[IllegalArgumentException](message = msg("Letter"))
       tr(Λ)           must throwA[IllegalArgumentException](message = msg("NotLetter"))
+    }
+
+    "not support local mode modifiers" in {
+      tr(a.ncg("i")) must throwA[IllegalArgumentException](message = "Local mode modifiers \\(NCG flags\\) are" + notSupported)
     }
 
     "translate \\A and \\z" in {

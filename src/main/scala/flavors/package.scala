@@ -153,3 +153,12 @@ trait NoLookAroundSupport extends NoLookBehindSupport {
 
   override def translate(re: RE) = super.translate(re map lookAround)
 }
+
+/** Prevents usage of local mode modifiers (NCG flags like `(?-i:sub-expression)`) */
+trait NoLocalModeModifierSupport extends FlavorLike {
+  val localModeModifiers: Rewriter = {
+    case NCGroup(_, flags) if flags != "" => notSupported("Local mode modifiers (NCG flags)", true)
+  }
+
+  override def translate(re: RE) = super.translate(re map localModeModifiers)
+}

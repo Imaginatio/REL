@@ -17,6 +17,7 @@ import util.{Flavor, Rewriter}
  *  - throws an error when using unsupported features:
  *    - LookBehind
  *    - Unicode categories
+ *    - Local mode modifiers (NCG flags)
  *
  *  @see [[fr.splayce.rel.flavors.PossessiveToAtomic]]
  *  @see [[http://www.regular-expressions.info/ruby.html Ruby 1.8 regex flavor]],
@@ -28,4 +29,18 @@ extends Flavor("Legacy Ruby")
 with StripGroupNames
 with PossessiveToAtomic
 with NoUnicodeSupport
-with NoLookBehindSupport
+with NoLookBehindSupport {
+
+  val mFlags = "-m$|m".r
+
+  override val translator: Rewriter = {
+
+    // 'm' flag (^ and $ match at line breaks) is always on
+    // and 's' flag (dot matches newlines) is called 'm'
+    // so we strip any 'm' flag and rename 's' to 'm'
+    case NCGroup(re, flags) if (flags.contains("m") || flags.contains("s")) =>
+      NCGroup(re map translator, mFlags.replaceAllIn(flags, "").replace('s', 'm'))
+
+  }
+
+}

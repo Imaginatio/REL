@@ -41,6 +41,19 @@ class LegacyRubyFlavorSpec extends Specification {
       tr(Λ)           must throwA[IllegalArgumentException](message = msg("NotLetter"))
     }
 
+    "strip 'm' flags and rename 's' flags to 'm'" in {
+      tr("ab".ncg("m"))    must_== "(?:ab)"
+      tr("ab".ncg("-m"))   must_== "(?:ab)"
+      tr("ab".ncg("m-i"))  must_== "(?-i:ab)"
+      tr("ab".ncg("-mi"))  must_== "(?-i:ab)"
+      tr("ab".ncg("i-m"))  must_== "(?i:ab)"
+      tr("ab".ncg("im"))   must_== "(?i:ab)"
+
+      tr("ab".ncg("is"))   must_== "(?im:ab)"
+      tr("ab".ncg("i-s"))  must_== "(?i-m:ab)"
+      tr("ab".ncg("mi-s")) must_== "(?i-m:ab)"
+    }
+
     "translate LineTerminator" in {
       tr(Τ) must not contain "\\u"
     }
@@ -51,7 +64,7 @@ class LegacyRubyFlavorSpec extends Specification {
     }
 
     "translate recursively" in {
-      tr(("b" | (Τ{3}+)) - "a") must_== """b|(?:(?:\r\n?|\n){3})+a"""
+      tr(("b" | "mi-s" ?: (Τ{3}+)) - "a") must_== """b|(?i-m:(?:(?:\r\n?|\n){3})+)a"""
     }
 
   }

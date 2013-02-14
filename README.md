@@ -69,6 +69,7 @@ val b = RE("bb")
     - Named: `a \ "group_a"` → `(aa)`; the name `group_a` will be passed to the `Regex` constructor,  queryable on corresponding `Match`es
     - Unnamed: `a.g` → `(aa)` (a unique group name is generated internally)
     - Non-capturing: `a.ncg` → `(?:aa)` or the short syntax `a.%`; will try not to uselessly wrap non-breaking entities (i.e. single letters like `a` or `\u00F0` and character classes like `\w`, `[^a-z]` or `\p{Lu}`) to produce ever-so-slightly less unreadable output
+    - Non-capturing, with `idmsux-idmsux` flags: `a.ncg("i-d")` → `(?i-d:aa)` or infix syntax `"i" ?: a` → `(?i:aa)`; will also try to combine nested flags, deepest wins: `a.ncg("-d").ncg("di")` → `(?i-d:aa)`
     - [Atomic](http://www.regular-expressions.info/atomic.html): `a.ag` → `(?>aa)` or the short syntaxes `?>(a)` and `a.?>`
 - Back-reference: `!g` will insert a backreference on group `g`; e.g. `val g = (a|b).g; g - a - !g` → `(aa|bb)aa\1`
 
@@ -195,7 +196,6 @@ interactions2.toList.toString === "List((me,dev,you,dev), (you,dev,me,dev))"
     - Add character range support (at DSL level), with inversion (`[^...]`)
     - Compatibility with Scala Parsers?
     - Consider using `'symbols` for group names
-    - Support regex [compilation flags](http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html#field_summary) `(?idmsux-idmsux:expr)`. Check which flavor supports which flags.
     - Java 6/7 flavors: detect & fail on unbounded repeats in LookBehind ?
     - Parse \[and limit] regex strings inputted to REL, producing REL-only expression trees, thus eliminating some known issues (see below) and opening some possibilities (e.g. generating sample matching strings)
 - Matchers

@@ -43,6 +43,7 @@ class FlavorSpec extends Specification {
       tr(aa ~ c)              must_== "(?:bb)d"
       tr(a \ "g")             must_== "(b)"
       tr(a.?=)                must_== "(?=b)"
+      tr("i" ?: a)            must_== "(?i:b)"
       tr((c | (a{3}++)) - a)  must_== "d|(?:b{3})++b"
     }
 
@@ -63,6 +64,7 @@ class FlavorSpec extends Specification {
       rr(aa ~ c)             .toString must_== (aa ~ c)             .toString
       rr(a \ "g")            .toString must_== (a \ "g")            .toString
       rr(a.?=)               .toString must_== (a.?=)               .toString
+      rr("i" ?: a)           .toString must_== ("i" ?: a)           .toString
       rr((c | (a{3}++)) - a) .toString must_== ((c | (a{3}++)) - a) .toString
     }
 

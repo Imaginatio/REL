@@ -89,30 +89,43 @@ abstract sealed class RE {
 
   /** Named capturing group */
   def g(name: String): Group = this match {
-    case NCGroup(re) => re.g(name)
-    case _ => Group(name, this)
+    case NCGroup(re, "") => re.g(name)
+    case _               => Group(name, this)
   }
   /** Unnamed capturing group (actual unique name is generated) */
   def g(): Group = g("g" + java.util.UUID.randomUUID.toString.substring(24))
   /** Named capturing group */
   def `\\` (name: String) = g(name)
-  /** Named capturing group */
-  def apply(name: String) = g(name)
   /** Unnamed capturing group (actual unique name is generated) */
   def apply() = g()
+
   /** Non-capturing group */
-  lazy val ncg: RE = this match {
-    case re: Wrapped => this
+  lazy val ncg: Wrapped = this match {
+    case re: Wrapped => re
     case _           => NCGroup(this)
   }
   /** Non-capturing group */
   lazy val % = ncg
+  /** Non-capturing group with flags (local mode modifiers) */
+  def ncg(flags: String): Wrapped =
+    if (flags.isEmpty) this.ncg
+    else this match {
+      case inner: NCGroup => // combine flags, innermost (here, inner's flags) wins
+        val RE.matchFlags(withFlags, withoutFlags) = flags
+        val withF    = inner.withFlags.toSet    ++ withFlags.toSet    -- inner.withoutFlags.toSet
+        val withoutF = inner.withoutFlags.toSet ++ withoutFlags.toSet -- inner.withFlags.toSet
+        val f = withF.mkString("") + "-" + withoutF.mkString("")
+        NCGroup(inner.re, if (f endsWith "-") f.substring(0, f.length - 1) else f)
+      case _ => NCGroup(this, flags)
+    }
+  /** Non-capturing group with flags (local mode modifiers), infix operator `"i" ?: re` */
+  def `?:`(flags: String): Wrapped = ncg(flags)
 
   /** Atomic group */
   lazy val ag: RE = this match {
     case re: Rep if (re.mode == Possessive) => this
     case re: AGroup                         => this
-    case NCGroup(re)                        => re.ag
+    case NCGroup(re, "")                    => re.ag
     case _                                  => AGroup(this)
   }
   /** Atomic group */
@@ -156,6 +169,7 @@ object RE {
     * - character classes `\p{...}`, `[...]`
     */
   val nonBreakingEntity = """^(?:\\?.|\\c.|\\u[\da-fA-F]{4}|\\x[\da-fA-F]{2}|\\0[0-3]?[0-7]{1,2}|\\[pP]\{\w+\}|\[[^\]]*+\])$""".r
+  val matchFlags = """^([a-zA-Z]*+)(?>-(?!$))?+([a-zA-Z]*+)$""".r
 
   val escapeChars = "\\^$()[]{}?*+.|"
   val escapeMap   = escapeChars map { c => c -> List('\\', c) } toMap
@@ -223,18 +237,20 @@ sealed abstract class RE1(val re: RE) extends RE {
 }
 
 /** Non-capturing group */
-case class NCGroup(override val re: RE) extends RE1(re) with Wrapped {
+case class NCGroup(override val re: RE, val flags: String = "") extends RE1(re) with Wrapped {
+  val RE.matchFlags(withFlags, withoutFlags) = flags
+
   override def linear(groupNames: List[String]) = re match {
-    case re: Wrapped => re.linear(groupNames)
-    case _           => linear(
+    case re: Wrapped if flags.isEmpty => re.linear(groupNames)
+    case _                            => linear(
       { s =>
-        if (RE.nonBreakingEntity.pattern.matcher(s).matches) s
-        else "(?:" + s + ")"
+        if (flags.isEmpty && RE.nonBreakingEntity.pattern.matcher(s).matches) s
+        else "(?" + flags + ":" + s + ")"
       }, groupNames)
   }
 
   override def recurseMap(tr: Rewriter) =
-    NCGroup(re map tr)
+    NCGroup(re map tr, flags)
 }
 
 /** Atomic group */
@@ -242,7 +258,7 @@ case class AGroup(override val re: RE) extends RE1(re) with Wrapped {
   override def linear(groupNames: List[String]) = re match {
     case re: Rep if (re.mode == Possessive) => re.linear(groupNames)
     case re: AGroup                         => re.linear(groupNames)
-    case NCGroup(re)                        => AGroup(re).linear(groupNames)
+    case NCGroup(re, "")                    => AGroup(re).linear(groupNames)
     case _                                  => linear("(?>" + _ + ")", groupNames)
   }
 
@@ -254,8 +270,8 @@ case class AGroup(override val re: RE) extends RE1(re) with Wrapped {
 case class Group(val name: String, override val re: RE, val embedStyle: Option[GroupNamingStyle] = None)
 extends RE1(re) with Wrapped {
   override def linear(groupNames: List[String]) = re match {
-    case NCGroup(re) => Group(name, re).linear(groupNames)
-    case _           =>
+    case NCGroup(re, "") => Group(name, re).linear(groupNames)
+    case _               =>
       linear("(" + embedStyle.map(_ capture name).getOrElse("") + _ + ")", groupNames ::: List(name))
   }
 
@@ -272,8 +288,8 @@ extends RE1(re) with Wrapped {
 case class LookAround(override val re: RE, val direction: LookDirection, positive: Boolean = true)
 extends RE1(re) with Wrapped {
   override def linear(groupNames: List[String]) = re match {
-    case NCGroup(re) => LookAround(re, direction, positive).linear(groupNames)
-    case _ => linear("(?" + direction + (if (positive) "=" else "!") + _ + ")", groupNames)
+    case NCGroup(re, "") => LookAround(re, direction, positive).linear(groupNames)
+    case _               => linear("(?" + direction + (if (positive) "=" else "!") + _ + ")", groupNames)
   }
 
   override def recurseMap(tr: Rewriter) =

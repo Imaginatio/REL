@@ -10,7 +10,7 @@ class GroupSpec extends Specification {
   import Implicits.RE2Regex
 
 
-  "Non-capturing groups" should {
+  "Non-capturing groups without flags" should {
     val group = "ab" %
 
     "linearize without (?:) on non-breaking subexpression" in {
@@ -40,6 +40,41 @@ class GroupSpec extends Specification {
       "ab".?= .ncg.toString must not startWith("(?:")
       "ab".?! .ncg.toString must not startWith("(?:")
       "ab".ag .ncg.toString must not startWith("(?:")
+    }
+  }
+
+  "Non-capturing groups with flags" should {
+    "linearize with (?flags:pattern)" in {
+      ("ab" ncg "i-d" toString) must_== "(?i-d:ab)"
+      ("i-d" ?: "ab"  toString) must_== "(?i-d:ab)"
+    }
+    "match inline flags" in {
+      "abc"     must     be matching(RE.matchFlags)
+      "-def"    must     be matching(RE.matchFlags)
+      "abc-def" must     be matching(RE.matchFlags)
+      "a-d"     must     be matching(RE.matchFlags)
+      "abc-"    must not be matching(RE.matchFlags)
+      "-"       must not be matching(RE.matchFlags)
+
+      val RE.matchFlags(on, off) = "abc-def"
+      on  must_== "abc"
+      off must_== "def"
+    }
+    "combine immediately-nested NCG flags, prioritizing innermost flags" in {
+      "ab".ncg("i-d").ncg       .toString must_== "(?i-d:ab)" // outside NCG is useless
+      "ab".ncg.ncg("i-d")       .toString must_== "(?i-d:ab)" //  inside NCG is useless
+      "ab".ncg("-d").ncg("i")   .toString must_== "(?i-d:ab)" // options are combined
+      "ab".ncg("i-d").ncg("d-i").toString must_== "(?i-d:ab)" // innermost flags are preserved in conflicts
+      val res = "ab".ncg("abc-xyz").ncg("dx-wa").asInstanceOf[NCGroup]
+      res.withFlags   .toSet must_== "abcd".toSet
+      res.withoutFlags.toSet must_== "wxyz".toSet
+    }
+    "be effective in Java regexes" in {
+      "ab" must     be matching(       "ab")
+      "ab" must     be matching("i" ?: "ab")
+      "AB" must not be matching(       "ab")
+      "AB" must     be matching("i" ?: "ab")
+      "AB" must     be matching("-i" ?: ("i" ?: "ab").ag)
     }
   }
 

@@ -15,6 +15,7 @@ import util.{Flavor, Rewriter}
    *  - throws an error when using unsupported features:
    *    - LookBehind
    *    - Unicode categories
+   *    - Local mode modifiers (NCG flags)
    *
    *  @see [[fr.splayce.rel.flavors.AtomicToLookAhead]]
    *  @see [[http://www.regular-expressions.info/javascript.html JavaScript regex flavor]]
@@ -27,7 +28,8 @@ extends Flavor("JavaScript")
 with StripGroupNames
 with AtomicToLookAhead
 with NoUnicodeCategoriesSupport
-with NoLookBehindSupport {
+with NoLookBehindSupport
+with NoLocalModeModifierSupport {
 
   override val translator: Rewriter = {
 
