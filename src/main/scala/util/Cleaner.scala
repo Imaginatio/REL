@@ -5,6 +5,8 @@ import scala.util.matching.Regex
 
 case class Cleaner(val clean: String => String) extends Function1[String, String] {
 
+  def this(cleaner: Cleaner) = this(cleaner.clean)
+
   def apply(in: String) = clean(in)
 
   // function-like syntax: chain = Third(Second(First))
