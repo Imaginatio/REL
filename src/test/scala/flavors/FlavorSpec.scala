@@ -12,12 +12,13 @@ class FlavorSpec extends Specification {
   import Implicits.string2RE
   import FlavorSpec._
 
-  "Default translation" should {
+  val a  = RE("a")
+  val aa = RE("aa")
+  val b  = RE("b")
+  val c  = RE("c")
 
+  "Default translation" should {
     val tr = { (re: RE) => simpleFlavor.express(re)._1 }
-    val a  = RE("a")
-    val aa = RE("aa")
-    val c  = RE("c")
 
     "translate recursively" in {
       tr(a)                   must_== "b"
@@ -67,6 +68,21 @@ class FlavorSpec extends Specification {
 
   }
 
+  "AtomicToLookAhead trait" should {
+    val tr = { (re: RE) => abcFlavor.express(re)._1 }
+
+    "translate each group only once, even possessive" in {
+      // control
+      tr(a) .toString must_== b   .toString
+      tr(b+).toString must_== (c+).toString
+
+      // test recursive translation against double-translation
+      // because of possessive => atomic => look-ahead
+      val bg = (b+).g // b, not c
+      tr(a++).toString must_== (?=(bg) - !bg).ncg.toString
+    }
+  }
+
 }
 
 object FlavorSpec {
@@ -81,5 +97,12 @@ object FlavorSpec {
     case Atom(b) if (b.toString == "b")  => Atom("a".r)
     case Atom(b) if (b.toString == "bb") => Atom("aa".r)
     case Atom(d) if (d.toString == "d")  => Atom("c".r)
+  }
+
+  val abcFlavor = new Flavor("ABC") with AtomicToLookAhead {
+    override val translator: Rewriter = {
+      case Atom(a) if (a.toString == "a") => Atom("b".r)
+      case Atom(b) if (b.toString == "b") => Atom("c".r)
+    }
   }
 }

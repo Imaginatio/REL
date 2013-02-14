@@ -13,24 +13,25 @@ import util.{Flavor, Rewriter}
  *    because .NET's `\w` would also matches letters with diacritics
  *    while Java's `\w` only matches ASCII letters
  *    (use `\p{L}` insead with `λ` / `Letter` for all Unicode letters)
+ *
+ *  @see [[fr.splayce.rel.flavors.PossessiveToAtomic]]
+ *  @see [[http://www.regular-expressions.info/dotnet.html .NET regex flavor]],
  */
-object DotNETFlavor extends Flavor(".NET") {
+object DotNETFlavor extends Flavor(".NET") with PossessiveToAtomic {
 
   private val ASCIIWord    = new TranslatedRECst("[a-zA-Z0-9_]")
   private val NotASCIIWord = new TranslatedRECst("[^a-zA-Z0-9_]")
 
-  override lazy val translator: Rewriter = {
+  val translator: Rewriter = {
 
     // named groups & their references
-    case    Group(name, re) => Wrapper(re map translator, "(?<" + name + ">", ")", List(name))
+    case    Group(name, re) => Wrapper(re map DotNETFlavor.translator, "(?<" + name + ">", ")", List(name))
     case GroupRef(name)     => new TranslatedREStr("""\k<""" + name + ">")
 
     // .NET's \w would also match letters with diacritics
-    case Word               => ASCIIWord
-    case NotWord            => NotASCIIWord
+    case Word               => DotNETFlavor.ASCIIWord
+    case NotWord            => DotNETFlavor.NotASCIIWord
 
-    // Also, no possessive quantifiers
-    case rep: Rep if rep.mode == Possessive => possessiveToAtomic(translator)(rep)
   }
 
 }

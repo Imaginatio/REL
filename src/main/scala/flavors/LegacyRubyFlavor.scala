@@ -18,15 +18,17 @@ import util.{Flavor, Rewriter}
  *    - LookBehind
  *    - Unicode categories
  *
+ *  @see [[fr.splayce.rel.flavors.PossessiveToAtomic]]
  *  @see [[http://www.regular-expressions.info/ruby.html Ruby 1.8 regex flavor]],
  *       [[http://www.regular-expressions.info/unicode8bit.html Mixing Unicode and 8-bit Character Codes]]
  *  @todo add endianness/charset variations that translate Unicode into multibytes
  */
-object LegacyRubyFlavor extends Flavor("Legacy Ruby") {
+object LegacyRubyFlavor extends Flavor("Legacy Ruby") with PossessiveToAtomic {
 
   private val ASCIILineTerminator = new TranslatedRECst("""(?:\r\n?|\n)""")
 
-  override lazy val translator: Rewriter = {
+  val translator: Rewriter = {
+
     // Legacy Ruby regexes don't support LookBehind
     case LookAround(_, Behind, _) => notSupported("LookBehind", false)
 
@@ -38,9 +40,6 @@ object LegacyRubyFlavor extends Flavor("Legacy Ruby") {
 
     // Skip unicode in LineTerminator
     case LineTerminator => ASCIILineTerminator
-
-    // Also, no possessive quantifiers
-    case rep: Rep if rep.mode == Possessive => possessiveToAtomic(translator)(rep)
   }
 
 }

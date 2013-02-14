@@ -6,12 +6,23 @@ import Regex.Match
 import fr.splayce.rel._
 
 
-abstract class Flavor(val name: String) extends Function1[RE, RE] {
+trait FlavorLike {
 
-  val translator: Rewriter
-  
+  def translator: Rewriter
+
+  protected def tr = translator
+
   def translate(re: RE): RE =
-    re map translator
+    re map tr
+}
+
+
+abstract class Flavor(val name: String) extends Function1[RE, RE] with FlavorLike {
+
+  def translator: Rewriter
+
+  override lazy val tr = translator
+
   def apply(re: RE) = translate(re)
 
   def express(re: RE): (String, List[String]) =
@@ -34,12 +45,14 @@ abstract class Flavor(val name: String) extends Function1[RE, RE] {
 
 object Flavor {
 
-  def apply(tr: Rewriter) = new Flavor("<anonymous>") {
-    override val translator = tr
+  def apply(trans: Rewriter) = new Flavor("<anonymous>") {
+    override val translator: Rewriter = trans
   }
 
-  def from(tr: RE => RE) = new Flavor("<anonymous>") {
-    override val translator: Rewriter = { case s => tr(s) }
+  def from(trans: RE => RE) = new Flavor("<anonymous>") {
+    override val translator: Rewriter = { case s => trans(s) }
   }
+
+  def from(f: FlavorLike) = apply(f.translator)
 
 }
