@@ -22,19 +22,14 @@ import util.{Flavor, Rewriter}
    *  @note The AtomicToLookAhead may add additional, possibly unwanted capturing groups to mimick atomic grouping
    *  @todo variant for XRegExp with Unicode http://xregexp.com/plugins/#unicode
    */
-object JavaScriptFlavor extends Flavor("JavaScript") with AtomicToLookAhead {
+object JavaScriptFlavor
+extends Flavor("JavaScript")
+with StripGroupNames
+with AtomicToLookAhead
+with NoUnicodeCategoriesSupport
+with NoLookBehindSupport {
 
-  val translator: Rewriter = {
-
-    case LookAround(_, Behind, _) => notSupported("LookBehind", false)
-
-    // Javascript doesn't support Unicode categories natively
-    // although one may use XRegExp with Unicode plugin:
-    // http://xregexp.com/plugins/#unicode
-    case LetterLower => notSupported("Unicode categories (including LetterLower)", true)
-    case LetterUpper => notSupported("Unicode categories (including LetterUpper)", true)
-    case Letter      => notSupported("Unicode categories (including Letter)",      true)
-    case NotLetter   => notSupported("Unicode categories (including NotLetter)",   true)
+  override val translator: Rewriter = {
 
     // this needs the 'm' flag not to be specified
     case InputBegin => LineBegin

@@ -23,6 +23,14 @@ package rel {
   case object Ahead  extends LookDirection("")
   case object Behind extends LookDirection("<")
 
+  class GroupNamingStyle(val capture: String => String, val reference: String => String)
+  /** Named capturing group style for Java 7, ․NET. **/
+  case object ChevNamingStyle extends GroupNamingStyle("?<"  + _ + ">", "\\k<" + _ + ">")
+  /** Named capturing group style for ․NET. **/
+  case object AposNamingStyle extends GroupNamingStyle("?'"  + _ + "'", "\\k'" + _ + "'")
+  /** Named capturing group style for PCRE, Python. **/
+  case object    PNamingStyle extends GroupNamingStyle("?P<" + _ + ">", "(?P=" + _ + ")")
+
 
   abstract sealed class RE {
 
@@ -193,20 +201,21 @@ package rel {
       AGroup(re map tr)
   }
 
-  case class Group(val name: String, override val re: RE)
+  case class Group(val name: String, override val re: RE, val embedStyle: Option[GroupNamingStyle] = None)
   extends RE1(re) with Wrapped {
     override def linear(groupNames: List[String]) = re match {
       case NCGroup(re) => Group(name, re).linear(groupNames)
-      case _           => linear("(" + _ + ")", groupNames ::: List(name))
+      case _           =>
+        linear("(" + embedStyle.map(_ capture name).getOrElse("") + _ + ")", groupNames ::: List(name))
     }
 
     override def recurseMap(tr: Rewriter) =
-      Group(name, re map tr)
+      Group(name, re map tr, embedStyle)
 
     override lazy val groups =
       List(MatchGroup(Some(name), None, re.groups))
 
-    lazy val unary_! = GroupRef(name)
+    lazy val unary_! = GroupRef(name, embedStyle)
   }
 
   case class LookAround(override val re: RE, val direction: LookDirection, positive: Boolean = true)
@@ -315,10 +324,11 @@ package rel {
     override lazy val groups = Nil
   }
 
-  case class GroupRef(val name: String) extends RE0 with Wrapped {
+  case class GroupRef(val name: String, val embedStyle: Option[GroupNamingStyle] = None)
+  extends RE0 with Wrapped {
 
     override def linear(groupNames: List[String]) =
-      ("\\" + (groupNames.lastIndexOf(name) + 1), groupNames)
+      (embedStyle.map(_ reference name).getOrElse("\\" + (groupNames.lastIndexOf(name) + 1)), groupNames)
 
     lazy val unary_! = this
   }

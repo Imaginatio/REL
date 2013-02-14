@@ -17,16 +17,14 @@ import util.{Flavor, Rewriter}
  *  @see [[fr.splayce.rel.flavors.PossessiveToAtomic]]
  *  @see [[http://www.regular-expressions.info/dotnet.html .NET regex flavor]],
  */
-object DotNETFlavor extends Flavor(".NET") with PossessiveToAtomic {
+object DotNETFlavor extends Flavor(".NET") with EmbedGroupNames with PossessiveToAtomic {
 
   private val ASCIIWord    = new TranslatedRECst("[a-zA-Z0-9_]")
   private val NotASCIIWord = new TranslatedRECst("[^a-zA-Z0-9_]")
 
-  val translator: Rewriter = {
+  override val groupNamingStyle = ChevNamingStyle
 
-    // named groups & their references
-    case    Group(name, re) => Wrapper(re map DotNETFlavor.translator, "(?<" + name + ">", ")", List(name))
-    case GroupRef(name)     => new TranslatedREStr("""\k<""" + name + ">")
+  override val translator: Rewriter = {
 
     // .NET's \w would also match letters with diacritics
     case Word               => DotNETFlavor.ASCIIWord

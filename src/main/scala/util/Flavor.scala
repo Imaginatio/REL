@@ -10,18 +10,16 @@ trait FlavorLike {
 
   def translator: Rewriter
 
-  protected def tr = translator
-
   def translate(re: RE): RE =
-    re map tr
+    re map translator
+
+  protected def notSupported(feature: String, plural: Boolean = false): Nothing
 }
 
 
 abstract class Flavor(val name: String) extends Function1[RE, RE] with FlavorLike {
 
-  def translator: Rewriter
-
-  override lazy val tr = translator
+  override val translator: Rewriter = IdRewriter
 
   def apply(re: RE) = translate(re)
 
@@ -36,7 +34,7 @@ abstract class Flavor(val name: String) extends Function1[RE, RE] with FlavorLik
   }
   def andThen(that: Flavor): Flavor = that compose this
 
-  protected def notSupported(feature: String, plural: Boolean = false) =
+  override protected def notSupported(feature: String, plural: Boolean = false) =
     throw new IllegalArgumentException((feature
         :: (if (plural) "are" else "is")
         :: "not supported in" :: name :: Nil) mkString " ")

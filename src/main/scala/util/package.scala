@@ -8,6 +8,15 @@ package object util {
 
   type Rewriter = PartialFunction[RE, RE]
 
+  /** Utility no-op Rewriter, bypasses recusion */
+  val IdRewriter: Rewriter = { case re => re }
+
+  /** Utility no-op Rewriter, keeps recusion */
+  val RecursiveIdRewriter = new Rewriter {
+    override def isDefinedAt(re: RE) = false
+    override def apply(re: RE) = re
+  }
+
   type MatchExtractor[+A]            = PartialFunction[Match, A]
   type MatchGroupExtractor[+A]       = PartialFunction[MatchGroup, A]
   type MatchGroupOptionExtractor[+A] = MatchGroupExtractor[Option[A]]
