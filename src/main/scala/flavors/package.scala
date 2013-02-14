@@ -13,9 +13,16 @@ object Java7Flavor extends Flavor("Java 7") with EmbedGroupNames {
   override val groupNamingStyle = ChevNamingStyle
 }
 
-/** PCRE Flavor. Embeds group names and named references, using P-style. */
+/** PCRE Flavor (C, PHP, Ruby 1.9 / Oniguruma…).
+ *
+ * Embeds group names and named references, using P-style,
+ * and uses `\R` short syntax for `LineTerminator`. */
 object PCREFlavor extends Flavor("PCRE") with EmbedGroupNames {
   override val groupNamingStyle = PNamingStyle
+  private val SimpleLineTerminator = new TranslatedRECst("""\R""")
+  override val translator: Rewriter = {
+    case LineTerminator => SimpleLineTerminator
+  }
 }
 
 

@@ -22,6 +22,10 @@ object PCREFlavorSpec extends Specification {
       PCREFlavor.express(g - g)._2 must_== List("g", "g")
     }
 
+    "use short LineTerminator \\R" in {
+      tr("a" - Τ - "b") must_== """a\Rb"""
+    }
+
   }
 
 }

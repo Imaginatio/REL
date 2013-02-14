@@ -52,7 +52,7 @@ package rel {
   case object Epsilon         extends RECst("")
   case object Dot             extends RECst(".")
   case object MLDot           extends RECst("""[\s\S]""")
-  case object LineTerminator  extends RECst("""(?:\r\n?|[\n\u0085\u2028\u2029])""")
+  case object LineTerminator  extends RECst("""(?:\r\n?|[\u000A-\u000C\u0085\u2028\u2029])""") // Perl's \R
   case object AlphaLower      extends RECst("[a-z]")
   case object AlphaUpper      extends RECst("[A-Z]")
   case object Alpha           extends RECst("[a-zA-Z]")
