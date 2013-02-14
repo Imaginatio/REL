@@ -1,22 +1,33 @@
 package fr.splayce.rel.flavors
 
 import fr.splayce.rel._
-import util.Rewriter
+import util.{Flavor, Rewriter}
 
+  /** Vanilla JavaScript / ECMAScript flavor, with very limited Unicode support
+   *
+   *  This flavor:
+   *  - translates `^^` / `InputBegin` and `$$` / `InputEnd` to
+   *    `^` / `LineBegin` and `$` / `LineEnd` respectively
+   *    (this won't work if the `m` flag is set)
+   *  - throws an error when using unsupported features:
+   *    - LookBehind
+   *    - Possessive quantifiers
+   *    - Atomic groups
+   *    - Unicode categories
+   *
+   *  @see [[http://xregexp.com/plugins/#unicode XRegExp Unicode extension]] for better Unicode support
+   *  @todo variant for XRegExp with Unicode http://xregexp.com/plugins/#unicode
+   */
+object JavaScriptFlavor extends Flavor("JavaScript") {
 
-/** @see [[fr.splayce.rel.flavors.JavaScriptFlavor]]
- *  @todo variant for XRegExp with Unicode http://xregexp.com/plugins/#unicode
- */
-object JavaScriptTranslator {
-
-  val translate: Rewriter = {
+  override lazy val translator: Rewriter = {
 
     // JavaScript regexes are pretty limited...
     case LookAround(_, Behind, _)         => notSupported("LookBehind", false)
     // Atomic Grouping is not supported but we can emulate this with capturing LookAhead
-    case r: AGroup                        => atomicToLookAhead(translate)(r)
+    case r: AGroup                        => atomicToLookAhead(translator)(r)
     // same goes for possessive repeaters => atomic group => previous case
-    case r: Rep if (r.mode == Possessive) => translate(possessiveToAtomic(IdRewriter)(r))
+    case r: Rep if (r.mode == Possessive) => translator(possessiveToAtomic(IdRewriter)(r))
 
     // Javascript doesn't support Unicode categories natively
     // although one may use XRegExp with Unicode plugin:
@@ -31,7 +42,5 @@ object JavaScriptTranslator {
     case InputEnd   => LineEnd
 
   }
-
-  private val notSupported = unsupported("JavaScript")(_, _)
 
 }

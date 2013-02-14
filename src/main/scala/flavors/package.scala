@@ -6,51 +6,6 @@ import util.Rewriter
 
 package object flavors {
 
-  /**  ․NET flavor
-   *
-   *  This flavor:
-   *  - embedds group names in regex (`(?<name>expr)` / `\k<name>` syntax)
-   *  - convert possessive quantifiers to greedy in atomic groups
-   *  - translate `\w` (when referenced by `μ` / `Word`) into `[]`
-   *    because .NET's `\w` would also matches letters with diacritics
-   *    while Java's `\w` only matches ASCII letters
-   *    (use `\p{L}` insead with `λ` / `Letter` for all Unicode letters)
-   */
-  val DotNETFlavor     = Flavor(DotNETTranslator    .translate)
-  /** Vanilla JavaScript / ECMAScript flavor, with very limited Unicode support
-   *
-   *  This flavor:
-   *  - translates `^^` / `InputBegin` and `$$` / `InputEnd` to
-   *    `^` / `LineBegin` and `$` / `LineEnd` respectively
-   *    (this won't work if the `m` flag is set)
-   *  - throws an error when using unsupported features:
-   *    - LookBehind
-   *    - Possessive quantifiers
-   *    - Atomic groups
-   *    - Unicode categories
-   *
-   *  @see [[http://xregexp.com/plugins/#unicode XRegExp Unicode extension]] for better Unicode support
-   */
-  val JavaScriptFlavor = Flavor(JavaScriptTranslator.translate)
-  /** Legacy Ruby <= 1․8 flavor, which does not support Unicode (at all) nor LookBehind.
-   *
-   *  For a wider support, it is recommended to use untranslated regexes instead,
-   *  with [[http://www.geocities.jp/kosako3/oniguruma/ Oniguruma]],
-   *  which supports LookBehind and Unicode when the `/u` flag is specified.
-   *  Ruby 1.9 uses Oniguruma by default, Ruby 1.8 can be recompiled to use it.
-   *
-   *  This flavor:
-   *  - removes Unicode variants in `Τ` / `LineTerminator`
-   *  - convert possessive quantifiers to greedy in atomic groups
-   *  - throws an error when using unsupported features:
-   *    - LookBehind
-   *    - Unicode categories
-   *
-   *  @see [[http://www.regular-expressions.info/ruby.html Ruby 1.8 regex flavor]],
-   *       [[http://www.regular-expressions.info/unicode8bit.html Mixing Unicode and 8-bit Character Codes]]
-   */
-  val LegacyRubyFlavor = Flavor(LegacyRubyTranslator.translate)
-
   val IdRewriter: Rewriter = { case re => re }
   val PossessiveToAtomic: Rewriter = {
     case rep: Rep if rep.mode == Possessive => possessiveToAtomic(PossessiveToAtomic)(rep)
@@ -58,7 +13,6 @@ package object flavors {
   val AtomicToLookAhead: Rewriter = {
     case re: AGroup => atomicToLookAhead(AtomicToLookAhead)(re)
   }
-
 
   class TranslatedREStr(val s: String) extends REStr(s)
   class TranslatedRECst(val s: String) extends RECst(s)
@@ -97,10 +51,5 @@ package object flavors {
     (?=(g) - !g).ncg
   }
   
-
-  protected[flavors] def unsupported(flavor: String)(feature: String, plural: Boolean = false) =
-    throw new IllegalArgumentException((feature
-        :: (if (plural) "are" else "is")
-        :: "not supported in" :: flavor :: Nil) mkString " ")
 
 }
