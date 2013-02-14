@@ -5,8 +5,9 @@ import scala.util.matching.Regex
 
 package object rel {
 
-  // prefixed notation: ?>(a) is a.?>
+  // prefixed notations: ?>(a) is a.?>
   def `?>` (re: RE) = re.?>
+
   def `?=` (re: RE) = re.?=
   def `?!` (re: RE) = re.?!
   def `?<=`(re: RE) = re.?<=

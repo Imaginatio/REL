@@ -15,7 +15,7 @@ object LowerCaseFilter extends Cleaner({ _ toLowerCase })
 /** Trim text */
 object TrimFilter extends Cleaner({ _ trim })
 
-/** Normalize all Unicode spaces and horizontal tabs to ASCII new line `U+000A` / `\n`.
+/** Normalize all Unicode line breaks and vertical tabs to ASCII new line `U+000A` / `\n`.
  *  @see [[http://unicode.org/cldr/utility/list-unicodeset.jsp?a=[:Bidi_Class=Paragraph_Separator:] Unicode: Paragraph Separator]],
  *       [[http://unicode.org/cldr/utility/list-unicodeset.jsp?a=[:Line_Break=Mandatory_Break:] Unicode: Mandatory Break]]
  */
