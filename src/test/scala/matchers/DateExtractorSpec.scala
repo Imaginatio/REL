@@ -135,6 +135,7 @@ class DateExtractorsSpec extends Specification {
       extractAll("1er octobre 2000") must haveSingleDate("Y2000 Y00 M10 D01")
       extractAll("01oct2000")        must haveSingleDate("Y2000 Y00 M10 D01")
       extractAll("1 oct. 00")        must haveSingleDate("Y00 M10 D01")
+      extractAll("1 oct. '00")       must haveSingleDate("Y00 M10 D01")
       extractAll("novembre 2000")    must haveSingleDate("Y2000 Y00 M11")
       extractAll("nov2000")          must haveSingleDate("Y2000 Y00 M11")
       extractAll("nov. 2000")        must haveSingleDate("Y2000 Y00 M11")
@@ -158,6 +159,7 @@ class DateExtractorsSpec extends Specification {
       extractAll("1er octobre 2000") must haveSingleDate("Y2000 Y00 M10 D01")
       extractAll("01oct2000")        must haveSingleDate("Y2000 Y00 M10 D01")
       extractAll("1 oct. 00")        must haveSingleDate("Y00 M10 D01")
+      extractAll("1 oct. '00")       must haveSingleDate("Y00 M10 D01")
       extractAll("novembre 2000")    must be empty;
       extractAll("nov2000")          must be empty;
       extractAll("nov. 2000")        must be empty;
@@ -184,6 +186,7 @@ class DateExtractorsSpec extends Specification {
       extractAll("october 1st, 2000") must haveSingleDate("Y2000 Y00 M10 D01")
       extractAll("01oct2000")         must haveSingleDate("Y2000 Y00 M10 D01")
       extractAll("oct. 1, 00")        must haveSingleDate("Y00 M10 D01")
+      extractAll("oct. 1, '00")       must haveSingleDate("Y00 M10 D01")
       extractAll("november 2000")     must haveSingleDate("Y2000 Y00 M11")
       extractAll("nov2000")           must haveSingleDate("Y2000 Y00 M11")
       extractAll("nov. 2000")         must haveSingleDate("Y2000 Y00 M11")
@@ -209,6 +212,7 @@ class DateExtractorsSpec extends Specification {
       extractAll("october 1st, 2000") must haveSingleDate("Y2000 Y00 M10 D01")
       extractAll("01oct2000")         must haveSingleDate("Y2000 Y00 M10 D01")
       extractAll("oct. 1, 00")        must haveSingleDate("Y00 M10 D01")
+      extractAll("oct. 1, '00")       must haveSingleDate("Y00 M10 D01")
       extractAll("november 2000")     must be empty;
       extractAll("nov2000")           must be empty;
       extractAll("nov. 2000")         must be empty;

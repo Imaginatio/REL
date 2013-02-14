@@ -65,13 +65,14 @@ object DateExtractor {
 
   val DAYS_IN_MONTH = Array(0, 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 
-  def year(y: String): String = year(y.toInt)
   def year(y: Int)  = (if (y > 100) "Y%04d ".format(y) else "") + "Y%02d".format(y % 100)
   def month(m: Int) = "M%02d".format(m)
   def day(d: Int)   = "D%02d".format(d)
 
+  def yearInt(y: String): Int = (if (y(0) == '\'') y.substring(1) else y).toInt
+
   def result(ye: String, mo: String, da: String, ambiguous: Symbol*): Option[List[Result]] = {
-    val y = if (ye.isEmpty) None else Some(ye.toInt)
+    val y = if (ye.isEmpty) None else Some(yearInt(ye))
     val m = if (mo.isEmpty) None else Some(mo.toInt)
     val d = if (da.isEmpty || (m.isDefined && da.toInt > DAYS_IN_MONTH(m.get))) None else Some(da.toInt)
     var r = List(Result(y, m, d))
@@ -99,7 +100,7 @@ object DateExtractor {
   }
 
   def result(y: Option[String], m: Int, d: Option[String]) =
-    Some(List(Result(y.map(_.toInt), Some(m), d.map(_.toInt))))
+    Some(List(Result(y.map(yearInt _), Some(m), d.map(_.toInt))))
 
   case class Result(
     val y: Option[Int] = None,

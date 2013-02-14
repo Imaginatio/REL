@@ -65,7 +65,8 @@ abstract class AlphaDate {
 
   val S: RE = " "
   val BREAK: RE = """(?<=\b|\.)"""
-  val YEAR: RE = S.? ~ ((YYYY | YY) \ "a_y") ~ δ.?!
+  val YYa: RE = "'".? - YY
+  val YEAR: RE = S.? ~ ((YYYY | YYa) \ "a_y") ~ δ.?!
 
   val ALPHA_MONTHS: Array[String]
   lazy val ALPHA_MONTH = ?>(ALPHA_MONTHS.mkString("|") \ "a_m")
@@ -129,11 +130,12 @@ package en {
     val DAY = ?>("(?:(?:[23]?1)st|(?:2?2)nd|(?:2?3)rd|(?:[12]?[4-9]|[123]0)th)\\b"
       | DD | D ) \ "a_d"
     val YS: RE = ","
+
     override val ALPHA =
       (((δ.?<! - DAY ~ S.?+) ~ ALPHA_MONTH) | (ß ~ ALPHA_MONTH ~ (S.?+ ~ DAY - δ.?!).?)) ~
       ((YS.?+ ~ YEAR) | BREAK)
     override val ALPHA_FULL =
-      (((δ.?<! - DAY ~ S.?) ~ ALPHA_MONTH) | (ß ~ ALPHA_MONTH ~  S.?+ ~ DAY - δ.?!)) ~
+      (((δ.?<! - DAY ~ S.?+) ~ ALPHA_MONTH) | (ß ~ ALPHA_MONTH ~  S.?+ ~ DAY - δ.?!)) ~
       (YS.?+ ~ YEAR)
   }
 

@@ -226,16 +226,16 @@ class DateSpec extends Specification {
 
     "match unseparated month + YY[YY]" in {
       List(
-        "nov2012",      "nov12",
-        "nov.2012",     "nov.12",
-        "novembre2012", "novembre12"
+        "nov2012",      "nov12",      "nov'12",
+        "nov.2012",     "nov.12",     "nov.'12",
+        "novembre2012", "novembre12", "novembre'12"
       ) must allBeMatching(FR_ALL)
     }
     "match month YY[YY]" in {
       List(
-        "nov 2012",      "nov 12",
-        "nov. 2012",     "nov. 12",
-        "novembre 2012", "novembre 12"
+        "nov 2012",      "nov 12",      "nov '12",
+        "nov. 2012",     "nov. 12",     "nov. '12",
+        "novembre 2012", "novembre 12", "novembre '12"
       ) must allBeMatching(FR_ALL)
     }
     "match 'month YY[YY].' in one match without the final dot" in {
@@ -259,14 +259,18 @@ class DateSpec extends Specification {
 
     "match unseparated D[D] + month + YY[YY]" in {
       List(
-         "3nov2012",  "3nov12",  "3nov.2012",  "3nov.12",  "3novembre2012",  "3novembre12",
-        "03nov2012", "03nov12", "03nov.2012", "03nov.12", "03novembre2012", "03novembre12"
+         "3nov2012",  "3nov12",  "3nov'12",  "3nov.2012",  "3nov.12",  "3nov.'12",
+        "03nov2012", "03nov12", "03nov'12", "03nov.2012", "03nov.12", "03nov.'12",
+         "3novembre2012",  "3novembre12",  "3novembre'12",
+        "03novembre2012", "03novembre12", "03novembre'12"
       ) must allBeMatching(FR_ALL)
     }
     "match D[D] month YY[YY]" in {
       List(
-         "3 nov 2012",  "3 nov 12",  "3 nov. 2012",  "3 nov. 12",  "3 novembre 2012",  "3 novembre 12",
-        "03 nov 2012", "03 nov 12", "03 nov. 2012", "03 nov. 12", "03 novembre 2012", "03 novembre 12"
+         "3 nov 2012",  "3 nov 12",  "3 nov '12",  "3 nov. 2012",  "3 nov. 12",  "3 nov. '12",
+        "03 nov 2012", "03 nov 12", "03 nov '12", "03 nov. 2012", "03 nov. 12", "03 nov. '12",
+         "3 novembre 2012",  "3 novembre 12",  "3 novembre '12",
+        "03 novembre 2012", "03 novembre 12", "03 novembre '12"
       ) must allBeMatching(FR_ALL)
     }
 
@@ -335,12 +339,12 @@ class DateSpec extends Specification {
 
     "not match [unseparated] month + YY[YY]" in {
       List(
-        "nov2012",      "nov12",
-        "nov.2012",     "nov.12",
-        "novembre2012", "novembre12",
-        "nov 2012",      "nov 12",
-        "nov. 2012",     "nov. 12",
-        "novembre 2012", "novembre 12"
+        "nov2012",      "nov12",        "nov'12",
+        "nov.2012",     "nov.12",       "nov.'12",
+        "novembre2012", "novembre12",   "novembre'12",
+        "nov 2012",      "nov 12",      "nov '12",
+        "nov. 2012",     "nov. 12",     "nov. '12",
+        "novembre 2012", "novembre 12", "novembre '12"
       ) must noneBeMatching(FR_FULL)
     }
     "not match [unseparated] D[D] + month" in {
@@ -354,10 +358,14 @@ class DateSpec extends Specification {
 
     "still match [unseparated] D[D] + month + YY[YY]" in {
       List(
-         "3nov2012",  "3nov12",  "3nov.2012",  "3nov.12",  "3novembre2012",  "3novembre12",
-        "03nov2012", "03nov12", "03nov.2012", "03nov.12", "03novembre2012", "03novembre12",
-         "3 nov 2012",  "3 nov 12",  "3 nov. 2012",  "3 nov. 12",  "3 novembre 2012",  "3 novembre 12",
-        "03 nov 2012", "03 nov 12", "03 nov. 2012", "03 nov. 12", "03 novembre 2012", "03 novembre 12"
+        "3nov2012",  "3nov12",  "3nov'12",  "3nov.2012",  "3nov.12",  "3nov.'12",
+        "03nov2012",  "03nov12", "03nov'12", "03nov.2012", "03nov.12", "03nov.'12",
+         "3novembre2012",  "3novembre12",  "3novembre'12",
+        "03novembre2012", "03novembre12", "03novembre'12",
+         "3 nov 2012",  "3 nov 12",  "3 nov '12",  "3 nov. 2012",  "3 nov. 12",  "3 nov. '12",
+        "03 nov 2012", "03 nov 12", "03 nov '12", "03 nov. 2012", "03 nov. 12", "03 nov. '12",
+         "3 novembre 2012",  "3 novembre 12",  "3 novembre '12",
+        "03 novembre 2012", "03 novembre 12", "03 novembre '12"
       ) must allBeMatching(FR_FULL)
     }
 
@@ -429,19 +437,23 @@ class DateSpec extends Specification {
       List(
         "nov2012",      "nov,2012",
         "nov12",        "nov,12",
-        "nov.2012",     "nov.12",
+        "nov'12",        "nov,'12",
+        "nov.2012",     "nov.12",        "nov.'12",
         "november2012", "november,2012",
-        "november12",   "november,12"
+        "november12",   "november,12",   "november,'12"
       ) must allBeMatching(EN_ALL)
     }
     "match month YY[YY]" in {
       List(
-        "nov 2012",       "nov, 2012",
-        //"nov 12",       "nov, 12",
-        "nov. 2012",      "nov., 2012",
-        //"nov. 12",      "nov., 12",
-        "november 2012",  "november, 2012"
-        //,"november 12", "november, 12"
+        "nov 2012",      "nov, 2012",
+        //"nov 12",      "nov, 12",
+        "nov '12",       "nov, '12",
+        "nov. 2012",     "nov., 2012",
+        //"nov. 12",     "nov., 12",
+        "nov. '12",      "nov., '12",
+        "november 2012", "november, 2012",
+        //"november 12", "november, 12",
+        "november '12",  "november, '12"
       ) must allBeMatching(EN_ALL)
     }
     "match 'month YY[YY].' in one match without the final dot" in {
@@ -479,25 +491,34 @@ class DateSpec extends Specification {
 
     "match unseparated month + D[D] + ',' + YY[YY]" in {
       List(
-        "nov3,2012",       "nov3,12",
-        "nov.3,2012",      "nov.3,12",
-        "november3,2012",  "november3,12",
-        "nov03,2012",      "nov03,12",
-        "nov.03,2012",     "nov.03,12",
-        "november03,2012", "november03,12"
+        "nov3,2012",       "nov3,12",       "nov3,'12",
+        "nov.3,2012",      "nov.3,12",      "nov.3,'12",
+        "november3,2012",  "november3,12",  "november3,'12",
+        "nov03,2012",      "nov03,12",      "nov03,'12",
+        "nov.03,2012",     "nov.03,12",     "nov.03,'12",
+        "november03,2012", "november03,12", "november03,'12"
       ) must allBeMatching(EN_ALL)
     }
     "match month D[D][,] YY[YY]" in {
       List(
         "nov 3 2012",       "nov 3rd 2012",      "nov 3, 2012",      "nov 3rd, 2012",
         "nov 3 12",         "nov 3rd 12",        "nov 3, 12",        "nov 3rd, 12",
+        "nov 3 '12",        "nov 3rd '12",       "nov 3, '12",       "nov 3rd, '12",
         "nov. 3 2012",      "nov. 3rd 2012",     "nov. 3, 2012",     "nov. 3rd, 2012",
         "nov. 3 12",        "nov. 3rd 12",       "nov. 3, 12",       "nov. 3rd, 12",
+        "nov. 3 '12",       "nov. 3rd '12",      "nov. 3, '12",      "nov. 3rd, '12",
         "november 3 2012",  "november 3rd 2012", "november 3, 2012", "november 3rd, 2012",
         "november 3 12",    "november 3rd 12",   "november 3, 12",   "november 3rd, 12",
-        "nov 03 2012",      "nov 03, 2012",      "nov 03 12",        "nov 03, 12",
-        "nov. 03 2012",     "nov. 03, 2012",     "nov. 03 12",       "nov. 03, 12",
-        "november 03 2012", "november 03, 2012", "november 03 12",   "november 03, 12"
+        "november 3 '12",   "november 3rd '12",  "november 3, '12",  "november 3rd, '12",
+        "nov 03 2012",      "nov 03, 2012",
+        "nov 03 12",        "nov 03, 12",
+        "nov 03 '12",       "nov 03, '12",
+        "nov. 03 2012",     "nov. 03, 2012",
+        "nov. 03 12",       "nov. 03, 12",
+        "nov. 03 '12",      "nov. 03, '12",
+        "november 03 2012", "november 03, 2012",
+        "november 03 12",   "november 03, 12",
+        "november 03 '12",  "november 03, '12"
       ) must allBeMatching(EN_ALL)
     }
     "match 'month D[D][,] YY[YY].' in one match without the final dot" in {
@@ -514,25 +535,34 @@ class DateSpec extends Specification {
 
     "match unseparated month + D[D] + ',' + YY[YY]" in {
       List(
-        "3nov,2012",       "3nov,12",
-        "3nov.,2012",      "3nov.,12",
-        "3november,2012",  "3november,12",
-        "03nov,2012",      "03nov,12",
-        "03nov.,2012",     "03nov.,12",
-        "03november,2012", "03november,12"
+        "3nov,2012",       "3nov,12",       "3nov,'12",
+        "3nov.,2012",      "3nov.,12",      "3nov.,'12",
+        "3november,2012",  "3november,12",  "3november,'12",
+        "03nov,2012",      "03nov,12",      "03nov,'12",
+        "03nov.,2012",     "03nov.,12",     "03nov.,'12",
+        "03november,2012", "03november,12", "03november,'12"
       ) must allBeMatching(EN_ALL)
     }
     "match month D[D][,] YY[YY]" in {
       List(
         "3 nov 2012",       "3rd nov 2012",      "3 nov, 2012",      "3rd nov, 2012",
         "3 nov 12",         "3rd nov 12",        "3 nov, 12",        "3rd nov, 12",
+        "3 nov '12",        "3rd nov '12",       "3 nov, '12",       "3rd nov, '12",
         "3 nov. 2012",      "3rd nov. 2012",     "3 nov., 2012",     "3rd nov., 2012",
         "3 nov. 12",        "3rd nov. 12",       "3 nov., 12",       "3rd nov., 12",
+        "3 nov. '12",       "3rd nov. '12",      "3 nov., '12",      "3rd nov., '12",
         "3 november 2012",  "3rd november 2012", "3 november, 2012", "3rd november, 2012",
         "3 november 12",    "3rd november 12",   "3 november, 12",   "3rd november, 12",
-        "03 nov 2012",      "03 nov, 2012",      "03 nov 12",        "03 nov, 12",
-        "03 nov. 2012",     "03 nov., 2012",     "03 nov. 12",       "03 nov., 12",
-        "03 november 2012", "03 november, 2012", "03 november 12",   "03 november, 12"
+        "3 november '12",   "3rd november '12",  "3 november, '12",  "3rd november, '12",
+        "03 nov 2012",      "03 nov, 2012",
+        "03 nov 12",        "03 nov, 12",
+        "03 nov '12",       "03 nov, '12",
+        "03 nov. 2012",     "03 nov., 2012",
+        "03 nov. 12",       "03 nov., 12",
+        "03 nov. '12",      "03 nov., '12",
+        "03 november 2012", "03 november, 2012",
+        "03 november 12",   "03 november, 12",
+        "03 november '12",  "03 november, '12"
       ) must allBeMatching(EN_ALL)
     }
 
@@ -601,17 +631,21 @@ class DateSpec extends Specification {
 
     "not match [unseparated] month + YY[YY][.]" in {
       List(
-        "nov2012",      "nov,2012",
-        "nov12",        "nov,12",
-        "nov.2012",     "nov.12",
-        "november2012", "november,2012",
-        "november12",   "november,12",
-        "nov 2012",       "nov, 2012",
-        //"nov 12",       "nov, 12",
-        "nov. 2012",      "nov., 2012",
-        //"nov. 12",      "nov., 12",
-        "november 2012",  "november, 2012"
-        //,"november 12", "november, 12"
+        "nov2012",       "nov,2012",
+        "nov12",         "nov,12",
+        "nov.2012",      "nov.12",
+        "november2012",  "november,2012",
+        "november12",    "november,12",
+        "november'12",   "november,'12",
+        "nov 2012",      "nov, 2012",
+        //"nov 12",      "nov, 12",
+        "nov '12",       "nov, '12",
+        "nov. 2012",     "nov., 2012",
+        //"nov. 12",     "nov., 12",
+        "nov. '12",      "nov., '12",
+        "november 2012", "november, 2012",
+        //"november 12", "november, 12",
+        "november '12",  "november, '12"
       ) must noneBeMatching(EN_FULL)
 
       "nov 2012." must not be matching(EN_FULL)
@@ -640,21 +674,30 @@ class DateSpec extends Specification {
 
     "still match [unseparated] month D[D][,] YY[YY][.] in one match without the final dot" in {
       List(
-        "nov3,2012",       "nov3,12",
-        "nov.3,2012",      "nov.3,12",
-        "november3,2012",  "november3,12",
-        "nov03,2012",      "nov03,12",
-        "nov.03,2012",     "nov.03,12",
-        "november03,2012", "november03,12",
+        "nov3,2012",       "nov3,12",       "nov3,'12",
+        "nov.3,2012",      "nov.3,12",      "nov.3,'12",
+        "november3,2012",  "november3,12",  "november3,'12",
+        "nov03,2012",      "nov03,12",      "nov03,'12",
+        "nov.03,2012",     "nov.03,12",     "nov.03,'12",
+        "november03,2012", "november03,12", "november03,'12",
         "nov 3 2012",       "nov 3rd 2012",      "nov 3, 2012",      "nov 3rd, 2012",
         "nov 3 12",         "nov 3rd 12",        "nov 3, 12",        "nov 3rd, 12",
+        "nov 3 '12",        "nov 3rd '12",       "nov 3, '12",       "nov 3rd, '12",
         "nov. 3 2012",      "nov. 3rd 2012",     "nov. 3, 2012",     "nov. 3rd, 2012",
         "nov. 3 12",        "nov. 3rd 12",       "nov. 3, 12",       "nov. 3rd, 12",
+        "nov. 3 '12",       "nov. 3rd '12",      "nov. 3, '12",      "nov. 3rd, '12",
         "november 3 2012",  "november 3rd 2012", "november 3, 2012", "november 3rd, 2012",
         "november 3 12",    "november 3rd 12",   "november 3, 12",   "november 3rd, 12",
-        "nov 03 2012",      "nov 03, 2012",      "nov 03 12",        "nov 03, 12",
-        "nov. 03 2012",     "nov. 03, 2012",     "nov. 03 12",       "nov. 03, 12",
-        "november 03 2012", "november 03, 2012", "november 03 12",   "november 03, 12"
+        "november 3 '12",   "november 3rd '12",  "november 3, '12",  "november 3rd, '12",
+        "nov 03 2012",      "nov 03, 2012",
+        "nov 03 12",        "nov 03, 12",
+        "nov 03 '12",       "nov 03, '12",
+        "nov. 03 2012",     "nov. 03, 2012",
+        "nov. 03 12",       "nov. 03, 12",
+        "nov. 03 '12",      "nov. 03, '12",
+        "november 03 2012", "november 03, 2012",
+        "november 03 12",   "november 03, 12",
+        "november 03 '12",  "november 03, '12"
       ) must allBeMatching(EN_FULL)
       "nov 1st, 2012." must not be matching(EN_FULL)
       (EN_FULL findAllIn   "nov 1st, 2012.") must have size(1)
@@ -669,21 +712,30 @@ class DateSpec extends Specification {
 
     "still match [unseparated] month + D[D] + ',' + YY[YY]" in {
       List(
-        "3nov,2012",       "3nov,12",
-        "3nov.,2012",      "3nov.,12",
-        "3november,2012",  "3november,12",
-        "03nov,2012",      "03nov,12",
-        "03nov.,2012",     "03nov.,12",
-        "03november,2012", "03november,12",
+        "3nov,2012",       "3nov,12",       "3nov,'12",
+        "3nov.,2012",      "3nov.,12",      "3nov.,'12",
+        "3november,2012",  "3november,12",  "3november,'12",
+        "03nov,2012",      "03nov,12",      "03nov,'12",
+        "03nov.,2012",     "03nov.,12",     "03nov.,'12",
+        "03november,2012", "03november,12", "03november,'12",
         "3 nov 2012",       "3rd nov 2012",      "3 nov, 2012",      "3rd nov, 2012",
         "3 nov 12",         "3rd nov 12",        "3 nov, 12",        "3rd nov, 12",
+        "3 nov '12",        "3rd nov '12",       "3 nov, '12",       "3rd nov, '12",
         "3 nov. 2012",      "3rd nov. 2012",     "3 nov., 2012",     "3rd nov., 2012",
         "3 nov. 12",        "3rd nov. 12",       "3 nov., 12",       "3rd nov., 12",
+        "3 nov. '12",       "3rd nov. '12",      "3 nov., '12",      "3rd nov., '12",
         "3 november 2012",  "3rd november 2012", "3 november, 2012", "3rd november, 2012",
         "3 november 12",    "3rd november 12",   "3 november, 12",   "3rd november, 12",
-        "03 nov 2012",      "03 nov, 2012",      "03 nov 12",        "03 nov, 12",
-        "03 nov. 2012",     "03 nov., 2012",     "03 nov. 12",       "03 nov., 12",
-        "03 november 2012", "03 november, 2012", "03 november 12",   "03 november, 12"
+        "3 november '12",   "3rd november '12",  "3 november, '12",  "3rd november, '12",
+        "03 nov 2012",      "03 nov, 2012",
+        "03 nov 12",        "03 nov, 12",
+        "03 nov '12",       "03 nov, '12",
+        "03 nov. 2012",     "03 nov., 2012",
+        "03 nov. 12",       "03 nov., 12",
+        "03 nov. '12",      "03 nov., '12",
+        "03 november 2012", "03 november, 2012",
+        "03 november 12",   "03 november, 12",
+        "03 november '12",  "03 november, '12"
       ) must allBeMatching(EN_FULL)
     }
 
