@@ -98,18 +98,18 @@ The `.r` method on any `RE` term returns a compiled `scala.util.matching.Regex`.
 
 For other regex flavors, a translation mechanism is provided: you may instanciate a [`Flavor`](https://github.com/Imaginatio/REL/blob/master/src/main/scala/util/Flavor.scala), which exposes two methods: `.express(re: RE)` and `.translate(re: RE)`. The first one returns a `Tuple2[String, List[String]]`, whose first element is the translated regex string and whose second is a list of the group names (in order of appearance) allowing you to perform a mapping to capturing group indexes (like Scala does) if needed. The second method only performs the translation of a `RE` term into another.
 
-An example of translation into [.NET-flavored regex](http://www.regular-expressions.info/dotnet.html) is provided. [`DotNETTranslator`](https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/DotNETTranslator.scala) contains the actual translation, `DotNETFlavor` being declared in the [`flavors` package object](https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/package.scala). The translation:
+An example of translation into [.NET-flavored regex](http://www.regular-expressions.info/dotnet.html) is provided. [`DotNETFlavor`](https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/DotNETFlavor.scala):
 
 - changes `\w` to `[a-zA-Z0-9_]` (when used with `Word`/`μ`), since .NET's `\w` covers UTF-8 letters including accented, while Java's covers only ASCII
 - turns any possessive quantifier into a greedy quantifier wrapped in an atomic group (which is a longer equivalent)
 - inlines named groups and their references into the .NET `(?<name>expr)` syntax
 
-Another example is the [`JavaScriptTranslator`](https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/JavaScriptTranslator.scala), which will:
+Another example is the [`JavaScriptFlavor`](https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/JavaScriptFlavor.scala), which will:
 
 - throw an exception when you try to translate a `RE` term that is not supported in the [JavaScript regex flavor](http://www.regular-expressions.info/javascript.html) (e.g. LookBehind)
 - transform possessive quantifiers and atomic groups (also not supported in JavaScript) into LookAhead with capturing group, immediately referenced afterwards: `(?>a|b)` becomes `(?=(a|b))\1`, exposing the same behavior as possessive quantifiers and atomic groups
 
-The [`LegacyRubyTranslator`](https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/LegacyRubyTranslator.scala) works similarly for the [Ruby 1.8 regex flavor](http://www.regular-expressions.info/ruby.html) which [does not support Unicode](http://www.regular-expressions.info/unicode8bit.html), unlike [Oniguruma](http://www.geocities.jp/kosako3/oniguruma/) when the `/u` flag is set. You shouldn't need to translate a REL regex to use it with Oniguruma, which also fully supports LookBehind and possessive quantifiers, and is the default regex implementation in Ruby 1.9.
+The [`LegacyRubyFlavor`](https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/LegacyRubyFlavor.scala) works similarly for the [Ruby 1.8 regex flavor](http://www.regular-expressions.info/ruby.html) which [does not support Unicode](http://www.regular-expressions.info/unicode8bit.html), unlike [Oniguruma](http://www.geocities.jp/kosako3/oniguruma/) when the `/u` flag is set. You shouldn't need to translate a REL regex to use it with Oniguruma, which also fully supports LookBehind and possessive quantifiers, and is the default regex implementation in Ruby 1.9.
 
 [Regular-expression.info](http://www.regular-expressions.info)'s [regex flavors comparison chart](http://www.regular-expressions.info/refflavors.html) may be of use when writing a translation.
 
@@ -222,16 +222,16 @@ The string primitives are not parsed (use `esc(str)` to escape a string that sho
 
 - Any capturing group you pass inside those strings won't be taken into account by REL when the final regex is generated. The following groups and back-references will be shifted so the resulting regex will most probably be incorrect.
 - You still need to escape your expressions to match literally characters that are regex-significant like `+`, `?` or `(`, even in `RECst`. Use `esc(str)` to escape the whole string.
-- Any regex you pass as a string will be kept as-is when translated into different flavors. For instance, the `\w` passed in a string (as opposed to used with `Word`/`μ`) will not be translated by the `DotNETTranslator`.
+- Any regex you pass as a string will be kept as-is when translated into different flavors. For instance, the `\w` passed in a string (as opposed to used with `Word`/`μ`) will not be translated by the `DotNETFlavor`.
 
 ### Flavors
 
-JavaScript regexes are very limited and work a bit differently. In [JavaScript flavor](https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/JavaScriptTranslator.scala)
+JavaScript regexes are very limited and work a bit differently. In [JavaScript flavor](https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/JavaScriptFlavor.scala)
 
 - `WordBoundary`/`\b` is kept as-is, but will not have exactly the same semantic because of the lack of Unicode support in JavaScript regex flavor. For instance, in `"fiancé"`, Javascript sees `"\bfianc\bé"` where most other flavors see `"\bfiancé\b"`. Same goes for `NotWordBoundary`/`\B`.
 - `InputBegin` (`^^`) and `InputEnd` (`$$`) are translated to `LineBegin` (`^`) and `LineEnd` (`$`), but this is only correct if the `m` (multiline) flag is off.
 
-In [.NET flavor](https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/DotNETTranslator.scala), the group names are not guaranteed to be valid.
+In [.NET flavor](https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/DotNETFlavor.scala), the group names are not guaranteed to be valid.
 
 
 ## Usage and downloads
