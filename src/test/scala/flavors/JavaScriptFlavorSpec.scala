@@ -9,33 +9,45 @@ class JavaScriptFlavorSpec extends Specification {
 
   import Symbols._
   import Implicits.string2RE
+  import scala.util.matching.Regex
 
   "JavaScript Flavor translation" should {
 
     val tr = { (re: RE) => JavaScriptFlavor.express(re)._1 }
     val notSupported = " not supported in JavaScript"
-
-    "not support possessive quantifiers" in {
-      val msg = "Possessive quantifiers are" + notSupported
-      tr("a" ?+)    must throwA[IllegalArgumentException](message = msg)
-      tr(RE("a")++) must throwA[IllegalArgumentException](message = msg)
-      tr("a" *+)    must throwA[IllegalArgumentException](message = msg)
-      tr(RepAtLeastN("a", 2, Possessive)) must throwA[IllegalArgumentException](message = msg)
-      tr(RepAtMostN ("a", 2, Possessive)) must throwA[IllegalArgumentException](message = msg)
-      tr(RepNToM ("a", 2, 5, Possessive)) must throwA[IllegalArgumentException](message = msg)
-    }
+    val a = RE("a")
 
     "not support look-behind, keep look-ahead" in {
       val msg = "LookBehind is" + notSupported
-      tr(?<=("a"))  must throwA[IllegalArgumentException](message = msg)
-      tr(?<!("a"))  must throwA[IllegalArgumentException](message = msg)
-      tr( ?=("a"))  must_== "(?=a)"
-      tr( ?!("a"))  must_== "(?!a)"
+      tr(?<=(a))  must throwA[IllegalArgumentException](message = msg)
+      tr(?<!(a))  must throwA[IllegalArgumentException](message = msg)
+      tr( ?=(a))  must_== "(?=a)"
+      tr( ?!(a))  must_== "(?!a)"
     }
 
-    "not support atomic grouping" in {
-      val msg = "Atomic grouping is" + notSupported
-      tr(?>("a")) must throwA[IllegalArgumentException](message = msg)
+    "transform atomic grouping" in {
+      val ga = a.g
+      tr(?>(a)) must_== (?=(ga) - !ga).ncg.toString
+      
+      // checking the atomic nature
+      new Regex(tr(?>("abc|ab")) + "c").findFirstMatchIn("abc") must beNone
+    }
+
+    "transform possessive quantifiers" in {
+      tr(a?+)                           must_== "(?:(?=(a?))\\1)"
+      tr(a++)                           must_== "(?:(?=(a+))\\1)"
+      tr(a*+)                           must_== "(?:(?=(a*))\\1)"
+      tr(RepAtLeastN(a, 2, Possessive)) must_== "(?:(?=(a{2,}))\\1)"
+      tr(RepAtMostN (a, 2, Possessive)) must_== "(?:(?=(a{0,2}))\\1)"
+      tr(RepNToM (a, 2, 5, Possessive)) must_== "(?:(?=(a{2,5}))\\1)"
+      
+      // checking the possessive nature
+      new Regex(tr(a?+) + "a").findFirstMatchIn("a")                              must beNone
+      new Regex(tr(a++) + "a").findFirstMatchIn("aa")                             must beNone
+      new Regex(tr(a*+) + "a").findFirstMatchIn("a")                              must beNone
+      new Regex(tr(RepAtLeastN(a, 2, Possessive)) + "a").findFirstMatchIn("aaaa") must beNone
+      new Regex(tr(RepAtMostN (a, 2, Possessive)) + "a").findFirstMatchIn("aa")   must beNone
+      new Regex(tr(RepNToM (a, 2, 5, Possessive)) + "a").findFirstMatchIn("aaaa") must beNone
     }
 
     "not support unicode categories" in {
@@ -48,8 +60,8 @@ class JavaScriptFlavorSpec extends Specification {
     }
 
     "translate \\A and \\z" in {
-      tr(^) must_== "^"
-      tr($) must_== "$"
+      tr(^^) must_== "^"
+      tr($$) must_== "$"
     }
     "keep \\w, \\W, \\b and \\B" in {
       tr(μ) must_== "\\w"
@@ -64,7 +76,7 @@ class JavaScriptFlavorSpec extends Specification {
     }
 
     "translate recursively" in {
-      tr(("b" | (^^{3}+)) - "a") must_== "b|(?:^{3})+a"
+      tr(("b" | (^^{3}++)) - "a") must_== "b|(?:(?=((?:^{3})+))\\1)a"
     }
 
   }

@@ -104,7 +104,10 @@ An example of translation into [.NET-flavored regex](http://www.regular-expressi
 - turns any possessive quantifier into a greedy quantifier wrapped in an atomic group (which is a longer equivalent)
 - inlines named groups and their references into the .NET `(?<name>expr)` syntax
 
-Another example is the [`JavaScriptTranslator`](https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/JavaScriptTranslator.scala), which will mainly throw an exception when you try to translate a `RE` term that is not supported in the [JavaScript regex flavor](http://www.regular-expressions.info/javascript.html) (e.g. LookBehind).
+Another example is the [`JavaScriptTranslator`](https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/JavaScriptTranslator.scala), which will:
+
+- throw an exception when you try to translate a `RE` term that is not supported in the [JavaScript regex flavor](http://www.regular-expressions.info/javascript.html) (e.g. LookBehind)
+- transform possessive quantifiers and atomic groups (also not supported in JavaScript) into LookAhead with capturing group, immediately referenced afterwards: `(?>a|b)` becomes `(?=(a|b))\1`, exposing the same behavior as possessive quantifiers and atomic groups
 
 The [`LegacyRubyTranslator`](https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/LegacyRubyTranslator.scala) works similarly for the [Ruby 1.8 regex flavor](http://www.regular-expressions.info/ruby.html) which [does not support Unicode](http://www.regular-expressions.info/unicode8bit.html), unlike [Oniguruma](http://www.geocities.jp/kosako3/oniguruma/) when the `/u` flag is set. You shouldn't need to translate a REL regex to use it with Oniguruma, which also fully supports LookBehind and possessive quantifiers, and is the default regex implementation in Ruby 1.9.
 

@@ -13,8 +13,10 @@ object JavaScriptTranslator {
 
     // JavaScript regexes are pretty limited...
     case LookAround(_, Behind, _)         => notSupported("LookBehind", false)
-    case r: Rep if (r.mode == Possessive) => notSupported("Possessive quantifiers", true)
-    case AGroup(_)                        => notSupported("Atomic grouping", false)
+    // Atomic Grouping is not supported but we can emulate this with capturing LookAhead
+    case r: AGroup                        => atomicToLookAhead(translate)(r)
+    // same goes for possessive repeaters => atomic group => previous case
+    case r: Rep if (r.mode == Possessive) => translate(possessiveToAtomic(IdRewriter)(r))
 
     // Javascript doesn't support Unicode categories natively
     // although one may use XRegExp with Unicode plugin:
