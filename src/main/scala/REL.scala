@@ -9,6 +9,7 @@ package rel {
 
   import util._
 
+
   abstract sealed class RepMode(val asString: String) {
     override def toString = asString
   }
@@ -21,6 +22,7 @@ package rel {
   }
   case object Ahead  extends LookDirection("")
   case object Behind extends LookDirection("<")
+
 
   abstract sealed class RE {
 
@@ -118,8 +120,10 @@ package rel {
       this << extractor.lift
   }
 
+
   /** A Wrapped RE needs no NCGroup protection */
   sealed trait Wrapped extends RE
+
 
   abstract sealed class RE2(val lRe: RE, val rRe: RE) extends RE {
     protected def linear(fn: (String, String) => String,
@@ -189,8 +193,8 @@ package rel {
       AGroup(re map tr)
   }
 
-  case class Group(val name: String,
-      override val re: RE) extends RE1(re) with Wrapped {
+  case class Group(val name: String, override val re: RE)
+  extends RE1(re) with Wrapped {
     override def linear(groupNames: List[String]) = re match {
       case NCGroup(re) => Group(name, re).linear(groupNames)
       case _           => linear("(" + _ + ")", groupNames ::: List(name))
@@ -205,9 +209,8 @@ package rel {
     lazy val unary_! = GroupRef(name)
   }
 
-  case class LookAround(override val re: RE,
-        val direction: LookDirection, positive: Boolean = true)
-      extends RE1(re) with Wrapped {
+  case class LookAround(override val re: RE, val direction: LookDirection, positive: Boolean = true)
+  extends RE1(re) with Wrapped {
     override def linear(groupNames: List[String]) = re match {
       case NCGroup(re) => LookAround(re, direction, positive).linear(groupNames)
       case _ => linear("(?" + direction + (if (positive) "=" else "!") + _ + ")", groupNames)
@@ -217,16 +220,19 @@ package rel {
       LookAround(re map tr, direction, positive)
   }
 
-  sealed abstract class Rep(override val re: RE,
-      val lb: Int,
-      val ub: Option[Int] = None,
-      val mode: RepMode = Greedy) extends RE1(re) {
+  sealed abstract class Rep(
+    override val re: RE,
+    val lb: Int,
+    val ub: Option[Int] = None,
+    val mode: RepMode = Greedy)
+  extends RE1(re) {
+
     override def linear(groupNames: List[String]) =
       linear(_ + "{" + lb + "," + ub.getOrElse("") + "}" + mode, groupNames)
   }
 
-  case class RepExactlyN(override val re: RE,
-      val n: Int) extends Rep(re, n, Some(n), Greedy) {
+  case class RepExactlyN(override val re: RE, val n: Int)
+  extends Rep(re, n, Some(n), Greedy) {
     override def linear(groupNames: List[String]) =
       linear(_ + "{" + lb + "}" + mode, groupNames)
 
@@ -234,35 +240,31 @@ package rel {
       RepExactlyN(re map tr, n)
   }
 
-  case class RepNToM(override val re: RE,
-        override val lb: Int,
-        val max: Int,
-        override val mode: RepMode = Greedy)
-      extends Rep(re, lb, Some(max), mode) {
+  case class RepNToM(
+    override val re: RE,
+    override val lb: Int,
+    val max: Int,
+    override val mode: RepMode = Greedy)
+  extends Rep(re, lb, Some(max), mode) {
+
     override def recurseMap(tr: Rewriter) =
       RepNToM(re map tr, lb, max, mode)
   }
 
-  case class RepAtLeastN(override val re: RE,
-        override val lb: Int,
-        override val mode: RepMode = Greedy)
-      extends Rep(re, lb, None, mode) {
+  case class RepAtLeastN(override val re: RE, override val lb: Int, override val mode: RepMode = Greedy)
+  extends Rep(re, lb, None, mode) {
     override def recurseMap(tr: Rewriter) =
       RepAtLeastN(re map tr, lb, mode)
   }
 
-  case class RepAtMostN(override val re: RE,
-        val max: Int,
-        override val mode: RepMode = Greedy)
-         extends Rep(re, 0, Some(max), mode) {
+  case class RepAtMostN(override val re: RE, val max: Int, override val mode: RepMode = Greedy)
+  extends Rep(re, 0, Some(max), mode) {
     override def recurseMap(tr: Rewriter) =
       RepAtMostN(re map tr, max, mode)
   }
 
-  case class Opt(override val re: RE,
-        override val mode: RepMode = Greedy)
-      extends Rep(re, 0, Some(1), mode) {
-
+  case class Opt(override val re: RE, override val mode: RepMode = Greedy)
+  extends Rep(re, 0, Some(1), mode) {
     override def linear(groupNames: List[String]) =
       linear(_ + "?" + mode, groupNames)
 
@@ -270,10 +272,8 @@ package rel {
       Opt(re map tr, mode)
   }
 
-  case class KStar(override val re: RE,
-        override val mode: RepMode = Greedy)
-      extends Rep(re, 0, mode = mode) {
-
+  case class KStar(override val re: RE, override val mode: RepMode = Greedy)
+  extends Rep(re, 0, mode = mode) {
     override def linear(groupNames: List[String]) =
       linear(_ + "*" + mode, groupNames)
 
@@ -281,10 +281,8 @@ package rel {
       KStar(re map tr, mode)
   }
 
-  case class KCross(override val re: RE,
-        override val mode: RepMode = Greedy)
-      extends Rep(re, 1, mode = mode) {
-
+  case class KCross(override val re: RE, override val mode: RepMode = Greedy)
+  extends Rep(re, 1, mode = mode) {
     override def linear(groupNames: List[String]) =
       linear(_ + "+" + mode, groupNames)
 
@@ -293,10 +291,12 @@ package rel {
   }
 
   // should only be used for Flavors / tree transformation
-  case class Wrapper(override val re: RE,
-        val prefix: String, val suffix: String,
-        appendGroupNames: List[String] = Nil)
-      extends RE1(re) {
+  case class Wrapper(
+    override val re: RE,
+    val prefix: String,
+    val suffix: String,
+    appendGroupNames: List[String] = Nil)
+  extends RE1(re) {
 
     override def linear(groupNames: List[String]) =
       linear(prefix + _ + suffix, groupNames ::: appendGroupNames)
@@ -307,7 +307,6 @@ package rel {
 
 
   sealed abstract class RE0 extends RE {
-
     protected[rel] def linear(groupNames: List[String]) =
       (toString, groupNames)
 
