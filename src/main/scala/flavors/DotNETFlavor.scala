@@ -4,7 +4,7 @@ import fr.splayce.rel._
 import util.{Flavor, Rewriter}
 
 
-/**  ․NET flavor
+/** ․NET flavor
  *
  *  This flavor:
  *  - embedds group names in regex (`(?<name>expr)` / `\k<name>` syntax)
@@ -21,8 +21,6 @@ object DotNETFlavor extends Flavor(".NET") with EmbedGroupNames with PossessiveT
 
   private val ASCIIWord    = new TranslatedRECst("[a-zA-Z0-9_]")
   private val NotASCIIWord = new TranslatedRECst("[^a-zA-Z0-9_]")
-
-  override val groupNamingStyle = ChevNamingStyle
 
   override val translator: Rewriter = {
 

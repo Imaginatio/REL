@@ -3,22 +3,24 @@ package fr.splayce.rel.flavors
 import fr.splayce.rel._
 import util.{Flavor, FlavorLike, Rewriter, IdRewriter, RecursiveIdRewriter}
 
+import scala.util.matching.Regex
+
 
 
 /** Java ≤ 6 Flavor. Strips embedded group names and named references. */
 object Java6Flavor extends Flavor("Java 6") with StripGroupNames
 
-/** Java ≥ 7 Flavor. Embeds group names and named references. */
+/** Java ≥ 7 Flavor. Embeds strict group names and named references. */
 object Java7Flavor extends Flavor("Java 7") with EmbedGroupNames {
   override val groupNamingStyle = ChevNamingStyle
+  override val groupNamingValidator = RE.strictGroupName
 }
 
 /** PCRE Flavor (C, PHP, Ruby 1.9 / Oniguruma…).
  *
- * Embeds group names and named references, using P-style,
+ * Embeds group names and named references (snake-case),
  * and uses `\R` short syntax for `LineTerminator`. */
 object PCREFlavor extends Flavor("PCRE") with EmbedGroupNames {
-  override val groupNamingStyle = PNamingStyle
   private val SimpleLineTerminator = new TranslatedRECst("""\R""")
   override val translator: Rewriter = {
     case LineTerminator => SimpleLineTerminator
@@ -30,14 +32,22 @@ class TranslatedREStr(val s: String) extends REStr(s)
 class TranslatedRECst(val s: String) extends RECst(s)
 
 
-/** Embeds named capturing groups and references, Java 7-style (`(?<name>expr)` and `(\k<name>)`).
+/** Embeds validly-named capturing groups and references, Java 7-style (`(?<name>expr)` and `(\k<name>)`).
  *
  * Keeps Scala-style group names at Regex instanciation.
+ *
+ * Valid inline group names are those matching the overridable
+ * `groupNamingValidator` regex, `RE.snakeGroupName` by default.
+ * This validation is post-checked, so that an extending Flavor's
+ * `translator` can alter group names beforehand.
+ *
  * @see [[java.util.regex.Pattern]]
  * @see [[scala.util.matching.Regex]]
+ * @see [[fr.splayce.rel.flavors.GroupNameSimplifier]]
  */
 trait EmbedGroupNames extends FlavorLike {
-  val groupNamingStyle: GroupNamingStyle
+  val groupNamingStyle: GroupNamingStyle = ChevNamingStyle
+  val groupNamingValidator: Regex = RE.snakeGroupName
 
   lazy val egn: Rewriter = {
     case Group(name, re, ns) if ns != Some(groupNamingStyle) =>
@@ -46,7 +56,14 @@ trait EmbedGroupNames extends FlavorLike {
       GroupRef(name, Some(groupNamingStyle))
   }
 
-  override def translate(re: RE) = super.translate(re map egn)
+  lazy val validateGroupNames: Rewriter = {
+    case g @ Group(name, _, Some(_)) if ! groupNamingValidator.pattern.matcher(name).matches
+      => g.copy(embedStyle = None)
+    case r @ GroupRef(name, Some(_)) if ! groupNamingValidator.pattern.matcher(name).matches
+      => r.copy(embedStyle = None)
+  }
+
+  override def translate(re: RE) = super.translate(re map egn) map validateGroupNames
 }
 
 /** Strips inline-named capturing groups and references, Java 6-style (`(expr)` and `(\n)`).

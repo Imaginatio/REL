@@ -163,13 +163,22 @@ abstract sealed class RE {
 }
 
 object RE {
-  /** Non-breaking = does not need NCGroup protection.
-    * This regex matches:
-    * - single characters: `a`, `\w`, `\cX`, `\u0f1f`, `\h1f`, `\0123`
-    * - character classes `\p{...}`, `[...]`
-    */
+  /** Regex for non-breaking entities = that does not need NCGroup protection.
+   *
+   *  This regex matches:
+   *  - single characters: `a`, `\w`, `\cX`, `\u0f1f`, `\h1f`, `\0123`
+   *  - character classes `\p{...}`, `[...]`
+   */
   val nonBreakingEntity = """^(?:\\?.|\\c.|\\u[\da-fA-F]{4}|\\x[\da-fA-F]{2}|\\0[0-3]?[0-7]{1,2}|\\[pP]\{\w+\}|\[[^\]]*+\])$""".r
+  /** Regex for mode modifiers (flags) */
   val matchFlags = """^([a-zA-Z]*+)(?>-(?!$))?+([a-zA-Z]*+)$""".r
+
+  /** Validator for Java 7-style strict group naming validation: 1 alpha + 0..* alphanumeric chars */
+  val strictGroupName =  """^[a-zA-Z][a-zA-Z0-9]*$""".r
+  /** Regex for ․NET/PCRE-style group naming validation: 1 alpha or `_` + 0..* alphanumeric chars or `_`s */
+  val snakeGroupName =   """^[a-zA-Z_]\w*$""".r
+  /** Regex for Ruby 1.9-style group naming validation: 1 alpha or `_` + 0..* ASCII printable chars but `>` */
+  val lenientGroupName = """^[a-zA-Z_][ -=?-~]*$""".r
 
   val escapeChars = "\\^$()[]{}?*+.|"
   val escapeMap   = escapeChars map { c => c -> List('\\', c) } toMap

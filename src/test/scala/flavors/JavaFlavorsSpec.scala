@@ -22,6 +22,11 @@ object JavaFlavorsSpec extends Specification {
       Java7Flavor.express(g - g)._2 must_== List("g", "g")
     }
 
+    "strip invalid group names when translating Date regexes" in {
+      tr(matchers.fr.Date.ALL) must not contain("(?<a_f>")
+      tr(matchers.en.Date.ALL) must not contain("(?<a_f>")
+    }
+
   }
 
 
@@ -38,5 +43,10 @@ object JavaFlavorsSpec extends Specification {
       Java6Flavor.express(g - g)._2 must_== List("g", "g")
     }
 
+    "not crash when translating Date regexes" in {
+      (tr(matchers.fr.Date.ALL))
+      (tr(matchers.en.Date.ALL))
+      1 === 1
+    }
   }
 }

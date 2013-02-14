@@ -252,4 +252,39 @@ class UtilSpec extends Specification {
       }).must(beTrue)
     }
   }
+
+
+  "Group names regex" should {
+    "match strict (Java 7 compatible) group names (1 alpha + 0..* alphanum)" in {
+      "group"   must     be matching(RE.strictGroupName)
+      "group1"  must     be matching(RE.strictGroupName)
+      "group_1" must not be matching(RE.strictGroupName)
+      "group-1" must not be matching(RE.strictGroupName)
+      "group*1" must not be matching(RE.strictGroupName)
+      "group 1" must not be matching(RE.strictGroupName)
+      "group>1" must not be matching(RE.strictGroupName)
+      "1group"  must not be matching(RE.strictGroupName)
+    }
+    "match snake (.NET/PCRE compatible) group names (1 alpha or '_' + 0..* alphanum or '_')" in {
+      "group"   must     be matching(RE.snakeGroupName)
+      "group1"  must     be matching(RE.snakeGroupName)
+      "group_1" must     be matching(RE.snakeGroupName)
+      "group*1" must not be matching(RE.snakeGroupName)
+      "group 1" must not be matching(RE.snakeGroupName)
+      "group-1" must not be matching(RE.snakeGroupName)
+      "group>1" must not be matching(RE.snakeGroupName)
+      "1group"  must not be matching(RE.snakeGroupName)
+    }
+    "match strict (Ruby 1.9+ compatible) group names (1 alpha or '_' + 0..* ASCII printable but '>')" in {
+      "group"   must     be matching(RE.lenientGroupName)
+      "group1"  must     be matching(RE.lenientGroupName)
+      "group_1" must     be matching(RE.lenientGroupName)
+      "group-1" must     be matching(RE.lenientGroupName)
+      "group*1" must     be matching(RE.lenientGroupName)
+      "group 1" must     be matching(RE.lenientGroupName)
+      "group>1" must not be matching(RE.lenientGroupName)
+      "1group"  must not be matching(RE.lenientGroupName)
+    }
+  }
+
 }

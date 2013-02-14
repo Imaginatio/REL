@@ -40,10 +40,9 @@ class DotNETFlavorSpec extends Specification {
       tr(("b" | (μ(3)++)) - "a") must_== "b|(?>(?:[a-zA-Z0-9_]{3})+)a"
     }
 
-    "not crash when translating Date regexes" in {
-      /* println */ (tr(matchers.fr.Date.ALL))
-      /* println */ (tr(matchers.en.Date.ALL))
-      1 === 1
+    "keep group names when translating Date regexes" in {
+      tr(matchers.fr.Date.ALL) must contain("(?<a_f>")
+      tr(matchers.en.Date.ALL) must contain("(?<a_f>")
     }
 
   }

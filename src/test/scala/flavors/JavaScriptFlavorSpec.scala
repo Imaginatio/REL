@@ -79,6 +79,10 @@ class JavaScriptFlavorSpec extends Specification {
       tr(re) must_== re
     }
 
+    "not be able to translate Date regex" in {
+      tr(matchers.en.Date.ALL) must throwA[IllegalArgumentException](message = "LookBehind is" + notSupported)
+    }
+
     "translate recursively" in {
       tr(("b" | (^^{3}++)) - "a") must_== "b|(?:(?=((?:^{3})+))\\1)a"
     }

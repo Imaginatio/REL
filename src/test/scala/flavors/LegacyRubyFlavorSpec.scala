@@ -63,6 +63,10 @@ class LegacyRubyFlavorSpec extends Specification {
       tr(re) must_== re
     }
 
+    "not be able to translate Date regex" in {
+      tr(matchers.en.Date.ALL) must throwA[IllegalArgumentException](message = "LookBehind is" + notSupported)
+    }
+
     "translate recursively" in {
       tr(("b" | "mi-s" ?: (Τ{3}+)) - "a") must_== """b|(?i-m:(?:(?:\r\n?|\n){3})+)a"""
     }

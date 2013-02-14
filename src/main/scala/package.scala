@@ -42,11 +42,11 @@ package rel {
 
   /** Strategy to represent named capturing groups and references inline */
   class GroupNamingStyle(val capture: String => String, val reference: String => String)
-  /** Named capturing group style for Java 7, ․NET. **/
+  /** Named capturing group style for Java 7, ․NET, modern PCRE. **/
   case object ChevNamingStyle extends GroupNamingStyle("?<"  + _ + ">", "\\k<" + _ + ">")
-  /** Named capturing group style for ․NET. **/
+  /** Named capturing group style for ․NET (ASP-style). **/
   case object AposNamingStyle extends GroupNamingStyle("?'"  + _ + "'", "\\k'" + _ + "'")
-  /** Named capturing group style for PCRE, Python. **/
+  /** Named capturing group style for Python, old PCRE. **/
   case object    PNamingStyle extends GroupNamingStyle("?P<" + _ + ">", "(?P=" + _ + ")")
 
   case object Epsilon         extends RECst("")

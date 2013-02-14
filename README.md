@@ -149,7 +149,7 @@ val users = userExtractor("me@dev, you@dev")  // Iterator[(String, String)]
 users.toList.toString === "List((me,dev), (you,dev))"
 ```
 
-Java does not support named capturing groups, and Scala only emulates them, mapping a list of names given at the compilation of the Regex against the indexes of the capturing groups. Thus, it is risky to have multiple instances of the same group name. In practice, using `myMatch.group("myGroup")` seems to always refer to the last occurrence of the `myGroup`.
+Java < 7 does not support named capturing groups, and Scala only emulates them, mapping a list of names given at the compilation of the Regex against the indexes of the capturing groups. Thus, it is risky to have multiple instances of the same group name. In practice, using `myMatch.group("myGroup")` seems to always refer to the last occurrence of the `myGroup`.
 
 On the other hand, the `Match` object carries the full list of group names (in its eponymous `groupNames` val), and REL uses it to compute the group tree. Thus, you _can_ reuse the same group name in a single expression.
 
@@ -231,7 +231,7 @@ JavaScript regexes are very limited and work a bit differently. In [JavaScript f
 - `WordBoundary`/`\b` is kept as-is, but will not have exactly the same semantic because of the lack of Unicode support in JavaScript regex flavor. For instance, in `"fiancé"`, Javascript sees `"\bfianc\bé"` where most other flavors see `"\bfiancé\b"`. Same goes for `NotWordBoundary`/`\B`.
 - `InputBegin` (`^^`) and `InputEnd` (`$$`) are translated to `LineBegin` (`^`) and `LineEnd` (`$`), but this is only correct if the `m` (multiline) flag is off.
 
-In [.NET flavor](https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/DotNETFlavor.scala), the group names are not guaranteed to be valid.
+The embedded group names are not checked for unicity in concerned Flavors, and only .NET and Ruby 1.9+ supports multiple inline-named groups with the same name.
 
 
 ## Usage and downloads

@@ -16,14 +16,19 @@ object PCREFlavorSpec extends Specification {
 
     "translate and inline named groups and references, using P-style" in {
       val g = "a" \ "g"
-      tr(g)      must_== "(?P<g>a)"
-      tr(g - !g) must_== "(?P<g>a)(?P=g)"
+      tr(g)      must_== "(?<g>a)"
+      tr(g - !g) must_== "(?<g>a)\\k<g>"
 
       PCREFlavor.express(g - g)._2 must_== List("g", "g")
     }
 
     "use short LineTerminator \\R" in {
       tr("a" - Τ - "b") must_== """a\Rb"""
+    }
+
+    "keep group names when translating Date regexes" in {
+      tr(matchers.fr.Date.ALL) must contain("(?<a_f>")
+      tr(matchers.en.Date.ALL) must contain("(?<a_f>")
     }
 
   }
