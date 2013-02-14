@@ -39,7 +39,7 @@ with NoLookBehindSupport {
     // and 's' flag (dot matches newlines) is called 'm'
     // so we strip any 'm' flag and rename 's' to 'm'
     case NCGroup(re, flags) if (flags.contains("m") || flags.contains("s")) =>
-      NCGroup(re map translator, mFlags.replaceAllIn(flags, "").replace('s', 'm'))
+      NCGroup(re, mFlags.replaceAllIn(flags, "").replace('s', 'm'))
 
   }
 

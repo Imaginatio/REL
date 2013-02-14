@@ -131,7 +131,7 @@ abstract sealed class RE {
   /** Atomic group */
   lazy val ?> = ag
 
-  protected[rel] def linear(groupNames: List[String] = Nil): (String, List[String])
+  def linear(groupNames: List[String] = Nil): (String, List[String])
   /** Combined linearization: first term is String representation, second is the List of capturing group names */
   lazy val lin = linear()
 
@@ -142,17 +142,27 @@ abstract sealed class RE {
   override def toString = lin._1
 
   /** Recursively replace matching terms in the RE subtree */
-  def map(tr: Rewriter): RE =
-    (tr lift)(this) getOrElse recurseMap(tr)
-  protected def recurseMap(tr: Rewriter): RE
+  def map(tr: Rewriter, order: RE.TraversalOrder = TraversalOrder.Postfixed): RE = {
+    val tf = tr lift
+    val to: OpRewriter[Null] = { (n, r) => (tf(r).getOrElse(r), n) }
+    (null /: this)(to, order)._1
+  }
 
-  /** Return a traversable for this order */
-  def traverse(order: RE.TraversalOrder): Traversable[RE] = new Traversable[RE] {
+  /** Recursively apply an `(RE, A) => (RE, A)` operation, going left to right.
+   *
+   *  In `Prefixed` and `InfixedPre` traversals, automatic recursion
+   *  will only occur on `RE2` and `RE1` if the result of the operation
+   *  remains of the same class.
+   */
+  def /:[A](z: A)(op: OpRewriter[A], order: RE.TraversalOrder): (RE, A)
+
+  /** Return a Traversable for this order */
+  def traverse(order: RE.TraversalOrder = TraversalOrder.Postfixed): Traversable[RE] = new Traversable[RE] {
     override def foreach[U](f: RE => U) {
       RE.this.foreach(order)(f)
     }
   }
-  def foreach[U](order: RE.TraversalOrder)(f: RE => U)
+  protected[rel] def foreach[U](order: RE.TraversalOrder)(f: RE => U)
 
   /** Corresponding MatchGroup tree, with containing unnamed `\$0` MatchGroup */
   lazy val matchGroup: MatchGroup = MatchGroup(None, None, groups)
@@ -211,6 +221,8 @@ sealed trait Wrapped extends RE
 
 /** Two-operands RE tree node */
 abstract sealed class RE2(val lRe: RE, val rRe: RE) extends RE {
+  protected def replicate(lRe: RE = lRe, rRe: RE = rRe): RE2
+
   protected def linear(fn: (String, String) => String,
       groupNames: List[String]) = {
     val linL = lRe.linear(groupNames)
@@ -220,6 +232,28 @@ abstract sealed class RE2(val lRe: RE, val rRe: RE) extends RE {
 
   override lazy val groups =
     lRe.groups ::: rRe.groups
+
+  override def /:[A](z: A)(op: OpRewriter[A], order: RE.TraversalOrder): (RE, A) = order match {
+    case TraversalOrder.Prefixed  =>
+      val t = op(z, this)
+      if (t._1.getClass == getClass) {
+        val l = (t._2 /: t._1.asInstanceOf[RE2].lRe)(op, order)
+        val r = (l._2 /: t._1.asInstanceOf[RE2].rRe)(op, order)
+        (t._1.asInstanceOf[RE2].replicate(l._1, r._1), r._2)
+      } else t
+    case TraversalOrder.InfixedPre | TraversalOrder.InfixedPost =>
+      val l = (z /: lRe)(op, order)
+      val that = this.replicate(lRe = l._1, rRe = rRe)
+      val t = op(l._2, that)
+      if (t._1.getClass == getClass) {
+        val r = (t._2 /: rRe)(op, order)
+        (that.replicate(rRe = r._1), r._2)
+      } else t
+    case TraversalOrder.Postfixed =>
+      val l = (   z /: lRe)(op, order)
+      val r = (l._2 /: rRe)(op, order)
+      op(r._2, this.replicate(lRe = l._1, rRe = r._1))
+  }
 
   override def foreach[U](order: RE.TraversalOrder)(f: RE => U) {
     order match {
@@ -237,26 +271,26 @@ abstract sealed class RE2(val lRe: RE, val rRe: RE) extends RE {
 /** Concatenation RE tree node */
 case class Conc(override val lRe: RE,
     override val rRe: RE) extends RE2(lRe, rRe) {
+  override def replicate(lRe: RE, rRe: RE) = copy(lRe, rRe)
+
   override def linear(groupNames: List[String]) =
     linear(_ + _, groupNames)
-
-  override def recurseMap(tr: Rewriter) =
-    Conc(lRe map tr, rRe map tr)
 }
 
 /** Alternative RE tree node */
 case class Alt(override val lRe: RE,
     override val rRe: RE) extends RE2(lRe, rRe) {
+  override def replicate(lRe: RE, rRe: RE) = copy(lRe, rRe)
+
   override def linear(groupNames: List[String]) =
     linear(_ + "|" + _, groupNames)
-
-  override def recurseMap(tr: Rewriter) =
-    Alt(lRe map tr, rRe map tr)
 }
 
 
 /** One-operand RE tree node */
 sealed abstract class RE1(val re: RE) extends RE {
+  protected def replicate(re: RE = re): RE1
+
   protected def linear(fn: String => String,
       groupNames: List[String]) = {
     val lin = re.linear(groupNames)
@@ -265,6 +299,18 @@ sealed abstract class RE1(val re: RE) extends RE {
 
   override lazy val groups =
     re.groups
+
+  override def /:[A](z: A)(op: OpRewriter[A], order: RE.TraversalOrder): (RE, A) = order match {
+    case TraversalOrder.Prefixed  | TraversalOrder.InfixedPre  =>
+      val t = op(z, this)
+      if (t._1.getClass == getClass) {
+        val r = (t._2 /: t._1.asInstanceOf[RE1].re)(op, order)
+        (t._1.asInstanceOf[RE1].replicate(r._1), r._2)
+      } else t
+    case TraversalOrder.Postfixed | TraversalOrder.InfixedPost =>
+      val r = (z /: re)(op, order)
+      op(r._2, if (re == r._1) this else this.replicate(r._1))
+  }
 
   override def foreach[U](order: RE.TraversalOrder)(f: RE => U) {
     order match {
@@ -280,6 +326,8 @@ sealed abstract class RE1(val re: RE) extends RE {
 case class NCGroup(override val re: RE, val flags: String = "") extends RE1(re) with Wrapped {
   val RE.matchFlags(withFlags, withoutFlags) = flags
 
+  override def replicate(re: RE) = copy(re)
+
   override def linear(groupNames: List[String]) = re match {
     case re: Wrapped if flags.isEmpty => re.linear(groupNames)
     case _                            => linear(
@@ -288,35 +336,30 @@ case class NCGroup(override val re: RE, val flags: String = "") extends RE1(re) 
         else "(?" + flags + ":" + s + ")"
       }, groupNames)
   }
-
-  override def recurseMap(tr: Rewriter) =
-    NCGroup(re map tr, flags)
 }
 
 /** Atomic group */
 case class AGroup(override val re: RE) extends RE1(re) with Wrapped {
+  override def replicate(re: RE) = copy(re)
+
   override def linear(groupNames: List[String]) = re match {
     case re: Rep if (re.mode == Possessive) => re.linear(groupNames)
     case re: AGroup                         => re.linear(groupNames)
     case NCGroup(re, "")                    => AGroup(re).linear(groupNames)
     case _                                  => linear("(?>" + _ + ")", groupNames)
   }
-
-  override def recurseMap(tr: Rewriter) =
-    AGroup(re map tr)
 }
 
 /** Named capturing group */
 case class Group(val name: String, override val re: RE, val embedStyle: Option[GroupNamingStyle] = None)
 extends RE1(re) with Wrapped {
+  override def replicate(re: RE) = copy(re = re)
+
   override def linear(groupNames: List[String]) = re match {
     case NCGroup(re, "") => Group(name, re).linear(groupNames)
     case _               =>
       linear("(" + embedStyle.map(_ capture name).getOrElse("") + _ + ")", groupNames ::: List(name))
   }
-
-  override def recurseMap(tr: Rewriter) =
-    Group(name, re map tr, embedStyle)
 
   override lazy val groups =
     List(MatchGroup(Some(name), None, re.groups))
@@ -327,13 +370,12 @@ extends RE1(re) with Wrapped {
 /** Look-around */
 case class LookAround(override val re: RE, val direction: LookDirection, positive: Boolean = true)
 extends RE1(re) with Wrapped {
+  override def replicate(re: RE) = copy(re)
+
   override def linear(groupNames: List[String]) = re match {
     case NCGroup(re, "") => LookAround(re, direction, positive).linear(groupNames)
     case _               => linear("(?" + direction + (if (positive) "=" else "!") + _ + ")", groupNames)
   }
-
-  override def recurseMap(tr: Rewriter) =
-    LookAround(re map tr, direction, positive)
 }
 
 /** Quantifier (aka “repeater”) */
@@ -351,11 +393,10 @@ extends RE1(re) {
 /** Exactly-N quantifier */
 case class RepExactlyN(override val re: RE, val n: Int)
 extends Rep(re, n, Some(n), Greedy) {
+  override def replicate(re: RE) = copy(re)
+
   override def linear(groupNames: List[String]) =
     linear(_ + "{" + lb + "}" + mode, groupNames)
-
-  override def recurseMap(tr: Rewriter) =
-    RepExactlyN(re map tr, n)
 }
 
 /** N-to-M quantifier */
@@ -366,52 +407,46 @@ case class RepNToM(
   override val mode: RepMode = Greedy)
 extends Rep(re, lb, Some(max), mode) {
 
-  override def recurseMap(tr: Rewriter) =
-    RepNToM(re map tr, lb, max, mode)
+  override def replicate(re: RE) = copy(re)
 }
 
 /** At-least-N quantifier */
 case class RepAtLeastN(override val re: RE, override val lb: Int, override val mode: RepMode = Greedy)
 extends Rep(re, lb, None, mode) {
-  override def recurseMap(tr: Rewriter) =
-    RepAtLeastN(re map tr, lb, mode)
+  override def replicate(re: RE) = copy(re)
 }
 
 /** At-most-N quantifier */
 case class RepAtMostN(override val re: RE, val max: Int, override val mode: RepMode = Greedy)
 extends Rep(re, 0, Some(max), mode) {
-  override def recurseMap(tr: Rewriter) =
-    RepAtMostN(re map tr, max, mode)
+  override def replicate(re: RE) = copy(re)
 }
 
 /** Zero-or-one (`?`) quantifier */
 case class Opt(override val re: RE, override val mode: RepMode = Greedy)
 extends Rep(re, 0, Some(1), mode) {
+  override def replicate(re: RE) = copy(re)
+
   override def linear(groupNames: List[String]) =
     linear(_ + "?" + mode, groupNames)
-
-  override def recurseMap(tr: Rewriter) =
-    Opt(re map tr, mode)
 }
 
 /** Zero-or-more (`+`) quantifier */
 case class KStar(override val re: RE, override val mode: RepMode = Greedy)
 extends Rep(re, 0, mode = mode) {
+  override def replicate(re: RE) = copy(re)
+
   override def linear(groupNames: List[String]) =
     linear(_ + "*" + mode, groupNames)
-
-  override def recurseMap(tr: Rewriter) =
-    KStar(re map tr, mode)
 }
 
 /** One-or-more (`+`) quantifier */
 case class KCross(override val re: RE, override val mode: RepMode = Greedy)
 extends Rep(re, 1, mode = mode) {
+  override def replicate(re: RE) = copy(re)
+
   override def linear(groupNames: List[String]) =
     linear(_ + "+" + mode, groupNames)
-
-  override def recurseMap(tr: Rewriter) =
-    KCross(re map tr, mode)
 }
 
 /** Utility all-purpose subtree wrapper.
@@ -424,23 +459,22 @@ case class Wrapper(
   val suffix: String,
   appendGroupNames: List[String] = Nil)
 extends RE1(re) {
+  override def replicate(re: RE) = copy(re)
 
   override def linear(groupNames: List[String]) =
     linear(prefix + _ + suffix, groupNames ::: appendGroupNames)
-
-  override def recurseMap(tr: Rewriter) =
-    Wrapper(re map tr, prefix, suffix, appendGroupNames)
 }
 
 
 /** RE tree leaf */
 sealed abstract class RE0 extends RE {
-  protected[rel] def linear(groupNames: List[String]) =
+  def linear(groupNames: List[String]) =
     (toString, groupNames)
 
-  override def recurseMap(tr: Rewriter) = this
-
   override lazy val groups = Nil
+
+  override def /:[A](z: A)(op: OpRewriter[A], order: RE.TraversalOrder): (RE, A) =
+    op(z, this)
 
   override def foreach[U](order: RE.TraversalOrder)(f: RE => U) {
     f(this)

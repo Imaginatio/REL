@@ -6,7 +6,8 @@ import Regex.Match
 
 package object util {
 
-  type Rewriter = PartialFunction[RE, RE]
+  type Rewriter      = PartialFunction[RE, RE]
+  type OpRewriter[A] = Function2[A, RE, (RE, A)]
 
   /** Utility no-op Rewriter, bypasses recusion */
   val IdRewriter: Rewriter = { case re => re }

@@ -2,6 +2,7 @@ package fr.splayce.rel.flavors
 
 import fr.splayce.rel._
 import util.{Flavor, FlavorLike, Rewriter, IdRewriter, RecursiveIdRewriter}
+import TraversalOrder.Prefixed
 
 import scala.util.matching.Regex
 
@@ -51,14 +52,14 @@ trait EmbedGroupNames extends FlavorLike {
 
   lazy val egn: Rewriter = {
     case Group(name, re, ns) if ns != Some(groupNamingStyle) =>
-      Group(name, re map egn, Some(groupNamingStyle))
+      Group(name, re, Some(groupNamingStyle))
     case GroupRef(name, ns) if ns != Some(groupNamingStyle) =>
       GroupRef(name, Some(groupNamingStyle))
   }
 
   lazy val validateGroupNames: Rewriter = {
     case Group(name, re, Some(_)) if ! groupNamingValidator.pattern.matcher(name).matches
-      => Group(name, re map validateGroupNames, None)
+      => Group(name, re, None)
     case r @ GroupRef(name, Some(_)) if ! groupNamingValidator.pattern.matcher(name).matches
       => r.copy(embedStyle = None)
   }
@@ -74,8 +75,8 @@ trait EmbedGroupNames extends FlavorLike {
  */
 trait StripGroupNames extends FlavorLike {
   lazy val sgn: Rewriter = {
-    case    Group(name, re, Some(_)) =>    Group(name, re map sgn, None)
-    case GroupRef(name,     Some(_)) => GroupRef(name,             None)
+    case    Group(name, re, Some(_)) =>    Group(name, re, None)
+    case GroupRef(name,     Some(_)) => GroupRef(name,     None)
   }
 
   override def translate(re: RE) = super.translate(re map sgn)
@@ -90,19 +91,20 @@ trait PossessiveToAtomic extends FlavorLike {
   protected def noPtoA(re: RE) = super.translate(re)
 
   lazy val pToA: Rewriter = {
-    case r: Rep if (r.mode == Possessive) => PossessiveToAtomic.rewrite(pToA)(r)
+    case r: Rep if (r.mode == Possessive) => PossessiveToAtomic.rewrite(r)
   }
 
   override def translate(re: RE) = noPtoA(re map pToA)
 }
 object PossessiveToAtomic {
-  def rewrite(translate: Rewriter)(rep: Rep): RE = (rep: @unchecked) match {
-    case         Opt(re,        Possessive) =>         Opt(re map translate,       Greedy).ag
-    case       KStar(re,        Possessive) =>       KStar(re map translate,       Greedy).ag
-    case      KCross(re,        Possessive) =>      KCross(re map translate,       Greedy).ag
-    case     RepNToM(re, n, m,  Possessive) =>     RepNToM(re map translate, n, m, Greedy).ag
-    case RepAtLeastN(re, n,     Possessive) => RepAtLeastN(re map translate, n,    Greedy).ag
-    case  RepAtMostN(re, n,     Possessive) =>  RepAtMostN(re map translate, n,    Greedy).ag
+  def rewrite(rep: Rep): RE = (rep: @unchecked) match {
+    case         Opt(re,       Possessive) =>         Opt(re,       Greedy).ag
+    case       KStar(re,       Possessive) =>       KStar(re,       Greedy).ag
+    case      KCross(re,       Possessive) =>      KCross(re,       Greedy).ag
+    case     RepNToM(re, n, m, Possessive) =>     RepNToM(re, n, m, Greedy).ag
+    case RepAtLeastN(re, n,    Possessive) => RepAtLeastN(re, n,    Greedy).ag
+    case  RepAtMostN(re, n,    Possessive) =>  RepAtMostN(re, n,    Greedy).ag
+    case r: RepExactlyN                    => r
   }
 }
 
@@ -120,16 +122,16 @@ object PossessiveToAtomic {
  */
 trait AtomicToLookAhead extends PossessiveToAtomic {
   lazy val aToLA: Rewriter = {
-    case r: AGroup                        => AtomicToLookAhead.rewrite(aToLA)(r)
+    case r: AGroup                        => AtomicToLookAhead.rewrite(r)
     // possessive repeaters => atomic group => previous case
-    case r: Rep if (r.mode == Possessive) => aToLA(PossessiveToAtomic.rewrite(IdRewriter)(r))
+    case r: Rep if (r.mode == Possessive) => aToLA(PossessiveToAtomic.rewrite(r))
   }
 
   override def translate(re: RE) = noPtoA(re map aToLA)
 }
 object AtomicToLookAhead {
-  def rewrite(translate: Rewriter)(ag: AGroup): RE = {
-    val g = (ag.re map translate).g
+  def rewrite(ag: AGroup): RE = {
+    val g = (ag.re).g
     (?=(g) - !g).ncg
   }
 }
@@ -144,7 +146,7 @@ trait NoUnicodeCategoriesSupport extends FlavorLike {
     case NotLetter   => notSupported("Unicode categories (including NotLetter)",   true)
   }
 
-  override def translate(re: RE) = super.translate(re map unicodeCategories)
+  override def translate(re: RE) = super.translate(re.map(unicodeCategories, Prefixed))
 }
 
 /** Prevents usage of Unicode: single characters, categories. */
@@ -156,7 +158,7 @@ trait NoUnicodeSupport extends NoUnicodeCategoriesSupport {
     case LineTerminator => ASCIILineTerminator
   }
 
-  override def translate(re: RE) = super.translate(re map unicode)
+  override def translate(re: RE) = super.translate(re.map(unicode, Prefixed))
 }
 
 
@@ -166,7 +168,7 @@ trait NoLookBehindSupport extends FlavorLike {
     case LookAround(_, Behind, _) => notSupported("LookBehind", false)
   }
 
-  override def translate(re: RE) = super.translate(re map lookBehind)
+  override def translate(re: RE) = super.translate(re.map(lookBehind, Prefixed))
 }
 
 /** Prevents usage of LookAround. */
@@ -175,7 +177,7 @@ trait NoLookAroundSupport extends NoLookBehindSupport {
     case la: LookAround => notSupported("LookAround", false)
   }
 
-  override def translate(re: RE) = super.translate(re map lookAround)
+  override def translate(re: RE) = super.translate(re.map(lookAround, Prefixed))
 }
 
 /** Prevents usage of local mode modifiers (NCG flags like `(?-i:sub-expression)`) */
@@ -184,5 +186,5 @@ trait NoLocalModeModifierSupport extends FlavorLike {
     case NCGroup(_, flags) if flags != "" => notSupported("Local mode modifiers (NCG flags)", true)
   }
 
-  override def translate(re: RE) = super.translate(re map localModeModifiers)
+  override def translate(re: RE) = super.translate(re.map(localModeModifiers, Prefixed))
 }

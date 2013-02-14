@@ -8,10 +8,11 @@ import fr.splayce.rel._
 
 trait FlavorLike {
 
+  val traversal: RE.TraversalOrder = TraversalOrder.Postfixed
+
   def translator: Rewriter
 
-  def translate(re: RE): RE =
-    re map translator
+  def translate(re: RE): RE = re.map(translator, traversal)
 
   protected def notSupported(feature: String, plural: Boolean = false): Nothing
 }
