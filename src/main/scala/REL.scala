@@ -1,452 +1,424 @@
-package fr.splayce
+package fr.splayce.rel
 
 import scala.collection.immutable.Map
 import scala.util.matching.Regex
 import Regex.Match
 
+import util._
 
-package rel {
+/** A REL term in the expression tree */
+abstract sealed class RE {
 
-  import util._
-
-
-  abstract sealed class RepMode(val asString: String) {
-    override def toString = asString
-  }
-  case object Greedy     extends RepMode("")
-  case object Reluctant  extends RepMode("?")
-  case object Possessive extends RepMode("+")
-
-  abstract sealed class LookDirection(val asString: String) {
-    override def toString = asString
-  }
-  case object Ahead  extends LookDirection("")
-  case object Behind extends LookDirection("<")
-
-  class GroupNamingStyle(val capture: String => String, val reference: String => String)
-  /** Named capturing group style for Java 7, ․NET. **/
-  case object ChevNamingStyle extends GroupNamingStyle("?<"  + _ + ">", "\\k<" + _ + ">")
-  /** Named capturing group style for ․NET. **/
-  case object AposNamingStyle extends GroupNamingStyle("?'"  + _ + "'", "\\k'" + _ + "'")
-  /** Named capturing group style for PCRE, Python. **/
-  case object    PNamingStyle extends GroupNamingStyle("?P<" + _ + ">", "(?P=" + _ + ")")
-
-
-  abstract sealed class RE {
-
-    def ~ (that: RE)    =
-      (this, that) match {
-        case (Epsilon, Epsilon)          => Epsilon
-        case (Epsilon, r)                => r
-        case (l, Epsilon)                => l
-        case (l, r)                      => l.ncg - r.ncg
-      }
-
-    def - (that: RE)    =
-      (this, that) match {
-        case (Epsilon, Epsilon) => Epsilon
-        case (Epsilon, r)       => r
-        case (l, Epsilon)       => l
-        case (l, r)             => Conc(l, r)
-      }
-
-    def | (that: RE)    = Alt(this, that)
-
-    lazy val ?  = Opt(this.ncg)
-    lazy val ?? = Opt(this.ncg, Reluctant)
-    lazy val ?+ = Opt(this.ncg, Possessive)
-
-    lazy val *  = KStar(this.ncg)
-    lazy val *? = KStar(this.ncg, Reluctant)
-    lazy val *+ = KStar(this.ncg, Possessive)
-
-    lazy val +  = KCross(this.ncg)
-    lazy val +? = KCross(this.ncg, Reluctant)
-    lazy val ++ = KCross(this.ncg, Possessive)
-
-    def apply(lb: Int, ub: Int, mode: RepMode = Greedy) = RepNToM(this.ncg, lb, ub, mode)
-    def apply(rg: Range): RE      = apply(rg.start, rg.start + rg.length - 1)
-    def apply(rg: (Int, Int)): RE = apply(rg._1, rg._2)
-
-    def apply(n: Int): RE = RepExactlyN(this.ncg, n)
-    def `>`  (n: Int): RE = RepAtLeastN(this.ncg, n)
-    def `>?` (n: Int): RE = RepAtLeastN(this.ncg, n, Reluctant)
-    def `>+` (n: Int): RE = RepAtLeastN(this.ncg, n, Possessive)
-    def `<`  (n: Int): RE = RepAtMostN (this.ncg, n)
-    // dotted form expr.<?(n) is mandatory,
-    // standalone <? being syntactically significant in Scala (XMLSTART)
-    def `<?` (n: Int): RE = RepAtMostN (this.ncg, n, Reluctant)
-    def `<+` (n: Int): RE = RepAtMostN (this.ncg, n, Possessive)
-
-    lazy val `?=` : RE = LookAround(this, Ahead)
-    lazy val `?!` : RE = LookAround(this, Ahead, false)
-    lazy val `?<=`: RE = LookAround(this, Behind)
-    lazy val `?<!`: RE = LookAround(this, Behind, false)
-
-    def g(name: String): Group = this match {
-      case NCGroup(re) => re.g(name)
-      case _ => Group(name, this)
-    }
-    def g(): Group = g("g" + java.util.UUID.randomUUID.toString.substring(24))
-    def `\\` (name: String) = g(name)
-    def apply(name: String) = g(name)
-    def apply() = g()
-
-    lazy val ncg: RE = this match {
-      case re: Wrapped => this
-      case _           => NCGroup(this)
-    }
-    lazy val % = ncg
-
-    lazy val ag: RE = this match {
-      case re: Rep if (re.mode == Possessive) => this
-      case re: AGroup                         => this
-      case NCGroup(re)                        => re.ag
-      case _                                  => AGroup(this)
-    }
-    lazy val ?> = ag
-
-    protected[rel] def linear(groupNames: List[String] = Nil): (String, List[String])
-    lazy val lin = linear()
-
-    lazy val r: Regex = new Regex(lin._1, lin._2.toArray: _*)
-
-    override def toString = lin._1
-
-    def map(tr: Rewriter): RE =
-      (tr lift)(this) getOrElse recurseMap(tr)
-    protected def recurseMap(tr: Rewriter): RE
-
-    lazy val matchGroup: MatchGroup = MatchGroup(None, None, groups)
-    val groups: List[MatchGroup]
-
-    def <<[A](extractor: Match => Option[A]): Extractor[A] =
-      new ByOptionExtractor[A](r, extractor)
-    def <<[A](extractor: MatchGroup => Option[A])(implicit d: DummyImplicit): Extractor[A] =
-      new ByOptionExtractor[A](this, extractor)
-    def <<[A](extractor: MatchExtractor[A]): Extractor[A] =
-      this << extractor.lift
-  }
-
-
-  /** A Wrapped RE needs no NCGroup protection */
-  sealed trait Wrapped extends RE
-
-
-  abstract sealed class RE2(val lRe: RE, val rRe: RE) extends RE {
-    protected def linear(fn: (String, String) => String,
-        groupNames: List[String]) = {
-      val linL = lRe.linear(groupNames)
-      val linR = rRe.linear(linL._2)
-      (fn(linL._1, linR._1), linR._2)
+  /** Protected concatenation, both operands are wrapped in non-capturing groups if needed */
+  def ~ (that: RE)    =
+    (this, that) match {
+      case (Epsilon, Epsilon)          => Epsilon
+      case (Epsilon, r)                => r
+      case (l, Epsilon)                => l
+      case (l, r)                      => l.ncg - r.ncg
     }
 
-    override lazy val groups =
-      lRe.groups ::: rRe.groups
-  }
-
-  case class Conc(override val lRe: RE,
-      override val rRe: RE) extends RE2(lRe, rRe) {
-    override def linear(groupNames: List[String]) =
-      linear(_ + _, groupNames)
-
-    override def recurseMap(tr: Rewriter) =
-      Conc(lRe map tr, rRe map tr)
-  }
-
-  case class Alt(override val lRe: RE,
-      override val rRe: RE) extends RE2(lRe, rRe) {
-    override def linear(groupNames: List[String]) =
-      linear(_ + "|" + _, groupNames)
-
-    override def recurseMap(tr: Rewriter) =
-      Alt(lRe map tr, rRe map tr)
-  }
-
-
-  sealed abstract class RE1(val re: RE) extends RE {
-    protected def linear(fn: String => String,
-        groupNames: List[String]) = {
-      val lin = re.linear(groupNames)
-      (fn(lin._1), lin._2)
+  /** Unprotected concatenation */
+  def - (that: RE)    =
+    (this, that) match {
+      case (Epsilon, Epsilon) => Epsilon
+      case (Epsilon, r)       => r
+      case (l, Epsilon)       => l
+      case (l, r)             => Conc(l, r)
     }
 
-    override lazy val groups =
-      re.groups
+  /** Alternative */
+  def | (that: RE)    = Alt(this, that)
+
+  /** Zero-or-one quantifier, greedy */
+  lazy val ?  = Opt(this.ncg)
+  /** Zero-or-one quantifier, reluctant */
+  lazy val ?? = Opt(this.ncg, Reluctant)
+  /** Zero-or-one quantifier, possessive */
+  lazy val ?+ = Opt(this.ncg, Possessive)
+
+  /** Zero-or-more quantifier, greedy */
+  lazy val *  = KStar(this.ncg)
+  /** Zero-or-more quantifier, reluctant */
+  lazy val *? = KStar(this.ncg, Reluctant)
+  /** Zero-or-more quantifier, possessive */
+  lazy val *+ = KStar(this.ncg, Possessive)
+
+  /** One-or-more quantifier, greedy */
+  lazy val +  = KCross(this.ncg)
+  /** One-or-more quantifier, reluctant */
+  lazy val +? = KCross(this.ncg, Reluctant)
+  /** One-or-more quantifier, possessive */
+  lazy val ++ = KCross(this.ncg, Possessive)
+
+  /** N-to-M quantifier */
+  def apply(lb: Int, ub: Int, mode: RepMode = Greedy) = RepNToM(this.ncg, lb, ub, mode)
+  /** N-to-M quantifier */
+  def apply(rg: Range): RE      = apply(rg.start, rg.start + rg.length - 1)
+  /** N-to-M quantifier */
+  def apply(rg: (Int, Int)): RE = apply(rg._1, rg._2)
+
+  /** Exactely-N quantifier */
+  def apply(n: Int): RE = RepExactlyN(this.ncg, n)
+  /** At-least-N quantifier, greedy */
+  def `>`  (n: Int): RE = RepAtLeastN(this.ncg, n)
+  /** At-least-N quantifier, reluctant */
+  def `>?` (n: Int): RE = RepAtLeastN(this.ncg, n, Reluctant)
+  /** At-least-N quantifier, possessive */
+  def `>+` (n: Int): RE = RepAtLeastN(this.ncg, n, Possessive)
+  /** At-most-N quantifier, greedy */
+  def `<`  (n: Int): RE = RepAtMostN (this.ncg, n)
+  /** At-most-N quantifier, reluctant
+   *
+   * Dotted form `expr.<?(n)` is mandatory, standalone `<?` being
+   * syntactically significant in Scala (`XMLSTART`)
+   */
+  def `<?` (n: Int): RE = RepAtMostN (this.ncg, n, Reluctant)
+  /** At-most-N quantifier, possessive */
+  def `<+` (n: Int): RE = RepAtMostN (this.ncg, n, Possessive)
+
+
+  /** Positive look-ahead */
+  lazy val `?=` : RE = LookAround(this, Ahead)
+  /** Negative look-ahead */
+  lazy val `?!` : RE = LookAround(this, Ahead, false)
+  /** Positive look-behind */
+  lazy val `?<=`: RE = LookAround(this, Behind)
+  /** Negative look-behind */
+  lazy val `?<!`: RE = LookAround(this, Behind, false)
+
+  /** Named capturing group */
+  def g(name: String): Group = this match {
+    case NCGroup(re) => re.g(name)
+    case _ => Group(name, this)
   }
-
-  case class NCGroup(override val re: RE) extends RE1(re) with Wrapped {
-    override def linear(groupNames: List[String]) = re match {
-      case re: Wrapped => re.linear(groupNames)
-      case _           => linear(
-        { s =>
-          if (RE.nonBreakingEntity.pattern.matcher(s).matches) s
-          else "(?:" + s + ")"
-        }, groupNames)
-    }
-
-    override def recurseMap(tr: Rewriter) =
-      NCGroup(re map tr)
+  /** Unnamed capturing group (actual unique name is generated) */
+  def g(): Group = g("g" + java.util.UUID.randomUUID.toString.substring(24))
+  /** Named capturing group */
+  def `\\` (name: String) = g(name)
+  /** Named capturing group */
+  def apply(name: String) = g(name)
+  /** Unnamed capturing group (actual unique name is generated) */
+  def apply() = g()
+  /** Non-capturing group */
+  lazy val ncg: RE = this match {
+    case re: Wrapped => this
+    case _           => NCGroup(this)
   }
+  /** Non-capturing group */
+  lazy val % = ncg
 
-  case class AGroup(override val re: RE) extends RE1(re) with Wrapped {
-    override def linear(groupNames: List[String]) = re match {
-      case re: Rep if (re.mode == Possessive) => re.linear(groupNames)
-      case re: AGroup                         => re.linear(groupNames)
-      case NCGroup(re)                        => AGroup(re).linear(groupNames)
-      case _                                  => linear("(?>" + _ + ")", groupNames)
-    }
-
-    override def recurseMap(tr: Rewriter) =
-      AGroup(re map tr)
+  /** Atomic group */
+  lazy val ag: RE = this match {
+    case re: Rep if (re.mode == Possessive) => this
+    case re: AGroup                         => this
+    case NCGroup(re)                        => re.ag
+    case _                                  => AGroup(this)
   }
+  /** Atomic group */
+  lazy val ?> = ag
 
-  case class Group(val name: String, override val re: RE, val embedStyle: Option[GroupNamingStyle] = None)
-  extends RE1(re) with Wrapped {
-    override def linear(groupNames: List[String]) = re match {
-      case NCGroup(re) => Group(name, re).linear(groupNames)
-      case _           =>
-        linear("(" + embedStyle.map(_ capture name).getOrElse("") + _ + ")", groupNames ::: List(name))
-    }
+  protected[rel] def linear(groupNames: List[String] = Nil): (String, List[String])
+  /** Combined linearization: first term is String representation, second is the List of capturing group names */
+  lazy val lin = linear()
 
-    override def recurseMap(tr: Rewriter) =
-      Group(name, re map tr, embedStyle)
+  /** Scala Regex linearization */
+  lazy val r: Regex = new Regex(lin._1, lin._2.toArray: _*)
 
-    override lazy val groups =
-      List(MatchGroup(Some(name), None, re.groups))
+  /** String linearization */
+  override def toString = lin._1
 
-    lazy val unary_! = GroupRef(name, embedStyle)
-  }
+  /** Recursively replace matching terms in the RE subtree */
+  def map(tr: Rewriter): RE =
+    (tr lift)(this) getOrElse recurseMap(tr)
+  protected def recurseMap(tr: Rewriter): RE
 
-  case class LookAround(override val re: RE, val direction: LookDirection, positive: Boolean = true)
-  extends RE1(re) with Wrapped {
-    override def linear(groupNames: List[String]) = re match {
-      case NCGroup(re) => LookAround(re, direction, positive).linear(groupNames)
-      case _ => linear("(?" + direction + (if (positive) "=" else "!") + _ + ")", groupNames)
-    }
+  /** Corresponding MatchGroup tree, with containing unnamed `$0` MatchGroup */
+  lazy val matchGroup: MatchGroup = MatchGroup(None, None, groups)
+  /** Corresponding MatchGroup tree, without containing unnamed `$0` MatchGroup */
+  val groups: List[MatchGroup]
 
-    override def recurseMap(tr: Rewriter) =
-      LookAround(re map tr, direction, positive)
-  }
+  /** Generate an Extractor for this extracting function */
+  def <<[A](extractor: Match => Option[A]): Extractor[A] =
+    new ByOptionExtractor[A](r, extractor)
+  /** Generate an Extractor for this extracting function */
+  def <<[A](extractor: MatchGroup => Option[A])(implicit d: DummyImplicit): Extractor[A] =
+    new ByOptionExtractor[A](this, extractor)
+  /** Generate an Extractor for this extracting MatchExtractor */
+  def <<[A](extractor: MatchExtractor[A]): Extractor[A] =
+    this << extractor.lift
+}
 
-  sealed abstract class Rep(
-    override val re: RE,
-    val lb: Int,
-    val ub: Option[Int] = None,
-    val mode: RepMode = Greedy)
-  extends RE1(re) {
+object RE {
+  /** Non-breaking = does not need NCGroup protection.
+    * This regex matches:
+    * - single characters: `a`, `\w`, `\cX`, `\u0f1f`, `\h1f`, `\0123`
+    * - character classes `\p{...}`, `[...]`
+    */
+  val nonBreakingEntity = """^(?:\\?.|\\c.|\\u[\da-fA-F]{4}|\\x[\da-fA-F]{2}|\\0[0-3]?[0-7]{1,2}|\\[pP]\{\w+\}|\[[^\]]*+\])$""".r
 
-    override def linear(groupNames: List[String]) =
-      linear(_ + "{" + lb + "," + ub.getOrElse("") + "}" + mode, groupNames)
-  }
+  val escapeChars = "\\^$()[]{}?*+.|"
+  val escapeMap   = escapeChars map { c => c -> List('\\', c) } toMap
+  def escapeRegex(c: Char): List[Char] = escapeMap.getOrElse(c, c :: Nil)
+  def escapeRegex(s: String): String   = s flatMap escapeRegex
 
-  case class RepExactlyN(override val re: RE, val n: Int)
-  extends Rep(re, n, Some(n), Greedy) {
-    override def linear(groupNames: List[String]) =
-      linear(_ + "{" + lb + "}" + mode, groupNames)
+  def escape(s: String) = new Escaped(s)
+  def escape(r: Regex)  = new Escaped(r.toString)
 
-    override def recurseMap(tr: Rewriter) =
-      RepExactlyN(re map tr, n)
-  }
-
-  case class RepNToM(
-    override val re: RE,
-    override val lb: Int,
-    val max: Int,
-    override val mode: RepMode = Greedy)
-  extends Rep(re, lb, Some(max), mode) {
-
-    override def recurseMap(tr: Rewriter) =
-      RepNToM(re map tr, lb, max, mode)
-  }
-
-  case class RepAtLeastN(override val re: RE, override val lb: Int, override val mode: RepMode = Greedy)
-  extends Rep(re, lb, None, mode) {
-    override def recurseMap(tr: Rewriter) =
-      RepAtLeastN(re map tr, lb, mode)
-  }
-
-  case class RepAtMostN(override val re: RE, val max: Int, override val mode: RepMode = Greedy)
-  extends Rep(re, 0, Some(max), mode) {
-    override def recurseMap(tr: Rewriter) =
-      RepAtMostN(re map tr, max, mode)
-  }
-
-  case class Opt(override val re: RE, override val mode: RepMode = Greedy)
-  extends Rep(re, 0, Some(1), mode) {
-    override def linear(groupNames: List[String]) =
-      linear(_ + "?" + mode, groupNames)
-
-    override def recurseMap(tr: Rewriter) =
-      Opt(re map tr, mode)
-  }
-
-  case class KStar(override val re: RE, override val mode: RepMode = Greedy)
-  extends Rep(re, 0, mode = mode) {
-    override def linear(groupNames: List[String]) =
-      linear(_ + "*" + mode, groupNames)
-
-    override def recurseMap(tr: Rewriter) =
-      KStar(re map tr, mode)
-  }
-
-  case class KCross(override val re: RE, override val mode: RepMode = Greedy)
-  extends Rep(re, 1, mode = mode) {
-    override def linear(groupNames: List[String]) =
-      linear(_ + "+" + mode, groupNames)
-
-    override def recurseMap(tr: Rewriter) =
-      KCross(re map tr, mode)
-  }
-
-  // should only be used for Flavors / tree transformation
-  case class Wrapper(
-    override val re: RE,
-    val prefix: String,
-    val suffix: String,
-    appendGroupNames: List[String] = Nil)
-  extends RE1(re) {
-
-    override def linear(groupNames: List[String]) =
-      linear(prefix + _ + suffix, groupNames ::: appendGroupNames)
-
-    override def recurseMap(tr: Rewriter) =
-      Wrapper(re map tr, prefix, suffix, appendGroupNames)
-  }
-
-
-  sealed abstract class RE0 extends RE {
-    protected[rel] def linear(groupNames: List[String]) =
-      (toString, groupNames)
-
-    override def recurseMap(tr: Rewriter) = this
-
-    override lazy val groups = Nil
-  }
-
-  case class GroupRef(val name: String, val embedStyle: Option[GroupNamingStyle] = None)
-  extends RE0 with Wrapped {
-
-    override def linear(groupNames: List[String]) =
-      (embedStyle.map(_ reference name).getOrElse("\\" + (groupNames.lastIndexOf(name) + 1)), groupNames)
-
-    lazy val unary_! = this
-  }
-
-  case class Atom(val re: Regex) extends RE0 {
-    override def linear(groupNames: List[String]) =
-      (re.toString, groupNames)
-  }
-
-  case class Escaped(val value: String) extends RE0 {
-    def this(s: Symbol) = this(s.toString.substring(1))
-
-    lazy val reStr = RE.escapeRegex(value)
-    override def toString = reStr
-  }
-
-  abstract class REStr(val reStr: String) extends RE0 {
-    override def toString = reStr
-  }
-
-  abstract class RECst(val reCst: String) extends REStr(reCst) with Wrapped
-
-  case class DigitCst(val i: Int)
-  extends RECst(if (i < 10) i.toString else "(?:" + i.toString + ")")
-
-  case object Epsilon         extends RECst("")
-  case object Dot             extends RECst(".")
-  case object MLDot           extends RECst("""[\s\S]""")
-  case object LineTerminator  extends RECst("""(?:\r\n?|[\n\u0085\u2028\u2029])""")
-  case object AlphaLower      extends RECst("[a-z]")
-  case object AlphaUpper      extends RECst("[A-Z]")
-  case object Alpha           extends RECst("[a-zA-Z]")
-  case object NotAlpha        extends RECst("[^a-zA-Z]")
-  case object LetterLower     extends RECst("""\p{Ll}""")
-  case object LetterUpper     extends RECst("""\p{Lu}""")
-  case object Letter          extends RECst("""\p{L}""")
-  case object NotLetter       extends RECst("""\P{L}""")
-  case object Digit           extends RECst("""\d""")
-  case object NotDigit        extends RECst("""\D""")
-  case object WhiteSpace      extends RECst("""\s""")
-  case object NotWhiteSpace   extends RECst("""\S""")
-  case object Word            extends RECst("""\w""")
-  case object NotWord         extends RECst("""\W""")
-  case object WordBoundary    extends RECst("""\b""")
-  case object NotWordBoundary extends RECst("""\B""")
-  case object LineBegin       extends RECst("^")
-  case object LineEnd         extends RECst("$")
-  case object InputBegin      extends RECst("""\A""")
-  case object InputEnd        extends RECst("""\z""")
-
-
-  object RE {
-    /** Non-breaking = does not need NCGroup protection.
-      * This regex matches:
-      * - single characters: `a`, `\w`, `\cX`, `\u0f1f`, `\h1f`, `\0123`
-      * - character classes `\p{...}`, `[...]`
-      */
-    val nonBreakingEntity = """^(?:\\?.|\\c.|\\u[\da-fA-F]{4}|\\x[\da-fA-F]{2}|\\0[0-3]?[0-7]{1,2}|\\[pP]\{\w+\}|\[[^\]]*+\])$""".r
-
-    val escapeChars = "\\^$()[]{}?*+.|"
-    val escapeMap   = escapeChars map { c => c -> List('\\', c) } toMap
-    def escapeRegex(c: Char): List[Char] = escapeMap.getOrElse(c, c :: Nil)
-    def escapeRegex(s: String): String   = s flatMap escapeRegex
-
-    def escape(s: String) = new Escaped(s)
-    def escape(r: Regex)  = new Escaped(r.toString)
-
-    def apply(s: Symbol) = new Escaped(s)
-    def apply(s: String) = new Atom(s.r)
-    def apply(r: Regex)  = new Atom(r)
-    def apply(i: Int)    = new DigitCst(i)
-  }
-
-
-  object Implicits {
-    implicit def regex2RE(r: Regex): RE    = RE(r)
-    implicit def string2RE(s: String): RE  = RE(s)
-    implicit def symbol2RE(s: Symbol): RE  = RE(s)
-    implicit def int2RE(i: Int): RE        = RE(i)
-    implicit def RE2String(re: RE): String = re.toString
-    implicit def RE2Regex(re: RE): Regex   = re.r
-  }
-
+  def apply(s: Symbol) = new Escaped(s)
+  def apply(s: String) = new Atom(s.r)
+  def apply(r: Regex)  = new Atom(r)
+  def apply(i: Int)    = new DigitCst(i)
 }
 
 
-package object rel {
+/** A Wrapped RE needs no NCGroup protection */
+sealed trait Wrapped extends RE
 
-  // prefixed notation: ?>(a) is a.?>
-  def `?>` (re: RE) = re.?>
-  def `?=` (re: RE) = re.?=
-  def `?!` (re: RE) = re.?!
-  def `?<=`(re: RE) = re.?<=
-  def `?<!`(re: RE) = re.?<!
 
-  def esc(str: String) = RE.escape(str)
-
-  object Symbols {
-    val ^  = LineBegin
-    val $  = LineEnd
-    val ^^ = InputBegin
-    val $$ = InputEnd
-    val ε  = Epsilon
-    val τ  = Dot
-    val ττ = MLDot
-    val Τ  = LineTerminator
-    val α  = Alpha
-    val Α  = NotAlpha
-    val λ  = Letter
-    val Λ  = NotLetter
-    val δ  = Digit
-    val Δ  = NotDigit
-    val σ  = WhiteSpace
-    val Σ  = NotWhiteSpace
-    val μ  = Word
-    val Μ  = NotWord
-    val ß  = WordBoundary
-    val Β  = NotWordBoundary
+/** Two-operands RE tree node */
+abstract sealed class RE2(val lRe: RE, val rRe: RE) extends RE {
+  protected def linear(fn: (String, String) => String,
+      groupNames: List[String]) = {
+    val linL = lRe.linear(groupNames)
+    val linR = rRe.linear(linL._2)
+    (fn(linL._1, linR._1), linR._2)
   }
 
+  override lazy val groups =
+    lRe.groups ::: rRe.groups
 }
+
+/** Concatenation RE tree node */
+case class Conc(override val lRe: RE,
+    override val rRe: RE) extends RE2(lRe, rRe) {
+  override def linear(groupNames: List[String]) =
+    linear(_ + _, groupNames)
+
+  override def recurseMap(tr: Rewriter) =
+    Conc(lRe map tr, rRe map tr)
+}
+
+/** Alternative RE tree node */
+case class Alt(override val lRe: RE,
+    override val rRe: RE) extends RE2(lRe, rRe) {
+  override def linear(groupNames: List[String]) =
+    linear(_ + "|" + _, groupNames)
+
+  override def recurseMap(tr: Rewriter) =
+    Alt(lRe map tr, rRe map tr)
+}
+
+
+/** One-operand RE tree node */
+sealed abstract class RE1(val re: RE) extends RE {
+  protected def linear(fn: String => String,
+      groupNames: List[String]) = {
+    val lin = re.linear(groupNames)
+    (fn(lin._1), lin._2)
+  }
+
+  override lazy val groups =
+    re.groups
+}
+
+/** Non-capturing group */
+case class NCGroup(override val re: RE) extends RE1(re) with Wrapped {
+  override def linear(groupNames: List[String]) = re match {
+    case re: Wrapped => re.linear(groupNames)
+    case _           => linear(
+      { s =>
+        if (RE.nonBreakingEntity.pattern.matcher(s).matches) s
+        else "(?:" + s + ")"
+      }, groupNames)
+  }
+
+  override def recurseMap(tr: Rewriter) =
+    NCGroup(re map tr)
+}
+
+/** Atomic group */
+case class AGroup(override val re: RE) extends RE1(re) with Wrapped {
+  override def linear(groupNames: List[String]) = re match {
+    case re: Rep if (re.mode == Possessive) => re.linear(groupNames)
+    case re: AGroup                         => re.linear(groupNames)
+    case NCGroup(re)                        => AGroup(re).linear(groupNames)
+    case _                                  => linear("(?>" + _ + ")", groupNames)
+  }
+
+  override def recurseMap(tr: Rewriter) =
+    AGroup(re map tr)
+}
+
+/** Named capturing group */
+case class Group(val name: String, override val re: RE, val embedStyle: Option[GroupNamingStyle] = None)
+extends RE1(re) with Wrapped {
+  override def linear(groupNames: List[String]) = re match {
+    case NCGroup(re) => Group(name, re).linear(groupNames)
+    case _           =>
+      linear("(" + embedStyle.map(_ capture name).getOrElse("") + _ + ")", groupNames ::: List(name))
+  }
+
+  override def recurseMap(tr: Rewriter) =
+    Group(name, re map tr, embedStyle)
+
+  override lazy val groups =
+    List(MatchGroup(Some(name), None, re.groups))
+
+  lazy val unary_! = GroupRef(name, embedStyle)
+}
+
+/** Look-around */
+case class LookAround(override val re: RE, val direction: LookDirection, positive: Boolean = true)
+extends RE1(re) with Wrapped {
+  override def linear(groupNames: List[String]) = re match {
+    case NCGroup(re) => LookAround(re, direction, positive).linear(groupNames)
+    case _ => linear("(?" + direction + (if (positive) "=" else "!") + _ + ")", groupNames)
+  }
+
+  override def recurseMap(tr: Rewriter) =
+    LookAround(re map tr, direction, positive)
+}
+
+/** Quantifier (aka “repeater”) */
+sealed abstract class Rep(
+  override val re: RE,
+  val lb: Int,
+  val ub: Option[Int] = None,
+  val mode: RepMode = Greedy)
+extends RE1(re) {
+
+  override def linear(groupNames: List[String]) =
+    linear(_ + "{" + lb + "," + ub.getOrElse("") + "}" + mode, groupNames)
+}
+
+/** Exactly-N quantifier */
+case class RepExactlyN(override val re: RE, val n: Int)
+extends Rep(re, n, Some(n), Greedy) {
+  override def linear(groupNames: List[String]) =
+    linear(_ + "{" + lb + "}" + mode, groupNames)
+
+  override def recurseMap(tr: Rewriter) =
+    RepExactlyN(re map tr, n)
+}
+
+/** N-to-M quantifier */
+case class RepNToM(
+  override val re: RE,
+  override val lb: Int,
+  val max: Int,
+  override val mode: RepMode = Greedy)
+extends Rep(re, lb, Some(max), mode) {
+
+  override def recurseMap(tr: Rewriter) =
+    RepNToM(re map tr, lb, max, mode)
+}
+
+/** At-least-N quantifier */
+case class RepAtLeastN(override val re: RE, override val lb: Int, override val mode: RepMode = Greedy)
+extends Rep(re, lb, None, mode) {
+  override def recurseMap(tr: Rewriter) =
+    RepAtLeastN(re map tr, lb, mode)
+}
+
+/** At-most-N quantifier */
+case class RepAtMostN(override val re: RE, val max: Int, override val mode: RepMode = Greedy)
+extends Rep(re, 0, Some(max), mode) {
+  override def recurseMap(tr: Rewriter) =
+    RepAtMostN(re map tr, max, mode)
+}
+
+/** Zero-or-one (`?`) quantifier */
+case class Opt(override val re: RE, override val mode: RepMode = Greedy)
+extends Rep(re, 0, Some(1), mode) {
+  override def linear(groupNames: List[String]) =
+    linear(_ + "?" + mode, groupNames)
+
+  override def recurseMap(tr: Rewriter) =
+    Opt(re map tr, mode)
+}
+
+/** Zero-or-more (`+`) quantifier */
+case class KStar(override val re: RE, override val mode: RepMode = Greedy)
+extends Rep(re, 0, mode = mode) {
+  override def linear(groupNames: List[String]) =
+    linear(_ + "*" + mode, groupNames)
+
+  override def recurseMap(tr: Rewriter) =
+    KStar(re map tr, mode)
+}
+
+/** One-or-more (`+`) quantifier */
+case class KCross(override val re: RE, override val mode: RepMode = Greedy)
+extends Rep(re, 1, mode = mode) {
+  override def linear(groupNames: List[String]) =
+    linear(_ + "+" + mode, groupNames)
+
+  override def recurseMap(tr: Rewriter) =
+    KCross(re map tr, mode)
+}
+
+/** Utility all-purpose subtree wrapper.
+ *
+ * Should mainly be used to implement Flavors / tree transformations.
+ */
+case class Wrapper(
+  override val re: RE,
+  val prefix: String,
+  val suffix: String,
+  appendGroupNames: List[String] = Nil)
+extends RE1(re) {
+
+  override def linear(groupNames: List[String]) =
+    linear(prefix + _ + suffix, groupNames ::: appendGroupNames)
+
+  override def recurseMap(tr: Rewriter) =
+    Wrapper(re map tr, prefix, suffix, appendGroupNames)
+}
+
+
+/** RE tree leaf */
+sealed abstract class RE0 extends RE {
+  protected[rel] def linear(groupNames: List[String]) =
+    (toString, groupNames)
+
+  override def recurseMap(tr: Rewriter) = this
+
+  override lazy val groups = Nil
+}
+
+/** Reference on a (named) capturing group */
+case class GroupRef(val name: String, val embedStyle: Option[GroupNamingStyle] = None)
+extends RE0 with Wrapped {
+
+  override def linear(groupNames: List[String]) =
+    (embedStyle.map(_ reference name).getOrElse("\\" + (groupNames.lastIndexOf(name) + 1)), groupNames)
+
+  lazy val unary_! = this
+}
+
+/** Standalone raw regex expression (not interpreted) for external instanciation */
+case class Atom(val re: Regex) extends RE0 {
+  override def linear(groupNames: List[String]) =
+    (re.toString, groupNames)
+}
+
+/** Escaped (litteral) expression */
+case class Escaped(val value: String) extends RE0 {
+  def this(s: Symbol) = this(s.toString.substring(1))
+
+  lazy val reStr = RE.escapeRegex(value)
+  override def toString = reStr
+}
+
+/** Abstract standalone raw regex expression (not interpreted) */
+abstract class REStr(val reStr: String) extends RE0 {
+  override def toString = reStr
+}
+
+/** Abstract standalone raw regex expression that don't need non-capturing group protection. */
+abstract class RECst(val reCst: String) extends REStr(reCst) with Wrapped
+
+/** A litteral integer */
+case class DigitCst(val i: Int)
+extends RECst(if (i < 10) i.toString else "(?:" + i.toString + ")")
