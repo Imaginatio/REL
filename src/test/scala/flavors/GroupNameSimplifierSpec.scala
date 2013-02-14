@@ -22,6 +22,8 @@ object GroupNameSimplifierSpec extends Specification {
     val g4l = g1.copy("crazy name #4!")
     val g5  = g1.copy("#!")
     val g5_ = g1.copy("#!", embedStyle = None)
+    val gr  = Group("wrapping group", g2, Some(ChevNamingStyle))
+    val gr_ = Group("wrappinggroup", g2_, Some(ChevNamingStyle))
 
     "check preconditions" in {
       g1 .name must     be matching(RE. strictGroupName)
@@ -64,6 +66,9 @@ object GroupNameSimplifierSpec extends Specification {
       tr(g3) must_== g3_
       tr(g4) must_== g4_
       tr(g5) must_== g5_
+
+      // recursion check
+      tr(gr) must_== gr_
     }
 
     "provide snake compatible group names" in {
@@ -83,6 +88,7 @@ object GroupNameSimplifierSpec extends Specification {
       tr(g4) must_== g4l
       tr(g5) must_== g5_
     }
+
   }
 
 }

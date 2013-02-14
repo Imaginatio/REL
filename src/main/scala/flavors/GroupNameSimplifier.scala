@@ -12,11 +12,10 @@ import scala.util.matching.Regex
 class GroupNameSimplifier(val strip: Regex, val replacement: String = "") extends Flavor("GroupNameSimplifier") {
 
   override val translator: Rewriter = {
-    case g @ Group(name, _, _) =>
+    case Group(name, re, es) =>
       val alt = strip.replaceAllIn(name, replacement)
-      if (alt == name) g
-      else if (alt.isEmpty) g.copy(embedStyle = None)
-      else g.copy(name = alt)
+      val nope = alt.isEmpty
+      Group(if (nope) name else alt, re map translator, if (nope) None else es)
     case r @ GroupRef(name, _) =>
       val alt = strip.replaceAllIn(name, replacement)
       if (alt == name) r

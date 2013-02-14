@@ -57,8 +57,8 @@ trait EmbedGroupNames extends FlavorLike {
   }
 
   lazy val validateGroupNames: Rewriter = {
-    case g @ Group(name, _, Some(_)) if ! groupNamingValidator.pattern.matcher(name).matches
-      => g.copy(embedStyle = None)
+    case Group(name, re, Some(_)) if ! groupNamingValidator.pattern.matcher(name).matches
+      => Group(name, re map validateGroupNames, None)
     case r @ GroupRef(name, Some(_)) if ! groupNamingValidator.pattern.matcher(name).matches
       => r.copy(embedStyle = None)
   }

@@ -24,7 +24,9 @@ object JavaFlavorsSpec extends Specification {
 
     "strip invalid group names when translating Date regexes" in {
       tr(matchers.fr.Date.ALL) must not contain("(?<a_f>")
+      tr(matchers.fr.Date.ALL) must not contain("(?<a_y>")
       tr(matchers.en.Date.ALL) must not contain("(?<a_f>")
+      tr(matchers.en.Date.ALL) must not contain("(?<a_y>")
     }
 
   }
