@@ -129,14 +129,15 @@ package en {
 
     val DAY = ?>("(?:(?:[23]?1)st|(?:2?2)nd|(?:2?3)rd|(?:[12]?[4-9]|[123]0)th)\\b"
       | DD | D ) \ "a_d"
-    val YS: RE = ","
 
-    override val ALPHA =
-      (((δ.?<! - DAY ~ S.?+) ~ ALPHA_MONTH) | (ß ~ ALPHA_MONTH ~ (S.?+ ~ DAY - δ.?!).?)) ~
-      ((YS.?+ ~ YEAR) | BREAK)
-    override val ALPHA_FULL =
-      (((δ.?<! - DAY ~ S.?+) ~ ALPHA_MONTH) | (ß ~ ALPHA_MONTH ~  S.?+ ~ DAY - δ.?!)) ~
-      (YS.?+ ~ YEAR)
+    protected val YS: RE = ","
+    protected val OF: RE = " of"
+    protected val DAY_MONTH = (δ.?<! - DAY ~ OF.?+ ~ S.?+) ~ ALPHA_MONTH
+    protected val S_DAY  = S.?+ ~ DAY - δ.?!
+    protected val S_YEAR = YS.?+ ~ YEAR
+
+    override val ALPHA =      (DAY_MONTH | (ß ~ ALPHA_MONTH ~ S_DAY.?)) ~ (S_YEAR | BREAK)
+    override val ALPHA_FULL = (DAY_MONTH | (ß ~ ALPHA_MONTH ~ S_DAY  )) ~  S_YEAR
   }
 
 }

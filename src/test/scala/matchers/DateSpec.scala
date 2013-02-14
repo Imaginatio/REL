@@ -543,17 +543,17 @@ class DateSpec extends Specification {
         "03november,2012", "03november,12", "03november,'12"
       ) must allBeMatching(EN_ALL)
     }
-    "match month D[D][,] YY[YY]" in {
+    "match D[D] month[,] YY[YY]" in {
       List(
-        "3 nov 2012",       "3rd nov 2012",      "3 nov, 2012",      "3rd nov, 2012",
-        "3 nov 12",         "3rd nov 12",        "3 nov, 12",        "3rd nov, 12",
-        "3 nov '12",        "3rd nov '12",       "3 nov, '12",       "3rd nov, '12",
-        "3 nov. 2012",      "3rd nov. 2012",     "3 nov., 2012",     "3rd nov., 2012",
-        "3 nov. 12",        "3rd nov. 12",       "3 nov., 12",       "3rd nov., 12",
-        "3 nov. '12",       "3rd nov. '12",      "3 nov., '12",      "3rd nov., '12",
-        "3 november 2012",  "3rd november 2012", "3 november, 2012", "3rd november, 2012",
-        "3 november 12",    "3rd november 12",   "3 november, 12",   "3rd november, 12",
-        "3 november '12",   "3rd november '12",  "3 november, '12",  "3rd november, '12",
+         "3 nov 2012",       "3rd nov 2012",      "3 nov, 2012",      "3rd nov, 2012",
+         "3 nov 12",         "3rd nov 12",        "3 nov, 12",        "3rd nov, 12",
+         "3 nov '12",        "3rd nov '12",       "3 nov, '12",       "3rd nov, '12",
+         "3 nov. 2012",      "3rd nov. 2012",     "3 nov., 2012",     "3rd nov., 2012",
+         "3 nov. 12",        "3rd nov. 12",       "3 nov., 12",       "3rd nov., 12",
+         "3 nov. '12",       "3rd nov. '12",      "3 nov., '12",      "3rd nov., '12",
+         "3 november 2012",  "3rd november 2012", "3 november, 2012", "3rd november, 2012",
+         "3 november 12",    "3rd november 12",   "3 november, 12",   "3rd november, 12",
+         "3 november '12",   "3rd november '12",  "3 november, '12",  "3rd november, '12",
         "03 nov 2012",      "03 nov, 2012",
         "03 nov 12",        "03 nov, 12",
         "03 nov '12",       "03 nov, '12",
@@ -563,6 +563,28 @@ class DateSpec extends Specification {
         "03 november 2012", "03 november, 2012",
         "03 november 12",   "03 november, 12",
         "03 november '12",  "03 november, '12"
+      ) must allBeMatching(EN_ALL)
+    }
+    "match D[D] [of ]month[,] YY[YY]" in {
+      List(
+         "3 of nov 2012",       "3rd of nov 2012",      "3 of nov, 2012",      "3rd of nov, 2012",
+         "3 of nov 12",         "3rd of nov 12",        "3 of nov, 12",        "3rd of nov, 12",
+         "3 of nov '12",        "3rd of nov '12",       "3 of nov, '12",       "3rd of nov, '12",
+         "3 of nov. 2012",      "3rd of nov. 2012",     "3 of nov., 2012",     "3rd of nov., 2012",
+         "3 of nov. 12",        "3rd of nov. 12",       "3 of nov., 12",       "3rd of nov., 12",
+         "3 of nov. '12",       "3rd of nov. '12",      "3 of nov., '12",      "3rd of nov., '12",
+         "3 of november 2012",  "3rd of november 2012", "3 of november, 2012", "3rd of november, 2012",
+         "3 of november 12",    "3rd of november 12",   "3 of november, 12",   "3rd of november, 12",
+         "3 of november '12",   "3rd of november '12",  "3 of november, '12",  "3rd of november, '12",
+        "03 of nov 2012",      "03 of nov, 2012",
+        "03 of nov 12",        "03 of nov, 12",
+        "03 of nov '12",       "03 of nov, '12",
+        "03 of nov. 2012",     "03 of nov., 2012",
+        "03 of nov. 12",       "03 of nov., 12",
+        "03 of nov. '12",      "03 of nov., '12",
+        "03 of november 2012", "03 of november, 2012",
+        "03 of november 12",   "03 of november, 12",
+        "03 of november '12",  "03 of november, '12"
       ) must allBeMatching(EN_ALL)
     }
 
@@ -663,12 +685,14 @@ class DateSpec extends Specification {
         "nov. 03",    "november 03"
       ) must noneBeMatching(EN_FULL)
     }
-    "not match [unseparated] D[D] + month" in {
+    "not match [unseparated] D[D] [+ 'of'] + month" in {
       List(
-         "3nov",  "3nov.",  "3november",
-        "03nov", "03nov.", "03november",
-         "3 nov",  "3 nov.",  "3 november",
-        "03 nov", "03 nov.", "03 november"
+         "3nov",      "3nov.",      "3november",
+        "03nov",     "03nov.",     "03november",
+         "3 nov",     "3 nov.",     "3 november",
+        "03 nov",    "03 nov.",    "03 november",
+         "3 of nov",  "3 of nov.",  "3 of november",
+        "03 of nov", "03 of nov.", "03 of november"
       ) must noneBeMatching(EN_FULL)
     }
 
@@ -710,7 +734,7 @@ class DateSpec extends Specification {
       (EN_FULL findFirstIn "nov 03 2012.")   must_== Some("nov 03 2012")
     }
 
-    "still match [unseparated] month + D[D] + ',' + YY[YY]" in {
+    "still match [unseparated] D[D] [+ 'of'] + month [+ ','] + YY[YY]" in {
       List(
         "3nov,2012",       "3nov,12",       "3nov,'12",
         "3nov.,2012",      "3nov.,12",      "3nov.,'12",
@@ -735,9 +759,30 @@ class DateSpec extends Specification {
         "03 nov. '12",      "03 nov., '12",
         "03 november 2012", "03 november, 2012",
         "03 november 12",   "03 november, 12",
-        "03 november '12",  "03 november, '12"
+        "03 november '12",  "03 november, '12",
+        // of
+        "3 of nov 2012",       "3rd of nov 2012",      "3 of nov, 2012",      "3rd of nov, 2012",
+        "3 of nov 12",         "3rd of nov 12",        "3 of nov, 12",        "3rd of nov, 12",
+        "3 of nov '12",        "3rd of nov '12",       "3 of nov, '12",       "3rd of nov, '12",
+        "3 of nov. 2012",      "3rd of nov. 2012",     "3 of nov., 2012",     "3rd of nov., 2012",
+        "3 of nov. 12",        "3rd of nov. 12",       "3 of nov., 12",       "3rd of nov., 12",
+        "3 of nov. '12",       "3rd of nov. '12",      "3 of nov., '12",      "3rd of nov., '12",
+        "3 of november 2012",  "3rd of november 2012", "3 of november, 2012", "3rd of november, 2012",
+        "3 of november 12",    "3rd of november 12",   "3 of november, 12",   "3rd of november, 12",
+        "3 of november '12",   "3rd of november '12",  "3 of november, '12",  "3rd of november, '12",
+        "03 of nov 2012",      "03 of nov, 2012",
+        "03 of nov 12",        "03 of nov, 12",
+        "03 of nov '12",       "03 of nov, '12",
+        "03 of nov. 2012",     "03 of nov., 2012",
+        "03 of nov. 12",       "03 of nov., 12",
+        "03 of nov. '12",      "03 of nov., '12",
+        "03 of november 2012", "03 of november, 2012",
+        "03 of november 12",   "03 of november, 12",
+        "03 of november '12",  "03 of november, '12"
       ) must allBeMatching(EN_FULL)
     }
+
+
 
     "still find full date inside a word" in {
       (EN_FULL findAllIn   "re3nov12v3")    must have size(1)
