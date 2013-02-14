@@ -73,7 +73,7 @@ abstract class AlphaDate {
 
   val ALPHA      : RE
   val ALPHA_FULL : RE
-  lazy val ALL      = (ALPHA       \ "a_f" | NUMERIC  ) \ "date"
+  lazy val ALL      = (ALPHA      \ "a_f" | NUMERIC ) \ "date"
   lazy val ALL_FULL = (ALPHA_FULL \ "a_f" | NUM_FULL) \ "date"
 }
 
@@ -110,7 +110,7 @@ package en {
 
   object Date extends AlphaDate {
 
-    override val NUMERIC   = NUMERIC_US
+    override val NUMERIC  = NUMERIC_US
     override val NUM_FULL = NUMERIC_FULL_US
 
     override val ALPHA_MONTHS = Array(

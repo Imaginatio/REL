@@ -114,9 +114,13 @@ package rel {
   }
 
   object TraversalOrder extends Enumeration {
+    /** Operation is applied to this node before its subtree(s) */
     val Prefixed    = Value("prefixed")
+    /** Operation is applied to this node before its subtree for `RE1`, between its subtrees for `RE2` */
     val InfixedPre  = Value("infixed-pre")
+    /** Operation is applied to this node after its subtree for `RE1`, between its subtrees for `RE2` */
     val InfixedPost = Value("infixed-post")
+    /** Operation is applied to this node after its subtree(s) */
     val Postfixed   = Value("postfixed")
   }
 
