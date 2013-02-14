@@ -44,7 +44,7 @@ object AllWhiteSpaceCleaner extends Cleaner(regexReplaceAll(
  *  The split occurs only on the form `aBc` (lower-upper-lower).
  *  Will therefore split `someWords` but not `iOS` nor `VitaminC`.
  */
-object CamelCaseSplitter extends Cleaner(regexReplaceAll("""(\p{Ll})(?=\p{Lu}\p{Ll})""".r, "$1 "))
+object CamelCaseSplitFilter extends Cleaner(regexReplaceAll("""(\p{Ll})(?=\p{Lu}\p{Ll})""".r, "$1 "))
 
 /** Normalize frequent Unicode single quotes / apostrophes to ASCII apostrophe `U+0027` / `'`. */
 object SingleQuoteNormalizer extends Cleaner(regexReplaceAll("[‘’＇′‵]".r, "'"))

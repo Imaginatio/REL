@@ -76,15 +76,15 @@ class CleanerSpec extends Specification {
     }
   }
 
-  "CamelCase Splitter" should {
+  "CamelCase Split Filter" should {
     "split CamelCase words" in {
-      CamelCaseSplitter("someWords in CamelCase") must_== "some Words in Camel Case"
+      CamelCaseSplitFilter("someWords in CamelCase") must_== "some Words in Camel Case"
     }
     "ignore double uppercase" in {
-      CamelCaseSplitter("NOtCAmelCAse") must_== "NOtCAmelCAse"
+      CamelCaseSplitFilter("NOtCAmelCAse") must_== "NOtCAmelCAse"
     }
     "ignore trailing uppercase" in {
-      CamelCaseSplitter("TestT") must_== "TestT"
+      CamelCaseSplitFilter("TestT") must_== "TestT"
     }
   }
 
