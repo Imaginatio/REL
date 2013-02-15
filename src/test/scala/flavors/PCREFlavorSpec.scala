@@ -31,6 +31,11 @@ object PCREFlavorSpec extends Specification {
       tr(matchers.en.Date.ALL) must contain("(?<a_f>")
     }
 
+    "strip repeated group names" in {
+      val g = "a" \ "g"
+      tr(g - !g - g - !g) must_== "(?<g>a)\\k<g>(a)\\2"
+    }
+
   }
 
 }

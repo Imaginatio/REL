@@ -1,8 +1,8 @@
 package fr.splayce.rel.flavors
 
 import fr.splayce.rel._
-import util.{Flavor, FlavorLike, Rewriter, IdRewriter, RecursiveIdRewriter}
-import TraversalOrder.Prefixed
+import util.{Flavor, FlavorLike, Rewriter, IdRewriter, RecursiveIdRewriter, OpRewriter}
+import TraversalOrder.{Prefixed, InfixedPre}
 
 import scala.util.matching.Regex
 
@@ -38,7 +38,8 @@ class TranslatedRECst(val s: String) extends RECst(s)
  *  Keeps Scala-style group names at Regex instanciation.
  *
  *  Valid inline group names are those matching the overridable
- *  `groupNamingValidator` regex, `RE.snakeGroupName` by default.
+ *  `groupNamingValidator` regex (`RE.snakeGroupName` by default),
+ *  unique if `groupNamingUnicity` if left to `true`.
  *  This validation is post-checked, so that an extending Flavor's
  *  `translator` can alter group names beforehand.
  *
@@ -49,6 +50,7 @@ class TranslatedRECst(val s: String) extends RECst(s)
 trait EmbedGroupNames extends FlavorLike {
   val groupNamingStyle: GroupNamingStyle = ChevNamingStyle
   val groupNamingValidator: Regex = RE.snakeGroupName
+  val groupNamingUnicity: Boolean = true
 
   lazy val egn: Rewriter = {
     case Group(name, re, ns) if ns != Some(groupNamingStyle) =>
@@ -64,7 +66,25 @@ trait EmbedGroupNames extends FlavorLike {
       => r.copy(embedStyle = None)
   }
 
-  override def translate(re: RE) = super.translate(re map egn) map validateGroupNames
+  lazy val uniqueGroupNames: OpRewriter[List[String]] = { (names, re) =>
+    re match {
+      case Group(name, re, Some(_)) if names.contains(name) =>
+        (Group(name, re, None), names ::: List(name))
+      case g @ Group(name, _, Some(_)) =>
+        (g, names ::: List(name))
+      case GroupRef(name, Some(_)) if names.count(_ == name) > 1 =>
+        (GroupRef(name, None), names)
+      case _ => (re, names)
+    }
+  }
+
+  override def translate(re: RE) = {
+    var t = super.translate(re map egn)
+    if (groupNamingUnicity) {
+      t = (List.empty[String] /: t)(uniqueGroupNames, InfixedPre) _1
+    }
+    t map validateGroupNames
+  }
 }
 
 /** Strips inline-named capturing groups and references, Java 6-style (`(expr)` and `(\n)`).

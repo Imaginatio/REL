@@ -29,6 +29,11 @@ object JavaFlavorsSpec extends Specification {
       tr(matchers.en.Date.ALL) must not contain("(?<a_y>")
     }
 
+    "strip repeated group names" in {
+      val g = "a" \ "g"
+      tr(g - !g - g - !g) must_== "(?<g>a)\\k<g>(a)\\2"
+    }
+
   }
 
 

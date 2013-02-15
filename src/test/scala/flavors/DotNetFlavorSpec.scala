@@ -45,6 +45,11 @@ class DotNETFlavorSpec extends Specification {
       tr(matchers.en.Date.ALL) must contain("(?<a_f>")
     }
 
+    "keep repeated group names" in {
+      val g = "a" \ "g"
+      tr(g - !g - g - !g) must_== "(?<g>a)\\k<g>(?<g>a)\\k<g>"
+    }
+
   }
 
 }
