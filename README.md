@@ -237,7 +237,7 @@ The embedded group names are not checked for unicity in concerned Flavors, and o
 ## Usage and downloads
 
 - download the [source from github](https://github.com/Imaginatio/REL) and build the library with SBT
-- download the [latest binary release](https://github.com/Imaginatio/REL/downloads)
+- download the [latest binary release](https://github.com/Imaginatio/Maven-repository/tree/master/fr/splayce/)
 - use [our public Maven repository](https://github.com/Imaginatio/Maven-repository/)
 
 
