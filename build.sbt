@@ -6,7 +6,14 @@ version := "0.3.0"
 
 scalaVersion := "2.9.1"
 
-libraryDependencies += "org.specs2" %% "specs2" % "1.10" % "test"
+crossScalaVersions := Seq("2.9.1", "2.9.2", "2.10.0")
+
+libraryDependencies <<= (scalaVersion, libraryDependencies) { (sv, deps) =>
+	deps :+ (sv match {
+		case "2.10.0" => "org.specs2" % "specs2_2.10" % "1.13" % "test"
+		case _        => "org.specs2" %% "specs2" % "1.12.3" % "test"
+	})
+}
 
 scalacOptions ++= Seq("-deprecation", "-unchecked", "-encoding", "UTF8")
 

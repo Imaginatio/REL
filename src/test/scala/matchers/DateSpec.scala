@@ -27,7 +27,7 @@ class DateSpec extends Specification {
       "2000" must     be matching(NUMERIC)
       "2099" must     be matching(NUMERIC)
       "2100" must not be matching(NUMERIC)
-      NUMERIC.findAllIn("test 1996 98 2004 12 ok 2012") must have size(3)
+      NUMERIC.findAllIn("test 1996 98 2004 12 ok 2012").toList must have size(3)
     }
 
         "match D-M-YY"     in { "1-1-00"     must     be matching(NUMERIC) }
@@ -79,11 +79,11 @@ class DateSpec extends Specification {
     }
 
     "match date or year inside a word" in {
-      (NUMERIC findAllIn        "test2012ok")       must have size(1)
-      (NUMERIC findAllIn        "test01-03-2012ok") must have size(1)
-      (NUMERIC findAllIn        "test03-2012ok")    must have size(1)
-      (NUMERIC findAllIn        "test1-3-12ok")     must have size(1)
-      (NUMERIC findAllIn        "test1-3-2012ok")   must have size(1)
+      (NUMERIC findAllIn        "test2012ok"      ).toList must have size(1)
+      (NUMERIC findAllIn        "test01-03-2012ok").toList must have size(1)
+      (NUMERIC findAllIn        "test03-2012ok"   ).toList must have size(1)
+      (NUMERIC findAllIn        "test1-3-12ok"    ).toList must have size(1)
+      (NUMERIC findAllIn        "test1-3-2012ok"  ).toList must have size(1)
       (NUMERIC findFirstMatchIn "test2012ok")       must haveGroup("n_y", "2012")
       (NUMERIC findFirstMatchIn "test01-03-2012ok") must haveGroup("n_dmy", "01-03-2012")
       (NUMERIC findFirstMatchIn "test03-2012ok")    must haveGroup("n_my", "03-2012")
@@ -110,9 +110,9 @@ class DateSpec extends Specification {
 
     "still match numeric" in {
       List("01/10/2000", "00-10-1", "01 10 2000") must allBeMatching(NUMERIC_FULL)
-      (NUMERIC_FULL findAllIn        "test01-03-2012ok") must have size(1)
-      (NUMERIC_FULL findAllIn        "test1-3-12ok")     must have size(1)
-      (NUMERIC_FULL findAllIn        "test1-3-2012ok")   must have size(1)
+      (NUMERIC_FULL findAllIn        "test01-03-2012ok").toList must have size(1)
+      (NUMERIC_FULL findAllIn        "test1-3-12ok"    ).toList must have size(1)
+      (NUMERIC_FULL findAllIn        "test1-3-2012ok"  ).toList must have size(1)
       (NUMERIC_FULL findFirstMatchIn "test01-03-2012ok") must haveGroup("n_dmy", "01-03-2012")
       (NUMERIC_FULL findFirstMatchIn "test1-3-12ok")     must haveGroup("n_dmy", "1-3-12")
       (NUMERIC_FULL findFirstMatchIn "test1-3-2012ok")   must haveGroup("n_dmy", "1-3-2012")
@@ -162,9 +162,9 @@ class DateSpec extends Specification {
       (NUMERIC_FULL_US findFirstMatchIn "1-1-11")     must haveGroup("n_mdy", "1-1-11")
       (NUMERIC_FULL_US findFirstMatchIn "22-1-11")    must haveGroup("n_ymd", "22-1-11")
 
-      (NUMERIC_FULL_US findAllIn        "test01-03-2012ok") must have size(1)
-      (NUMERIC_FULL_US findAllIn        "test1-3-12ok")     must have size(1)
-      (NUMERIC_FULL_US findAllIn        "test1-3-2012ok")   must have size(1)
+      (NUMERIC_FULL_US findAllIn        "test01-03-2012ok").toList must have size(1)
+      (NUMERIC_FULL_US findAllIn        "test1-3-12ok"    ).toList must have size(1)
+      (NUMERIC_FULL_US findAllIn        "test1-3-2012ok"  ).toList must have size(1)
       (NUMERIC_FULL_US findFirstMatchIn "test01-03-2012ok") must haveGroup("n_mdy", "01-03-2012")
       (NUMERIC_FULL_US findFirstMatchIn "test21-03-2012ok") must haveGroup("n_dmy", "21-03-2012")
       (NUMERIC_FULL_US findFirstMatchIn "test1-3-12ok")     must haveGroup("n_mdy", "1-3-12")
@@ -191,11 +191,11 @@ class DateSpec extends Specification {
 
     "still match numeric (with YMD > DMY)" in {
       List("01/10/2000", "00-10-1", "10 2000", "2000 11", "1999") must allBeMatching(FR_ALL)
-      (FR_ALL findAllIn        "test2012ok")       must have size(1)
-      (FR_ALL findAllIn        "test01-03-2012ok") must have size(1)
-      (FR_ALL findAllIn        "test03-2012ok")    must have size(1)
-      (FR_ALL findAllIn        "test1-3-12ok")     must have size(1)
-      (FR_ALL findAllIn        "test1-3-2012ok")   must have size(1)
+      (FR_ALL findAllIn        "test2012ok"      ).toList must have size(1)
+      (FR_ALL findAllIn        "test01-03-2012ok").toList must have size(1)
+      (FR_ALL findAllIn        "test03-2012ok"   ).toList must have size(1)
+      (FR_ALL findAllIn        "test1-3-12ok"    ).toList must have size(1)
+      (FR_ALL findAllIn        "test1-3-2012ok"  ).toList must have size(1)
       (FR_ALL findFirstMatchIn "test2012ok")       must haveGroup("n_y", "2012")
       (FR_ALL findFirstMatchIn "test01-03-2012ok") must haveGroup("n_dmy", "01-03-2012")
       (FR_ALL findFirstMatchIn "test03-2012ok")    must haveGroup("n_my", "03-2012")
@@ -240,7 +240,7 @@ class DateSpec extends Specification {
     }
     "match 'month YY[YY].' in one match without the final dot" in {
       "nov 2012." must not be matching(FR_ALL)
-      (FR_ALL findAllIn   "nov 2012.") must have size(1)
+      (FR_ALL findAllIn   "nov 2012.").toList must have size(1)
       (FR_ALL findFirstIn "nov 2012.") must_== Some("nov 2012")
     }
 
@@ -276,32 +276,32 @@ class DateSpec extends Specification {
 
     "match 'D[D] month YY[YY].' in one match without the final dot" in {
       "1er nov 2012." must not be matching(FR_ALL)
-      (FR_ALL findAllIn   "1er nov 2012.") must have size(1)
-      (FR_ALL findFirstIn "1er nov 2012.") must_== Some("1er nov 2012")
+      (FR_ALL findAllIn   "1er nov 2012.").toList must have size(1)
+      (FR_ALL findFirstIn "1er nov 2012.")        must_== Some("1er nov 2012")
       "3 nov 2012."   must not be matching(FR_ALL)
-      (FR_ALL findAllIn   "3 nov 2012.")   must have size(1)
-      (FR_ALL findFirstIn "3 nov 2012.")   must_== Some("3 nov 2012")
+      (FR_ALL findAllIn   "3 nov 2012."  ).toList must have size(1)
+      (FR_ALL findFirstIn "3 nov 2012.")          must_== Some("3 nov 2012")
       "03 nov 2012."  must not be matching(FR_ALL)
-      (FR_ALL findAllIn   "03 nov 2012.")  must have size(1)
-      (FR_ALL findFirstIn "03 nov 2012.")  must_== Some("03 nov 2012")
+      (FR_ALL findAllIn   "03 nov 2012." ).toList must have size(1)
+      (FR_ALL findFirstIn "03 nov 2012.")         must_== Some("03 nov 2012")
     }
 
     "not find month inside a word" in {
-      (FR_ALL findAllIn   "")          must have size(0)
-      (FR_ALL findAllIn   "innovant")  must have size(0)
-      (FR_ALL findAllIn   "novateur")  must have size(0)
-      (FR_ALL findAllIn   "renov")     must have size(0)
-      (FR_ALL findAllIn   "innov.ant") must have size(0)
-      (FR_ALL findAllIn   "renov.")    must have size(0)
+      (FR_ALL findAllIn   ""         ).toList must have size(0)
+      (FR_ALL findAllIn   "innovant" ).toList must have size(0)
+      (FR_ALL findAllIn   "novateur" ).toList must have size(0)
+      (FR_ALL findAllIn   "renov"    ).toList must have size(0)
+      (FR_ALL findAllIn   "innov.ant").toList must have size(0)
+      (FR_ALL findAllIn   "renov."   ).toList must have size(0)
       (FR_ALL findFirstIn "renov2012") must_== Some("2012")
     }
     "find full date inside a word" in {
-      (FR_ALL findAllIn   "re3nov12v3")    must have size(1)
-      (FR_ALL findFirstIn "re3nov12v3")    must_== Some("3nov12")
-      (FR_ALL findAllIn   "re3nov2012v3")  must have size(1)
-      (FR_ALL findFirstIn "re3nov2012v3")  must_== Some("3nov2012")
-      (FR_ALL findAllIn   "re03nov2012v3") must have size(1)
-      (FR_ALL findFirstIn "re03nov2012v3") must_== Some("03nov2012")
+      (FR_ALL findAllIn   "re3nov12v3"   ).toList must have size(1)
+      (FR_ALL findFirstIn "re3nov12v3")           must_== Some("3nov12")
+      (FR_ALL findAllIn   "re3nov2012v3" ).toList must have size(1)
+      (FR_ALL findFirstIn "re3nov2012v3")         must_== Some("3nov2012")
+      (FR_ALL findAllIn   "re03nov2012v3").toList must have size(1)
+      (FR_ALL findFirstIn "re03nov2012v3")        must_== Some("03nov2012")
     }
   }
 
@@ -310,9 +310,9 @@ class DateSpec extends Specification {
 
     "still match numeric" in {
       List("01/10/2000", "00-10-1", "01 10 2000") must allBeMatching(FR_FULL)
-      (FR_FULL findAllIn        "test01-03-2012ok") must have size(1)
-      (FR_FULL findAllIn        "test1-3-12ok")     must have size(1)
-      (FR_FULL findAllIn        "test1-3-2012ok")   must have size(1)
+      (FR_FULL findAllIn        "test01-03-2012ok").toList must have size(1)
+      (FR_FULL findAllIn        "test1-3-12ok"    ).toList must have size(1)
+      (FR_FULL findAllIn        "test1-3-2012ok"  ).toList must have size(1)
       (FR_FULL findFirstMatchIn "test01-03-2012ok") must haveGroup("n_dmy", "01-03-2012")
       (FR_FULL findFirstMatchIn "test1-3-12ok")     must haveGroup("n_dmy", "1-3-12")
       (FR_FULL findFirstMatchIn "test1-3-2012ok")   must haveGroup("n_dmy", "1-3-2012")
@@ -370,12 +370,12 @@ class DateSpec extends Specification {
     }
 
     "still find full date inside a word" in {
-      (FR_FULL findAllIn   "re3nov12v3")    must have size(1)
-      (FR_FULL findFirstIn "re3nov12v3")    must_== Some("3nov12")
-      (FR_FULL findAllIn   "re3nov2012v3")  must have size(1)
-      (FR_FULL findFirstIn "re3nov2012v3")  must_== Some("3nov2012")
-      (FR_FULL findAllIn   "re03nov2012v3") must have size(1)
-      (FR_FULL findFirstIn "re03nov2012v3") must_== Some("03nov2012")
+      (FR_FULL findAllIn   "re3nov12v3"   ).toList must have size(1)
+      (FR_FULL findFirstIn "re3nov12v3")           must_== Some("3nov12")
+      (FR_FULL findAllIn   "re3nov2012v3" ).toList must have size(1)
+      (FR_FULL findFirstIn "re3nov2012v3")         must_== Some("3nov2012")
+      (FR_FULL findAllIn   "re03nov2012v3").toList must have size(1)
+      (FR_FULL findFirstIn "re03nov2012v3")        must_== Some("03nov2012")
     }
   }
 
@@ -401,11 +401,11 @@ class DateSpec extends Specification {
       (EN_ALL findFirstMatchIn "1-3-2011")   must haveGroup("n_mdy", "1-3-2011")
       (EN_ALL findFirstMatchIn "22-1-2011")  must haveGroup("n_dmy", "22-1-2011")
 
-      (EN_ALL findAllIn        "test2012ok")       must have size(1)
-      (EN_ALL findAllIn        "test01-03-2012ok") must have size(1)
-      (EN_ALL findAllIn        "test1-3-2012ok")   must have size(1)
-      (EN_ALL findAllIn        "test03-2012ok")    must have size(1)
-      (EN_ALL findAllIn        "test1-3-12ok")     must have size(1)
+      (EN_ALL findAllIn        "test2012ok"      ).toList must have size(1)
+      (EN_ALL findAllIn        "test01-03-2012ok").toList must have size(1)
+      (EN_ALL findAllIn        "test1-3-2012ok"  ).toList must have size(1)
+      (EN_ALL findAllIn        "test03-2012ok"   ).toList must have size(1)
+      (EN_ALL findAllIn        "test1-3-12ok"    ).toList must have size(1)
       (EN_ALL findFirstMatchIn "test2012ok")       must haveGroup("n_y", "2012")
       (EN_ALL findFirstMatchIn "test01-03-2012ok") must haveGroup("n_mdy", "01-03-2012")
       (EN_ALL findFirstMatchIn "test1-3-2012ok")   must haveGroup("n_mdy", "1-3-2012")
@@ -458,7 +458,7 @@ class DateSpec extends Specification {
     }
     "match 'month YY[YY].' in one match without the final dot" in {
       "nov 2012." must not be matching(EN_ALL)
-      (EN_ALL findAllIn   "nov 2012.") must have size(1)
+      (EN_ALL findAllIn   "nov 2012.").toList must have size(1)
       (EN_ALL findFirstIn "nov 2012.") must_== Some("nov 2012")
     }
 
@@ -523,14 +523,14 @@ class DateSpec extends Specification {
     }
     "match 'month D[D][,] YY[YY].' in one match without the final dot" in {
       "nov 1st, 2012." must not be matching(EN_ALL)
-      (EN_ALL findAllIn   "nov 1st, 2012.") must have size(1)
-      (EN_ALL findFirstIn "nov 1st, 2012.") must_== Some("nov 1st, 2012")
+      (EN_ALL findAllIn   "nov 1st, 2012.").toList must have size(1)
+      (EN_ALL findFirstIn "nov 1st, 2012.")        must_== Some("nov 1st, 2012")
       "nov 3, 2012."   must not be matching(EN_ALL)
-      (EN_ALL findAllIn   "nov 3, 2012.")   must have size(1)
-      (EN_ALL findFirstIn "nov 3, 2012.")   must_== Some("nov 3, 2012")
+      (EN_ALL findAllIn   "nov 3, 2012."  ).toList must have size(1)
+      (EN_ALL findFirstIn "nov 3, 2012.")          must_== Some("nov 3, 2012")
       "nov 03 2012."   must not be matching(EN_ALL)
-      (EN_ALL findAllIn   "nov 03 2012.")   must have size(1)
-      (EN_ALL findFirstIn "nov 03 2012.")   must_== Some("nov 03 2012")
+      (EN_ALL findAllIn   "nov 03 2012."  ).toList must have size(1)
+      (EN_ALL findFirstIn "nov 03 2012.")          must_== Some("nov 03 2012")
     }
 
     "match unseparated month + D[D] + ',' + YY[YY]" in {
@@ -589,21 +589,21 @@ class DateSpec extends Specification {
     }
 
     "not find month inside a word" in {
-      (EN_ALL findAllIn   "")            must have size(0)
-      (EN_ALL findAllIn   "innovating")  must have size(0)
-      (EN_ALL findAllIn   "novice")      must have size(0)
-      (EN_ALL findAllIn   "renov")       must have size(0)
-      (EN_ALL findAllIn   "innov.ating") must have size(0)
-      (EN_ALL findAllIn   "renov.")      must have size(0)
-      (EN_ALL findFirstIn "renov2012")   must_== Some("2012")
+      (EN_ALL findAllIn   ""           ).toList must have size(0)
+      (EN_ALL findAllIn   "innovating" ).toList must have size(0)
+      (EN_ALL findAllIn   "novice"     ).toList must have size(0)
+      (EN_ALL findAllIn   "renov"      ).toList must have size(0)
+      (EN_ALL findAllIn   "innov.ating").toList must have size(0)
+      (EN_ALL findAllIn   "renov."     ).toList must have size(0)
+      (EN_ALL findFirstIn "renov2012")          must_== Some("2012")
     }
     "find full date inside a word" in {
-      (EN_ALL findAllIn   "re3nov12v3")    must have size(1)
-      (EN_ALL findFirstIn "re3nov12v3")    must_== Some("3nov12")
-      (EN_ALL findAllIn   "re3nov2012v3")  must have size(1)
-      (EN_ALL findFirstIn "re3nov2012v3")  must_== Some("3nov2012")
-      (EN_ALL findAllIn   "re03nov2012v3") must have size(1)
-      (EN_ALL findFirstIn "re03nov2012v3") must_== Some("03nov2012")
+      (EN_ALL findAllIn   "re3nov12v3"   ).toList must have size(1)
+      (EN_ALL findFirstIn "re3nov12v3")           must_== Some("3nov12")
+      (EN_ALL findAllIn   "re3nov2012v3" ).toList must have size(1)
+      (EN_ALL findFirstIn "re3nov2012v3")         must_== Some("3nov2012")
+      (EN_ALL findAllIn   "re03nov2012v3").toList must have size(1)
+      (EN_ALL findFirstIn "re03nov2012v3")        must_== Some("03nov2012")
     }
   }
 
@@ -622,9 +622,9 @@ class DateSpec extends Specification {
       (EN_FULL findFirstMatchIn "1-1-2011")   must haveGroup("n_mdy", "1-1-2011")
       (EN_FULL findFirstMatchIn "22-1-11")    must haveGroup("n_ymd", "22-1-11")
 
-      (EN_FULL findAllIn        "test01-03-2012ok") must have size(1)
-      (EN_FULL findAllIn        "test1-3-12ok")     must have size(1)
-      (EN_FULL findAllIn        "test1-3-2012ok")   must have size(1)
+      (EN_FULL findAllIn        "test01-03-2012ok").toList must have size(1)
+      (EN_FULL findAllIn        "test1-3-12ok"    ).toList must have size(1)
+      (EN_FULL findAllIn        "test1-3-2012ok"  ).toList must have size(1)
       (EN_FULL findFirstMatchIn "test01-03-2012ok") must haveGroup("n_mdy", "01-03-2012")
       (EN_FULL findFirstMatchIn "test21-03-2012ok") must haveGroup("n_dmy", "21-03-2012")
       (EN_FULL findFirstMatchIn "test1-3-12ok")     must haveGroup("n_mdy", "1-3-12")
@@ -724,14 +724,14 @@ class DateSpec extends Specification {
         "november 03 '12",  "november 03, '12"
       ) must allBeMatching(EN_FULL)
       "nov 1st, 2012." must not be matching(EN_FULL)
-      (EN_FULL findAllIn   "nov 1st, 2012.") must have size(1)
-      (EN_FULL findFirstIn "nov 1st, 2012.") must_== Some("nov 1st, 2012")
+      (EN_FULL findAllIn   "nov 1st, 2012.").toList must have size(1)
+      (EN_FULL findFirstIn "nov 1st, 2012.")        must_== Some("nov 1st, 2012")
       "nov 3, 2012."   must not be matching(EN_FULL)
-      (EN_FULL findAllIn   "nov 3, 2012.")   must have size(1)
-      (EN_FULL findFirstIn "nov 3, 2012.")   must_== Some("nov 3, 2012")
+      (EN_FULL findAllIn   "nov 3, 2012."  ).toList must have size(1)
+      (EN_FULL findFirstIn "nov 3, 2012.")          must_== Some("nov 3, 2012")
       "nov 03 2012."   must not be matching(EN_FULL)
-      (EN_FULL findAllIn   "nov 03 2012.")   must have size(1)
-      (EN_FULL findFirstIn "nov 03 2012.")   must_== Some("nov 03 2012")
+      (EN_FULL findAllIn   "nov 03 2012."  ).toList must have size(1)
+      (EN_FULL findFirstIn "nov 03 2012.")          must_== Some("nov 03 2012")
     }
 
     "still match [unseparated] D[D] [+ 'of'] + month [+ ','] + YY[YY]" in {
@@ -785,12 +785,12 @@ class DateSpec extends Specification {
 
 
     "still find full date inside a word" in {
-      (EN_FULL findAllIn   "re3nov12v3")    must have size(1)
-      (EN_FULL findFirstIn "re3nov12v3")    must_== Some("3nov12")
-      (EN_FULL findAllIn   "re3nov2012v3")  must have size(1)
-      (EN_FULL findFirstIn "re3nov2012v3")  must_== Some("3nov2012")
-      (EN_FULL findAllIn   "re03nov2012v3") must have size(1)
-      (EN_FULL findFirstIn "re03nov2012v3") must_== Some("03nov2012")
+      (EN_FULL findAllIn   "re3nov12v3"   ).toList must have size(1)
+      (EN_FULL findFirstIn "re3nov12v3")           must_== Some("3nov12")
+      (EN_FULL findAllIn   "re3nov2012v3" ).toList must have size(1)
+      (EN_FULL findFirstIn "re3nov2012v3")         must_== Some("3nov2012")
+      (EN_FULL findAllIn   "re03nov2012v3").toList must have size(1)
+      (EN_FULL findFirstIn "re03nov2012v3")        must_== Some("03nov2012")
     }
   }
 
