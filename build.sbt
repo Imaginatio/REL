@@ -10,7 +10,7 @@ crossScalaVersions := Seq("2.9.1", "2.9.2", "2.10.0")
 
 libraryDependencies <<= (scalaVersion, libraryDependencies) { (sv, deps) =>
 	deps :+ (sv match {
-		case "2.10.0" => "org.specs2" % "specs2_2.10" % "1.13" % "test"
+		case "2.10.0" => "org.specs2" % "specs2_2.10" % "1.14" % "test"
 		case _        => "org.specs2" %% "specs2" % "1.12.3" % "test"
 	})
 }
