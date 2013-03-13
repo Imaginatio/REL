@@ -1,19 +1,31 @@
 package fr.splayce.rel.cleaners
 
-import fr.splayce.rel.util.Cleaner
+import fr.splayce.rel.util.{Cleaner, TrackString}
 import Cleaner.regexReplaceAll
+import TrackString._
 
 import scala.util.matching.Regex.Match
 
 
 /** No-op cleaner */
-object IdentityCleaner extends Cleaner({ in => in })
+object IdentityCleaner extends Cleaner(s => s)
 
 /** Transform text in lowercase */
-object LowerCaseFilter extends Cleaner({ _ toLowerCase })
+object LowerCaseFilter extends Cleaner(_ toLowerCase)
 
 /** Trim text */
-object TrimFilter extends Cleaner({ _ trim })
+object TrimFilter extends Cleaner(_ trim, { in =>
+  val start = in.current.indexWhere(_ > ' ')
+  val end = in.current.lastIndexWhere(_ > ' ') + 1
+  val len = in.current.length
+
+  if (start == 0 && end == len) in
+  else {
+    var repl = if (end == len) Repl() else Repl(end, len, end, end)
+    if (start > 0) repl = repl + Repl(0, start, 0, 0)
+    in.edit(in.current.substring(start, end), repl)
+  }
+})
 
 /** Normalize all Unicode line breaks and vertical tabs to ASCII new line `U+000A` / `\n`.
  *  @see [[http://unicode.org/cldr/utility/list-unicodeset.jsp?a=[:Bidi_Class=Paragraph_Separator:] Unicode: Paragraph Separator]],
@@ -54,7 +66,12 @@ object DoubleQuoteNormalizer extends Cleaner(regexReplaceAll("[“”＂″‶�
 object QuoteNormalizer extends Cleaner(SingleQuoteNormalizer | DoubleQuoteNormalizer)
 
 /** Pseudo ASCII folding, remove diacritical marks (and some common variants) on characters. */
-object DiacriticCleaner extends Cleaner(DiacriticFolder.clean _)
+object DiacriticCleaner extends Cleaner(DiacriticFolder.clean _, { in =>
+  import DiacriticFolder._
+  in.replaceAll(unicodeMarked, "$1")   // remove diacritics already in NFD
+    .edit(s => (nfdClean(s), Repl()))  // nfdClean does not cause shifting
+    .replaceAll(diacritics.get _)      // per-char replacement
+})
 
 /** Normalize CJK Fullwidth characters to their ASCII equivalents. */
 object FullwidthNormalizer extends Cleaner({

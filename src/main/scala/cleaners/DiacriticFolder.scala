@@ -10,13 +10,13 @@ object DiacriticFolder {
     nfdClean(in) flatMap diacriticFold
 
   def nfdClean(in: String) = // "è" => unicode normalized decomposition "e`" => "e"
-    unicodeMarks.replaceAllIn(Normalizer.normalize(in, Normalizer.Form.NFD), "")
+    unicodeMarked.replaceAllIn(Normalizer.normalize(in, Normalizer.Form.NFD), "$1")
 
   def diacriticFold(c: Char): String =
     // OPTIMIZE cache list creation for frequently used letters ?
     diacritics.getOrElse(c, c.toString)
 
-  val unicodeMarks = "\\p{IsM}+".r
+  val unicodeMarked = "(.)\\p{IsM}+".r
 
   val diacritics = Map(
     '０'->"0", '₀'->"0", '⓪'->"0", '⁰'->"0",
