@@ -24,11 +24,11 @@ The embedded [Date regexes](https://github.com/Imaginatio/REL/blob/master/src/ma
 
 > Examples are noted `DSL expression` → `resulting regex`. They assume:
 > ```scala
-import fr.splayce.rel._
-import Implicits._
-val a = RE("aa")
-val b = RE("bb")
-```
+> import fr.splayce.rel._
+> import Implicits._
+> val a = RE("aa")
+> val b = RE("bb")
+> ```
 
 - Concatenation:
     - Protected:   `a ~ b` → `(?:aa)(?:bb)`
@@ -71,7 +71,7 @@ val b = RE("bb")
     - Non-capturing: `a.ncg` → `(?:aa)` or the short syntax `a.%`; will try not to uselessly wrap non-breaking entities (i.e. single letters like `a` or `\u00F0` and character classes like `\w`, `[^a-z]` or `\p{Lu}`) to produce ever-so-slightly less unreadable output
     - Non-capturing, with `idmsux-idmsux` flags: `a.ncg("i-d")` → `(?i-d:aa)` or infix syntax `"i" ?: a` → `(?i:aa)`; will also try to combine nested flags, deepest wins: `a.ncg("-d").ncg("di")` → `(?i-d:aa)`
     - [Atomic](http://www.regular-expressions.info/atomic.html): `a.ag` → `(?>aa)` or the short syntaxes `?>(a)` and `a.?>`
-- Back-reference: `!g` will insert a backreference on group `g`; e.g. `val g = (a|b).g; g - a - !g` → `(aa|bb)aa\1`
+- Back-reference: `!g` will insert a back-reference on group `g`; e.g. `val g = (a|b).g; g - a - !g` → `(aa|bb)aa\1`
 
 ### Constants
 
@@ -97,7 +97,7 @@ _\* Those are uppercase `α`/`ß`/`μ`/`τ`, not latin `A`/`B`/`M`/`T`_
 
 The `.r` method on any `RE` term returns a compiled `scala.util.matching.Regex`. The `.toString` method returns the source pattern (equivalent to `.r.toString`, so the pattern is verified).
 
-For other regex flavors, a translation mechanism is provided: you may instanciate a [`Flavor`](https://github.com/Imaginatio/REL/blob/master/src/main/scala/util/Flavor.scala), which exposes two methods: `.express(re: RE)` and `.translate(re: RE)`. The first one returns a `Tuple2[String, List[String]]`, whose first element is the translated regex string and whose second is a list of the group names (in order of appearance) allowing you to perform a mapping to capturing group indexes (like Scala does) if needed. The second method only performs the translation of a `RE` term into another.
+For other regex flavors, a translation mechanism is provided: you may instantiate a [`Flavor`](https://github.com/Imaginatio/REL/blob/master/src/main/scala/util/Flavor.scala), which exposes two methods: `.express(re: RE)` and `.translate(re: RE)`. The first one returns a `Tuple2[String, List[String]]`, whose first element is the translated regex string and whose second is a list of the group names (in order of appearance) allowing you to perform a mapping to capturing group indexes (like Scala does) if needed. The second method only performs the translation of a `RE` term into another.
 
 An example of translation into [.NET-flavored regex](http://www.regular-expressions.info/dotnet.html) is provided. [`DotNETFlavor`](https://github.com/Imaginatio/REL/blob/master/src/main/scala/flavors/DotNETFlavor.scala):
 
@@ -189,6 +189,28 @@ val interactions2 = iaExtractor2("me@dev->you@dev, you@dev->me@dev")
 interactions2.toList.toString === "List((me,dev,you,dev), (you,dev,me,dev))"
 ```
 
+### Pre-match cleanup
+
+Cleaners are mostly `String => String` functions. They aim to provide a composable way to perform some cleaning before matching a `String` against a Regex. For instance, when matching against multiple case-insensitive regex, it can be more efficient to make those regex case-sensitive (say lowercase only) and downcase the input beforehand. You may also want to reduce the combinations in your regexes to keep them simple and focused, or just keep the input from being too exotic.
+
+Some `Cleaners` are already provided:
+
+- `LowerCaseFilter`
+- `TrimFilter`
+- `LineSeparatorNormalizer` normalizes line breaks to `\n` (from `\r\n` but also Unicode paragraph separator and mandatory breaks)
+- `WhiteSpaceNormalizer` normalizes all Unicode spaces to ASCII spaces
+- `WhiteSpaceCleaner` transforms `\s+` to a single space and `AllWhiteSpaceCleaner` does the same with all Unicode spaces and line breaks
+- `CamelCaseSplitFilter` splits camel case `oneTwo` into `one Two` (but not `iOS` – requires lower-UPPER-lower) 
+- `SingleQuoteNormalizer` normalizes Unicode single quotes like `‘’′` to ASCII straight quote `'`; `DoubleQuoteNormalizer` does the same with double quotes and `QuoteNormalizer` with both
+- `DiacriticCleaner` converts accented and combined letters to ASCII: `é` becomes `e`, `œ` becomes `oe`, etc.
+- `FullwidthNormalizer` normalizes CJK Fullwidth characters to their ASCII equivalents
+
+You can implement you own `Cleaner`. If it can be a regex replacement, it is recommended to use `Cleaner.regexReplaceAll` or `Cleaner.regexReplaceFirst`.
+
+Chaining Cleaners unix-style: `CamelCaseSplitFilter | LowerCaseFilter | DiacriticCleaner` (or with `compose`/`andThen`), yields a new compound Cleaner.
+
+Those alterations can make it harder to retrieve the original matched text and its position in the original String. If you have such a need, you can use wrap your `String` in a [`TrackString`](https://github.com/Imaginatio/REL/blob/master/src/main/scala/util/TrackString.scala) and then run it through the Cleaners. Its `srcPos(oStart, oEnd)`, when given the positions in the cleaned String, returns the corresponding `Interval(iStart, iEnd)` in the original String. If you implement you own `Cleaner` and if it may change the length of the `String`, you will need to implement the corresponding `TrackString => TrackString` (except if you use `Cleaner.regexReplaceAll/First`).
+
 
 ## TODO
 
@@ -202,8 +224,8 @@ interactions2.toList.toString === "List((me,dev,you,dev), (you,dev,me,dev))"
     - date: consider extracting incorrect dates (like feb. 31st) with some flag
 - Utils
     - Generate sample strings that match a regex (e.g. with [Xeger](http://code.google.com/p/xeger/))
-    - Source generation or compiler plugin to enable REL independance \[at runtime]
-    - Binary tool that would take a REL file, compile it and produce regexes in several flavors / programming langagues
+    - Source generation or compiler plugin to enable REL independence \[at runtime]
+    - Binary tool that would take a REL file, compile it and produce regexes in several flavors / programming languages
 - Documentation
     - Document cleaners, extractors, matchers, flavors
     - Make the present document a simple description and split the documentation part into several linked pages: syntax, matchers, extractors, flavors…
@@ -211,10 +233,10 @@ interactions2.toList.toString === "List((me,dev,you,dev), (you,dev,me,dev))"
 
 ## Known issues
 
-### Versionning
+### Versioning
 
-REL version number follows the [Semantic Versionning 2.0 Specification](http://semver.org/). In the current early stage of development, the API is still unstable and backward compatibility may break.
-As an additional rule, in version `0.Y.Z`, a `Z`-only version change is expected to be backard compatible with previous `0.Y.*` versions. But a `Y` version change poteantially breaks backward compatibility.
+REL version number follows the [Semantic Versioning 2.0 Specification](http://semver.org/). In the current early stage of development, the API is still unstable and backward compatibility may break.
+As an additional rule, in version `0.Y.Z`, a `Z`-only version change is expected to be backward compatible with previous `0.Y.*` versions. But a `Y` version change potentially breaks backward compatibility.
 
 ### String primitives
 
@@ -231,7 +253,11 @@ JavaScript regexes are very limited and work a bit differently. In [JavaScript f
 - `WordBoundary`/`\b` is kept as-is, but will not have exactly the same semantic because of the lack of Unicode support in JavaScript regex flavor. For instance, in `"fiancé"`, Javascript sees `"\bfianc\bé"` where most other flavors see `"\bfiancé\b"`. Same goes for `NotWordBoundary`/`\B`.
 - `InputBegin` (`^^`) and `InputEnd` (`$$`) are translated to `LineBegin` (`^`) and `LineEnd` (`$`), but this is only correct if the `m` (multiline) flag is off.
 
-The embedded group names are not checked for unicity in concerned Flavors, and only .NET and Ruby 1.9+ supports multiple inline-named groups with the same name.
+### TrackString
+
+Regex replacement do not support Java 7 embedded group names, which are not accessible in Scala's `Match` yet. It will use Scala group names instead (inconsistent with `String#replaceAll`).
+
+`TrackString` cannot track intertwined/reordered replacements, i.e. you can only track `abc` => `bca` as a single group (as opposed to three reordered groups). If out-of-order `Repl`/`Subst` are introduced, `srcPos` will most probably yield incorrect results.
 
 
 ## Usage and downloads
@@ -250,4 +276,4 @@ REL is released under the [MIT License](http://www.opensource.org/licenses/MIT)
 
 ## Authors
 
-REL was developped by [Adrien Lavoillotte](http://instanceof.me/) ([@streetpc](https://github.com/streetpc)) and Julien Martin for project [Splayce](http://splayce.com) at [Imaginatio](http://imaginatio.fr)
+REL was developed by [Adrien Lavoillotte](http://instanceof.me/) ([@streetpc](https://github.com/streetpc)), Julien Martin and Guillaume Vauvert for project [Splayce](http://splayce.com) at [Imaginatio](http://imaginatio.fr)
