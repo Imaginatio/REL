@@ -26,6 +26,8 @@ case class TrackString(val source: String, val current: String, val repl: Repl =
 
   /** The Interval in the source that corresponds to the given Interval in the current String. */
   def srcPos(start: Int, end: Int): Interval = srcPos(Interval(start, end))
+  /** The Interval in the source that corresponds to the given Match in the current String. */
+  def srcPos(m: Match): Interval = srcPos(m.start, m.end)
   /** The Interval in the source that corresponds to the given Interval in the current String. */
   def srcPos(interval: Interval): Interval = {
     require(interval.start < current.length,

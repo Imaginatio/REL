@@ -90,6 +90,20 @@ class TrackStringSpec extends Specification {
       res.srcPos(4) must_== Interval(3, 4)
       res.srcPos(5) must_== Interval(4, 5)
     }
+    "Find source Interval for Interval and Match" in {
+      val res = TrackString("abcdefg", "a1d2f3g", Repl(List(Subst(6, 6, 5, 6), Subst(1, 3, 1, 2))))
+      res.srcPos(0) must_== Interval(0, 1)
+      res.srcPos(1) must_== Interval(1, 3)
+      res.srcPos(2) must_== Interval(3, 4)
+      res.srcPos(3) must_== Interval(4, 5)
+      res.srcPos(4) must_== Interval(5, 6)
+      res.srcPos(5) must_== Interval(6, 6)
+      res.srcPos(6) must_== Interval(6, 7)
+      res.srcPos(1, 4) must_== Interval(1, 5)
+      res.srcPos(3, 6) must_== Interval(4, 6)
+      res.srcPos("1d2".r.findFirstMatchIn(res.current).get) must_== Interval(1, 5)
+      res.srcPos("2f3".r.findFirstMatchIn(res.current).get) must_== Interval(4, 6)
+    }
   }
 
   "TrackString: Subst#carved(Subst)" should {
