@@ -65,7 +65,7 @@ object DoubleQuoteNormalizer extends Cleaner(regexReplaceAll("[“”＂″‶�
 /** Combines SingleQuoteNormalizer and DoubleQuoteNormalizer */
 object QuoteNormalizer extends Cleaner(SingleQuoteNormalizer | DoubleQuoteNormalizer)
 
-/** Pseudo ASCII folding, remove diacritical marks (and some common variants) on characters. */
+/** Pseudo ASCII folding, remove diacritical marks (and some common variants and ligatures) on characters. */
 object DiacriticCleaner extends Cleaner(DiacriticFolder.clean _, { in =>
   import DiacriticFolder._
   in.replaceAll(unicodeMarked, "$1")   // remove diacritics already in NFD

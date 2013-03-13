@@ -202,7 +202,7 @@ Some `Cleaners` are already provided:
 - `WhiteSpaceCleaner` transforms `\s+` to a single space and `AllWhiteSpaceCleaner` does the same with all Unicode spaces and line breaks
 - `CamelCaseSplitFilter` splits camel case `oneTwo` into `one Two` (but not `iOS` – requires lower-UPPER-lower) 
 - `SingleQuoteNormalizer` normalizes Unicode single quotes like `‘’′` to ASCII straight quote `'`; `DoubleQuoteNormalizer` does the same with double quotes and `QuoteNormalizer` with both
-- `DiacriticCleaner` converts accented and combined letters to ASCII: `é` becomes `e`, `œ` becomes `oe`, etc.
+- `DiacriticCleaner` converts most common accented and combined letters to ASCII: `é` to `e`, `œ` to `oe`, `ﬀ` to `ff`, etc.
 - `FullwidthNormalizer` normalizes CJK Fullwidth characters to their ASCII equivalents
 
 You can implement you own `Cleaner`. If it can be a regex replacement, it is recommended to use `Cleaner.regexReplaceAll` or `Cleaner.regexReplaceFirst`.
@@ -276,4 +276,4 @@ REL is released under the [MIT License](http://www.opensource.org/licenses/MIT)
 
 ## Authors
 
-REL was developed by [Adrien Lavoillotte](http://instanceof.me/) ([@streetpc](https://github.com/streetpc)), Julien Martin and Guillaume Vauvert for project [Splayce](http://splayce.com) at [Imaginatio](http://imaginatio.fr)
+REL was developed by [Adrien Lavoillotte](http://instanceof.me/) ([@streetpc](https://github.com/streetpc)), Julien Martin and Guillaume Vauvert ([@gvauvert](https://github.com/gvauvert)) for project [Splayce](http://splayce.com) at [Imaginatio](http://imaginatio.fr)
