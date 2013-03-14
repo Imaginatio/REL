@@ -159,6 +159,11 @@ class CleanerSpec extends Specification {
       FullwidthNormalizer("￠￡￥￦")
         .must_==("¢£¥₩")
     }
+    "add no replacement to TrackString" in {
+      val ts = FullwidthNormalizer(TrackString("\uFF01\uFF5Eaa￠￡bb￤￥cc￦dd$ee"))
+      ts.toString must_== "!~aa¢£bb￤¥cc₩dd$ee"
+      ts.repl     must_== Repl()
+    }
   }
 
   "CamelCase Split Filter" should {
