@@ -172,9 +172,9 @@ object TrackString {
     val result = new StringBuilder
     for {
       (c, pos) <- s.zipWithIndex
-      val tco = replacer(c)
-      val tc  = tco.getOrElse(c.toString)
-      val lag = tc.length != 1
+      tco = replacer(c)
+      tc  = tco.getOrElse(c.toString)
+      lag = tc.length != 1
     } {
       if (lag) {
         repl = repl.+(pos, 1, tc.length)

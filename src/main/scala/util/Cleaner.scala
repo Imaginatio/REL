@@ -32,8 +32,8 @@ extends Function1[String, String] {
   def compose(previous: Cleaner) = this(previous)
 
   // Unix/pipe-like syntax: chain = First | Second | Third
-  def |(then: Cleaner) = Cleaner(clean andThen then.clean, cleanTrack andThen then.cleanTrack)
-  def andThen(then: Cleaner) = this | then
+  def |(next: Cleaner) = Cleaner(clean andThen next.clean, cleanTrack andThen next.cleanTrack)
+  def andThen(next: Cleaner) = this | next
 
 }
 

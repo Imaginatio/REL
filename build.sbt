@@ -15,7 +15,13 @@ libraryDependencies <<= (scalaVersion, libraryDependencies) { (sv, deps) =>
 	})
 }
 
-scalacOptions ++= Seq("-deprecation", "-unchecked", "-encoding", "UTF8")
+scalacOptions <<= scalaVersion map { v: String =>
+  val default = Seq("-deprecation", "-unchecked", "-encoding", "UTF8")
+  if (v.startsWith("2.9."))
+    default
+  else
+    default ++ Seq("-feature", "-language:postfixOps", "-language:implicitConversions")
+}
 
 publishTo <<= version { (v: String) =>
   val url = "http://nexus.imaginatio.fr/content/repositories/"

@@ -17,10 +17,10 @@ class MatchGroups(m: Match, accept: (Int, String) => Boolean) {
   lazy val toList: List[(String, Option[String])] = {
     val seq = for {
       i <- 0 until m.groupCount;
-      val j = i + 1
-      val k = if (i < m.groupNames.size) m.groupNames(i) else ""
+      j = i + 1
+      k = if (i < m.groupNames.size) m.groupNames(i) else ""
       if (accept(j, k))
-      val v = Option(m.group(i + 1))
+      v = Option(m.group(i + 1))
     } yield (k, v)
     seq toList
   }
