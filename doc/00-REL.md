@@ -27,6 +27,16 @@ These values are `RE` objects (also named _terms_ or _trees_/_subtrees_), which 
 
 The embedded [Date regexes](https://github.com/Imaginatio/REL/blob/master/src/main/scala/matchers/Date.scala) and [extractors](https://github.com/Imaginatio/REL/blob/master/src/main/scala/matchers/DateExtractor.scala) will give you more complete examples, matching several date formats at once with little prior knowledge.
 
+
+## Features
+
+- A familiar, regex-like [syntax](http://imaginatio.github.io/REL/DSL+Syntax.html)
+- Powerful [extractors](http://imaginatio.github.io/REL/Extractors.html) for scala Pattern Matching
+- Bundled [matchers](http://imaginatio.github.io/REL/Matchers.html) for frequently-used utilities like dates
+- Tree-rewriting utilities and [flavors](http://imaginatio.github.io/REL/Tree+rewriting+&+Flavors.html) to use your regexes in other languages
+- Bundled [cleaners](http://imaginatio.github.io/REL/Cleaners.html) to clean your input and further simplify your regexes
+
+
 ## Usage and downloads
 
 - download the [source from github](https://github.com/Imaginatio/REL) and build the library with SBT
