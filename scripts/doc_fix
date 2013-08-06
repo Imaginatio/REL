@@ -1,0 +1,47 @@
+#!/usr/bin/env scala
+// !#
+
+
+import scala.io.Source
+import scala.sys.process.Process
+import scala.util.matching.Regex.Match
+
+
+val MD_TABLE = """<p[^>]*+>([^\r\n]++\r?\n(?:[\-—]++(?:\|[\-—]++)++)\r?\n[\s\S]+?)</p>""".r
+
+def markdown(bin: String*)(input: String): String = {
+  import scala.language.postfixOps
+  Process(bin) #< new java.io.ByteArrayInputStream(input.getBytes) !!
+}
+
+def mdReplace(bin: String)(m: Match): String = {
+  val input = m.group(1)
+    .replace("—", "--") // restore "--" from '—'
+    //.replace("\\", "\\\\") // protect backslashes
+    .replaceAll("""(?<![-\s])\|(?![-\s])""", "│") // protect pipes that are not cell separators
+  val output = markdown(bin.split(" "): _*)(input)
+  val escaped = output
+    .replace("\\", "\\\\") // protect backslashes
+    .replace("$", "\\$") // prevent capturing group replacement attempt
+    .replace("│", "|") // restore pipes
+  escaped
+}
+
+def replaceTable(md: String, file: String) {
+  System.err.println("Processing tables in " + file)
+
+  val src = Source fromFile file
+  val content = src.mkString
+  src.close()
+
+  val out = new java.io.FileOutputStream(file)
+  out.write(MD_TABLE.replaceAllIn(content, mdReplace(md)_).getBytes)
+  out.close()
+}
+
+args match {
+  case Array("-m", md, file, _*) => replaceTable(md, file)
+  case _ => System.err.println(
+    "Usage: ./doc.scala -m <markdown-binary> file.html\n" +
+    "Will replace remaining MultiMarkdown/GFM-style tables in HTML file")
+}
