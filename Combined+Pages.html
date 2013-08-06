@@ -40,8 +40,10 @@
       <h4 class="toctitle">Contents</h4>
       <div class="tocbody">
       <div><a href="#REL">REL</a></div><ol class="toc"> <li><div><a href="#DSL+Syntax">DSL Syntax</a></div></li><li><div><a href="#Extractors">Extractors</a></div></li><li><div><a href="#Matchers">Matchers</a></div></li><li><div><a href="#Tree+rewriting+%26+Flavors">Tree rewriting &amp; Flavors</a></div></li><li><div><a href="#Cleaners">Cleaners</a></div></li><li><div><a href="#Limitations+%26+Known+Issues">Limitations &amp; Known Issues</a></div></li> </ol></div></div><h1 id="REL">REL</h1><p><strong>A Regular Expression composition Library</strong>
-</p><p>REL is a small utility Scala library for people dealing with complex, modular regular expressions. It defines a DSL with most of the operators you already know and love. This allows you to isolate portions of your regex for easier testing and reuse.
-</p><p>Consider the following YYYY-MM-DD date regex: <code>^(?:19|20)\d\d([- /.])(?:0[1-9]|1[012])\1(?:0[1-9]|[12]\d|3[01])$</code>. It is a bit more readable and reusable expressed like this:
+</p><p>REL is a Scala library for people dealing with complex, modular regular expressions. It defines a DSL with most of the operators you already know and love. This allows you to isolate portions of your regex for easier testing and reuse.
+</p><p>Consider the following YYYY-MM-DD date regex: <code>^(?:19|20)\d\d([- /.])(?:0[1-9]|1[012])\1(?:0[1-9]|[12]\d|3[01])$</code>  
+<br/>
+It is a bit more readable and reusable expressed like this:
 </p><pre><code class="prettyprint lang-scala">import fr.splayce.rel._
 import Implicits._
 
@@ -53,7 +55,12 @@ val dateYMD = ^ ~ year  ~ sep ~ month ~ !sep ~ day  ~ $
 val dateMDY = ^ ~ month ~ sep ~ day   ~ !sep ~ year ~ $
 </code></pre><p>These values are <code>RE</code> objects (also named <em>terms</em> or <em>trees</em>/<em>subtrees</em>), which can be converted to <code>scala.util.matching.Regex</code> instances either implicitly (by importing <code>rel.Implicits._</code>) or explicitly (via the <code>.r</code> method).
 </p><p>The embedded <a  href="https://github.com/Imaginatio/REL/blob/master/src/main/scala/matchers/Date.scala">Date regexes</a> and <a  href="https://github.com/Imaginatio/REL/blob/master/src/main/scala/matchers/DateExtractor.scala">extractors</a> will give you more complete examples, matching several date formats at once with little prior knowledge.
-</p><h2 id="Usage+and+downloads">Usage and downloads</h2><ul><li>download the <a  href="https://github.com/Imaginatio/REL">source from github</a> and build the library with SBT
+</p><h2 id="Features">Features</h2><ul><li>A familiar, regex-like <a  href="http://imaginatio.github.io/REL/DSL+Syntax.html">syntax</a>
+</li><li>Powerful <a  href="http://imaginatio.github.io/REL/Extractors.html">extractors</a> for scala Pattern Matching
+</li><li>Bundled <a  href="http://imaginatio.github.io/REL/Matchers.html">matchers</a> for frequently-used utilities like dates
+</li><li>Tree-rewriting utilities and <a  href="http://imaginatio.github.io/REL/Tree+rewriting+&amp;+Flavors.html">flavors</a> to use your regexes in other languages
+</li><li>Bundled <a  href="http://imaginatio.github.io/REL/Cleaners.html">cleaners</a> to clean your input and further simplify your regexes
+</li></ul><h2 id="Usage+and+downloads">Usage and downloads</h2><ul><li>download the <a  href="https://github.com/Imaginatio/REL">source from github</a> and build the library with SBT
 </li><li>download the <a  href="https://github.com/Imaginatio/Maven-repository/tree/master/fr/splayce/">latest binary release</a>
 </li><li>use <a  href="https://github.com/Imaginatio/Maven-repository/">our public Maven repository</a>
 </li><li>check out the <a  href="http://imaginatio.github.io/REL/api/">API reference</a>
