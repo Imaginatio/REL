@@ -1,0 +1,220 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+        <head>
+          <title>fr.splayce.rel.cleaners</title>
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link type="text/css" media="screen" rel="stylesheet" href="../../../../lib/template.css" />
+      <script type="text/javascript" src="../../../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../../lib/tools.tooltip.js"></script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../../../lib/package_big.png" />
+        <p id="owner"><a name="fr" class="extype" href="../../../package.html">fr</a>.<a name="fr.splayce" class="extype" href="../../package.html">splayce</a>.<a name="fr.splayce.rel" class="extype" href="../package.html">rel</a></p>
+        <h1>cleaners</h1>
+      </div>
+
+      <h4 class="signature" id="signature">
+      <span class="kind">package</span>
+      <span class="symbol"> 
+        <span class="name">cleaners</span>
+        
+        
+      </span>
+      </h4>
+      
+          <div class="fullcommenttop" id="comment"></div>
+        
+
+      <div id="template">
+
+        <div id="mbrsel">
+          <div id="textfilter"><span class="pre"></span><span class="input"><input accesskey="/" type="text" /></span><span class="post"></span></div>
+          
+          
+          <div id="visbl">
+              <span class="filtertype">Visibility</span>
+              <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+            </div>
+        </div>
+
+        
+
+        
+        
+        
+
+        <div class="values members" id="values">
+              <h3>Value Members</h3>
+              <ol><li visbl="pub" name="fr.splayce.rel.cleaners.AllWhiteSpaceCleaner" data-isabs="false">
+      <a id="AllWhiteSpaceCleaner:AllWhiteSpaceCleaner"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="AllWhiteSpaceCleaner$.html"><span class="name">AllWhiteSpaceCleaner</span></a>
+        
+        <span class="result"> extends Cleaner</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Replace multiple instances of all Unicode whitespaces by a single space.</p>
+    </li><li visbl="pub" name="fr.splayce.rel.cleaners.CamelCaseSplitFilter" data-isabs="false">
+      <a id="CamelCaseSplitFilter:CamelCaseSplitFilter"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="CamelCaseSplitFilter$.html"><span class="name">CamelCaseSplitFilter</span></a>
+        
+        <span class="result"> extends Cleaner</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Split CamelCase words.</p>
+    </li><li visbl="pub" name="fr.splayce.rel.cleaners.DiacriticCleaner" data-isabs="false">
+      <a id="DiacriticCleaner:DiacriticCleaner"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="DiacriticCleaner$.html"><span class="name">DiacriticCleaner</span></a>
+        
+        <span class="result"> extends Cleaner</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Pseudo ASCII folding, remove diacritical marks (and some common variants and ligatures) on characters.</p>
+    </li><li visbl="pub" name="fr.splayce.rel.cleaners.DiacriticFolder" data-isabs="false">
+      <a id="DiacriticFolder:DiacriticFolder"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="DiacriticFolder$.html"><span class="name">DiacriticFolder</span></a>
+        
+        <span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.cleaners.DoubleQuoteNormalizer" data-isabs="false">
+      <a id="DoubleQuoteNormalizer:DoubleQuoteNormalizer"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="DoubleQuoteNormalizer$.html"><span class="name">DoubleQuoteNormalizer</span></a>
+        
+        <span class="result"> extends Cleaner</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Normalize frequent Unicode double quotes to ASCII quotation mark <code>U+0022</code> / <code>&quot;</code>.</p>
+    </li><li visbl="pub" name="fr.splayce.rel.cleaners.FullwidthNormalizer" data-isabs="false">
+      <a id="FullwidthNormalizer:FullwidthNormalizer"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="FullwidthNormalizer$.html"><span class="name">FullwidthNormalizer</span></a>
+        
+        <span class="result"> extends Cleaner</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Normalize CJK Fullwidth characters to their ASCII equivalents.</p>
+    </li><li visbl="pub" name="fr.splayce.rel.cleaners.IdentityCleaner" data-isabs="false">
+      <a id="IdentityCleaner:IdentityCleaner"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="IdentityCleaner$.html"><span class="name">IdentityCleaner</span></a>
+        
+        <span class="result"> extends Cleaner</span>
+      </span>
+      </h4>
+      <p class="comment cmt">No-op cleaner</p>
+    </li><li visbl="pub" name="fr.splayce.rel.cleaners.LineSeparatorNormalizer" data-isabs="false">
+      <a id="LineSeparatorNormalizer:LineSeparatorNormalizer"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="LineSeparatorNormalizer$.html"><span class="name">LineSeparatorNormalizer</span></a>
+        
+        <span class="result"> extends Cleaner</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Normalize all Unicode line breaks and vertical tabs to ASCII new line <code>U+000A</code> / <code>\n</code>.</p>
+    </li><li visbl="pub" name="fr.splayce.rel.cleaners.LowerCaseFilter" data-isabs="false">
+      <a id="LowerCaseFilter:LowerCaseFilter"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="LowerCaseFilter$.html"><span class="name">LowerCaseFilter</span></a>
+        
+        <span class="result"> extends Cleaner</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Transform text in lowercase</p>
+    </li><li visbl="pub" name="fr.splayce.rel.cleaners.QuoteNormalizer" data-isabs="false">
+      <a id="QuoteNormalizer:QuoteNormalizer"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="QuoteNormalizer$.html"><span class="name">QuoteNormalizer</span></a>
+        
+        <span class="result"> extends Cleaner</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Combines SingleQuoteNormalizer and DoubleQuoteNormalizer</p>
+    </li><li visbl="pub" name="fr.splayce.rel.cleaners.SingleQuoteNormalizer" data-isabs="false">
+      <a id="SingleQuoteNormalizer:SingleQuoteNormalizer"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="SingleQuoteNormalizer$.html"><span class="name">SingleQuoteNormalizer</span></a>
+        
+        <span class="result"> extends Cleaner</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Normalize frequent Unicode single quotes / apostrophes to ASCII apostrophe <code>U+0027</code> / <code>'</code>.</p>
+    </li><li visbl="pub" name="fr.splayce.rel.cleaners.TrimFilter" data-isabs="false">
+      <a id="TrimFilter:TrimFilter"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="TrimFilter$.html"><span class="name">TrimFilter</span></a>
+        
+        <span class="result"> extends Cleaner</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Trim text</p>
+    </li><li visbl="pub" name="fr.splayce.rel.cleaners.WhiteSpaceCleaner" data-isabs="false">
+      <a id="WhiteSpaceCleaner:WhiteSpaceCleaner"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="WhiteSpaceCleaner$.html"><span class="name">WhiteSpaceCleaner</span></a>
+        
+        <span class="result"> extends Cleaner</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Replace multiple instances of regular whitespaces <code>\s+</code> by a single space.</p>
+    </li><li visbl="pub" name="fr.splayce.rel.cleaners.WhiteSpaceNormalizer" data-isabs="false">
+      <a id="WhiteSpaceNormalizer:WhiteSpaceNormalizer"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="WhiteSpaceNormalizer$.html"><span class="name">WhiteSpaceNormalizer</span></a>
+        
+        <span class="result"> extends Cleaner</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Normalize all Unicode spaces and horizontal tabs to ASCII spaces <code>U+0020</code>.</p>
+    </li></ol>
+            </div>
+
+        
+
+        
+
+      </div>
+      
+      <div id="tooltip"></div>
+      
+    </body>
+      </html>

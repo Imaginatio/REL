@@ -1,0 +1,98 @@
+<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html>
+      <head>
+        <title>REL — Tree rewriting &amp; Flavors</title>
+        <link type="text/css" media="screen, projection" rel="stylesheet" href="css/blueprint/screen.css"></link>
+        <link type="text/css" media="screen and (min-device-width: 800px), projection" rel="stylesheet" href="css/blueprint/grid.css"></link>
+        <link type="text/css" media="print" rel="stylesheet" href="css/blueprint/print.css"></link> 
+        <!--[if lt IE 8]>
+          <link rel="stylesheet" href="css/blueprint/ie.css" type="text/css" media="screen, projection"/>
+        <![endif]-->
+        <link type="text/css" media="screen, projection" rel="stylesheet" href="css/pamflet.css"></link>
+        <link type="text/css" media="print" rel="stylesheet" href="css/pamflet-print.css"></link>
+        <link type="text/css" media="screen and (min-device-width: 800px), projection" rel="stylesheet" href="css/pamflet-grid.css"></link>
+        <link type="text/css" media="screen, projection" rel="stylesheet" href="css/custom.css"></link>
+        <script src="js/jquery-1.6.2.min.js"></script>
+        <script src="js/jquery.collapse.js"></script>
+        <script src="js/pamflet.js"></script>
+        <script type="text/javascript" src="js/prettify/prettify.js"></script><script type="text/javascript" src="js/prettify/lang-scala.js"></script><link type="text/css" rel="stylesheet" href="css/prettify.css"></link><script type="text/javascript"><!--
+        window.onload=function() { prettyPrint(); };
+      --></script>
+        <meta charset="utf-8"></meta>
+        <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+        
+      </head>
+      <body>
+        <a class="page prev nav" href="Matchers.html">
+            <span class="space">&nbsp;</span>
+            <span class="flip">❧</span>
+          </a><a class="page next nav" href="Cleaners.html">
+            <span class="space">&nbsp;</span>
+            <span>❧</span>
+          </a>
+        <div class="container">
+          <div class="span-16 prepend-1 append-1">
+            <div class="top nav span-16 title">
+              <span>REL</span> — Tree rewriting &amp; Flavors
+            </div>
+          </div>
+          <div class="span-16 prepend-1 append-1 contents">
+            <h1 id="Tree+rewriting+%26+Flavors">Tree rewriting &amp; Flavors</h1><p>This chapter shows you how to recursively rewrite a REL expression, and how to use <code>Flavor</code>s to express your regex on other flavors/languages than Scala/Java.
+</p><h2 id="Subtree+rewriting">Subtree rewriting</h2><p>An advantage to having a manipulable expression tree, other than reusing components, is that you can transform them as you please.
+</p><p>REL offers a way to do such manipulation quite simply using Scala’s powerful pattern matching. By passing a <code>Rewriter</code> to a <code>RE</code> object’s <code>map</code> method, you can recursively rewrite this object’s subtree. A <code>Rewriter</code> is actually a <code>PartialFunction[RE, RE]</code>.
+</p><p>For example, we have a regex matching and capturing a <a  href="http://en.wikipedia.org/wiki/UUID">UUID</a> in its canonical form (lowercase hexadecimal, 8-4-4-4-12 digits). It is then used in a more complex expression as a capturing group. 
+</p><pre><code class="prettyprint lang-scala">val s = RE(&quot;-&quot;)
+val h = RE(&quot;[0-9a-f]&quot;)
+val uuid = h{8} - s - h{4} - s - h{4} - s - h{4} - s - h{12}
+val complexExpression = /* … */ a ~ (uuid \ &quot;uuid1&quot;) ~
+    b ~ (uuid \ &quot;uuid2&quot;) ~ c /* … */
+</code></pre><p>Say we want to match a <code>complexExpression</code> elsewhere, <em>without capturing the uuid</em>. We can just transform capturing our capturing <code>&quot;uuid&quot;</code> groups into non-capturing groups:
+</p><pre><code class="prettyprint lang-scala">val toOther: Rewriter = {
+  case Group(_, uuid, _) =&gt; uuid.ncg
+}
+val other = complexExpression map toOther
+</code></pre><p>Now, say we want uppercase hexadecimal in this expression, <code>h</code> is being also used in other places than <code>uuid</code>. We can complete our <code>Rewriter</code>:
+</p><pre><code class="prettyprint lang-scala">val H = RE(&quot;[0-9A-F]&quot;)
+val toOther: Rewriter = {
+  case `h` =&gt; H
+  case Group(_, uuid, _) =&gt; uuid.ncg
+}
+val other = complexExpression map toOther
+</code></pre><h2 id="Flavors">Flavors</h2><p>Other languages and tools have <a  href="http://www.regular-expressions.info/refflavors.html">other regex flavors</a>, with (sometimes subtle) differences in implementation and additional or lacking features (with respect to Java’s regex flavor). If we want to use our regexes in other flavors, we can apply some transformation to obtain compatible regexes (up to a point, the limit being unimplemented, unreplicable features).
+</p><ul><li>For some differences, a simple transformation will suffice. For instance, <a  href="http://www.regular-expressions.info/dotnet.html">.NET’s regex flavor</a> considers that <code>\w</code> should match all letters, including diacritics (accented letters). Thus, <code>DotNETFlavor</code> will transform <code>\w</code>s (when used with <code>μ</code>/<code>Word</code>) into <code>[a-zA-Z0-9_]</code> to avoid unwanted surprises.
+</li><li>For some lacking features, an exact equivalent exists. Possessive quantifiers are not implemented in .NET, but it supports atomic grouping, and a possessive quantifier is no more than an atomic grouping of a greedy quantifier. <code>DotNETFlavor</code> therefore changes <code>a++</code> into the equivalent expression <code>(?&gt;a+)</code>.
+</li><li>Other lacking feature can be emulated. <a  href="http://www.regular-expressions.info/javascript.html">JavaScript’s regex flavor</a> does not support atomic grouping any more than possessive quantifiers. But atomic grouping may be emulated by capturing the expression in a look-ahead, then using an immediate back-reference to consume it without the possibility of backtracking. So <code>JavaScriptFlavor</code> mimics <code>a++</code> (or <code>(?&gt;a+)</code>) with <code>(?=(a+))\1</code>. It is a stretch, since it add a possibly undesired capturing group, but it’s still better than no support.
+</li><li>Some lacking features unfortunately cannot be emulated. For instance, JavaScript does not support look-behind at all. There is no way to emulate this support, so <code>JavaScriptFlavor</code> will throw an <code>IllegalArgumentException</code> when you try to convert an expression containing a look-behind.
+</li><li>Some additional features are implemented at REL level and can be used. Java priori to version 7 does not support inline naming of capturing groups, as .NET does. The <code>DotNETFlavor</code> (as well as the <code>Java7Flavor</code>) inlines the group names for capture (<code>(?&lt;name&gt;expr)</code>) and reference (<code>\k&lt;name&gt;</code>). 
+</li></ul><p><code>Flavor</code>s expose two main methods: <code>.express(re: RE)</code> and <code>.translate(re: RE)</code>. The first one returns a <code>Tuple2[String, List[String]]</code>, whose first element is the translated regex string and whose second is a list of the group names (in order of appearance) allowing you to perform a mapping to capturing group indexes (like Scala does) if needed. The second method only performs the translation of a <code>RE</code> term into another.
+</p><p>The following flavors are bundled with REL:
+</p><ul><li><a  href="http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html">Java6</a>, <a  href="http://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html">Java7</a>
+</li><li><a  href="http://www.regular-expressions.info/dotnet.html">.NET</a>
+</li><li><a  href="http://www.regular-expressions.info/javascript.html">JavaScript</a>
+</li><li><a  href="http://www.regular-expressions.info/pcre.html">PCRE</a> (C, PHP, Ruby 1.9 / <a  href="http://www.geocities.jp/kosako3/oniguruma/">Oniguruma</a>…)
+</li><li><a  href="http://www.regular-expressions.info/ruby.html">Legacy Ruby</a> (Ruby 1.8, <a  href="http://www.regular-expressions.info/unicode8bit.html">does not support any Unicode</a>)
+</li></ul><p>For example, to express a regex in the .NET regex flavor:
+</p><pre><code class="prettyprint lang-scala">val myRegex = ^^ - (α.++ \ &quot;firstWord&quot;)
+DotNETFlavor.translate(myRegex) // approximately* ^^ - (?&gt;(α.+) \ &quot;firstWord&quot;)
+DotNETFlavor.express(myRegex)._1 === &quot;\A(?&lt;firstWord&gt;(?&gt;[a-zA-Z]+))&quot;
+DotNETFlavor.express(myRegex)._2.toString === &quot;List(firstWord)&quot;
+</code></pre><p>* approximately because the named capturing group will also have an inline naming strategy (for which there is no short DSL syntax, thus skipped here for the sake of simplicity)
+</p><p>But Flavors are not limited to other regex implementations. You can define your own for various uses, e.g.:
+</p><ul><li>maintaining an easily readable/maintainable tree in your code, injecting more capturing before runtime
+</li><li>debugging existing regexes without altering the original <code>RE</code> tree
+</li><li>extending pre-existing/vendor regexes
+</li><li>reusing the same base regex in multiple contexts requiring small changes</li></ul><div class="bottom nav">
+                        <em>Next Page</em>
+                        <span class="arrow">❧</span>
+                        <a href="Cleaners.html"> Cleaners </a>
+                      </div><div class="tocwrapper show">
+      <a class="tochead nav" style="display: none" href="#toc">❦</a>
+      <a name="toc"></a>
+      <h4 class="toctitle">Contents</h4>
+      <div class="tocbody">
+      <div><a href="index.html">REL</a></div><ol class="toc"> <li><div><a href="DSL+Syntax.html">DSL Syntax</a></div></li><li><div><a href="Extractors.html">Extractors</a></div></li><li><div><a href="Matchers.html">Matchers</a></div></li><li><div class="current">Tree rewriting &amp; Flavors</div></li><li><div><a href="Cleaners.html">Cleaners</a></div></li><li><div><a href="Limitations+%26+Known+Issues.html">Limitations &amp; Known Issues</a></div></li><li class="generated"><div><a href="Contents+in+Depth.html">Contents in Depth</a></div></li><li class="generated"><div><a href="Combined+Pages.html">Combined Pages</a></div></li> </ol></div></div>
+          </div>
+        </div>
+        
+      </body>
+    </html>

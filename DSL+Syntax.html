@@ -1,0 +1,410 @@
+<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html>
+      <head>
+        <title>REL — DSL Syntax</title>
+        <link type="text/css" media="screen, projection" rel="stylesheet" href="css/blueprint/screen.css"></link>
+        <link type="text/css" media="screen and (min-device-width: 800px), projection" rel="stylesheet" href="css/blueprint/grid.css"></link>
+        <link type="text/css" media="print" rel="stylesheet" href="css/blueprint/print.css"></link> 
+        <!--[if lt IE 8]>
+          <link rel="stylesheet" href="css/blueprint/ie.css" type="text/css" media="screen, projection"/>
+        <![endif]-->
+        <link type="text/css" media="screen, projection" rel="stylesheet" href="css/pamflet.css"></link>
+        <link type="text/css" media="print" rel="stylesheet" href="css/pamflet-print.css"></link>
+        <link type="text/css" media="screen and (min-device-width: 800px), projection" rel="stylesheet" href="css/pamflet-grid.css"></link>
+        <link type="text/css" media="screen, projection" rel="stylesheet" href="css/custom.css"></link>
+        <script src="js/jquery-1.6.2.min.js"></script>
+        <script src="js/jquery.collapse.js"></script>
+        <script src="js/pamflet.js"></script>
+        <script type="text/javascript" src="js/prettify/prettify.js"></script><script type="text/javascript" src="js/prettify/lang-scala.js"></script><link type="text/css" rel="stylesheet" href="css/prettify.css"></link><script type="text/javascript"><!--
+        window.onload=function() { prettyPrint(); };
+      --></script>
+        <meta charset="utf-8"></meta>
+        <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+        
+      </head>
+      <body>
+        <a class="page prev nav" href="index.html">
+            <span class="space">&nbsp;</span>
+            <span class="flip">❧</span>
+          </a><a class="page next nav" href="Extractors.html">
+            <span class="space">&nbsp;</span>
+            <span>❧</span>
+          </a>
+        <div class="container">
+          <div class="span-16 prepend-1 append-1">
+            <div class="top nav span-16 title">
+              <span>REL</span> — DSL Syntax
+            </div>
+          </div>
+          <div class="span-16 prepend-1 append-1 contents">
+            <h1 id="DSL+Syntax">DSL Syntax</h1><p>Some examples are noted <code>DSL expression</code> → <code>resulting regex</code>.  
+<br/>
+All assume:
+</p><pre><code class="prettyprint lang-scala">import fr.splayce.rel._
+import Implicits._
+val a = RE(&quot;aa&quot;)
+val b = RE(&quot;bb&quot;)
+</code></pre><h2 id="Operators">Operators</h2><h3 id="Binary+operators">Binary operators</h3><table>
+<colgroup>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+</colgroup>
+
+<thead>
+<tr>
+	<th style="text-align:left;">Operation</th>
+	<th style="text-align:left;">REL Syntax</th>
+	<th style="text-align:left;">RE Output</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td style="text-align:left;">Alternative</td>
+	<td style="text-align:left;"><code>a | b</code></td>
+	<td style="text-align:left;"><code>aa|bb</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;">Concatenation (protected)</td>
+	<td style="text-align:left;"><code>a ~ b</code></td>
+	<td style="text-align:left;"><code>(?:aa)(?:bb)</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;">Concatenation (unprotected)</td>
+	<td style="text-align:left;"><code>a - b</code></td>
+	<td style="text-align:left;"><code>aabb</code></td>
+</tr>
+</tbody>
+</table>
+
+<p>Generally speaking, you should start with protected concatenation. It is harder to read once serialized, but it is far safer from unwanted side-effects when reusing regex parts.
+</p><h3 id="Quantifiers+%2F+repeaters">Quantifiers / repeaters</h3><p>When used in the table below, the dot syntax <code>a.?</code> is recommended for clearer priority.
+</p><table>
+<colgroup>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+</colgroup>
+
+<thead>
+<tr>
+	<th style="text-align:left;">Quantifier</th>
+	<th style="text-align:left;"><a  href="http://www.regular-expressions.info/repeat.html#greedy">Greedy</a></th>
+	<th style="text-align:left;"><a  href="http://www.regular-expressions.info/repeat.html#lazy">Reluctant / Lazy</a></th>
+	<th style="text-align:left;"><a  href="http://www.regular-expressions.info/possessive.html">Possessive</a></th>
+	<th style="text-align:left;">Output for (greedy)</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td style="text-align:left;">Option</td>
+	<td style="text-align:left;"><code>a.?</code></td>
+	<td style="text-align:left;"><code>a.??</code></td>
+	<td style="text-align:left;"><code>a.?+</code></td>
+	<td style="text-align:left;"><code>(?:aa)?</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;">≥ 1</td>
+	<td style="text-align:left;"><code>a.+</code></td>
+	<td style="text-align:left;"><code>a.+?</code></td>
+	<td style="text-align:left;"><code>a.++</code></td>
+	<td style="text-align:left;"><code>(?:aa)+</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;">≥ 0</td>
+	<td style="text-align:left;"><code>a.*</code></td>
+	<td style="text-align:left;"><code>a.*?</code></td>
+	<td style="text-align:left;"><code>a.*+</code></td>
+	<td style="text-align:left;"><code>(?:aa)*</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;">At most</td>
+	<td style="text-align:left;"><code>a &lt; 3</code></td>
+	<td style="text-align:left;"><code>a.&lt;?(3)</code>*</td>
+	<td style="text-align:left;"><code>a &lt;+ 3</code></td>
+	<td style="text-align:left;"><code>(?:aa){0,3}</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;">At least</td>
+	<td style="text-align:left;"><code>a &gt; 3</code></td>
+	<td style="text-align:left;"><code>a &gt;? 3</code></td>
+	<td style="text-align:left;"><code>a &gt;+ 3</code></td>
+	<td style="text-align:left;"><code>(?:aa){3,}</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;">In range</td>
+	<td style="text-align:left;"><code>a(1, 3)</code>, <code>a{1 to 3}</code> or <code>a{1 -&gt; 3}</code></td>
+	<td style="text-align:left;"><code>a(1, 3, Reluctant)</code></td>
+	<td style="text-align:left;"><code>a(1, 3, Possessive)</code></td>
+	<td style="text-align:left;"><code>(?:aa){1,3}</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;">Exactly</td>
+	<td style="text-align:left;"><code>a{3}</code> or <code>a(3)</code></td>
+	<td style="text-align:left;"><em>N/A</em></td>
+	<td style="text-align:left;"><em>N/A</em></td>
+	<td style="text-align:left;"><code>(?:aa){3}</code></td>
+</tr>
+</tbody>
+</table>
+
+<p><em>* For reluctant at-most repeater, dotted form <code>a.&lt;?(3)</code> is mandatory, standalone <code>&lt;?</code> being syntactically significant in Scala (<code>XMLSTART</code>).</em>
+</p><h3 id="Look-around">Look-around</h3><table>
+<colgroup>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+</colgroup>
+
+<thead>
+<tr>
+	<th style="text-align:left;"> </th>
+	<th style="text-align:left;">Prefixed form</th>
+	<th style="text-align:left;"> Dotted form</th>
+	<th style="text-align:left;">Output</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td style="text-align:left;">Look-ahead</td>
+	<td style="text-align:left;"><code>?=(a)</code></td>
+	<td style="text-align:left;"><code>a.?=</code></td>
+	<td style="text-align:left;"><code>(?=aa)</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;">Look-behind</td>
+	<td style="text-align:left;"><code>?&lt;=(a)</code></td>
+	<td style="text-align:left;"><code>a.?&lt;=</code></td>
+	<td style="text-align:left;"><code>(?&lt;=aa)</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;">Negative look-ahead</td>
+	<td style="text-align:left;"><code>?!(a)</code></td>
+	<td style="text-align:left;"><code>a.?!</code></td>
+	<td style="text-align:left;"><code>(?!aa)</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;">Negative look-behind</td>
+	<td style="text-align:left;"><code>?&lt;!(a)</code></td>
+	<td style="text-align:left;"><code>a.?&lt;!</code></td>
+	<td style="text-align:left;"><code>(?&lt;!aa)</code></td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="Grouping">Grouping</h3><table>
+<colgroup>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+</colgroup>
+
+<thead>
+<tr>
+	<th style="text-align:left;">Type</th>
+	<th style="text-align:left;">REL Syntax</th>
+	<th style="text-align:left;">Output</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td style="text-align:left;">Named capturing</td>
+	<td style="text-align:left;"><code>a \ &quot;group_a&quot;</code></td>
+	<td style="text-align:left;"><code>(aa)</code>.</td>
+</tr>
+<tr>
+	<td style="text-align:left;">Unnamed capturing *</td>
+	<td style="text-align:left;"><code>a.g</code></td>
+	<td style="text-align:left;"><code>(aa)</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;">Back-reference</td>
+	<td style="text-align:left;"><code>g!</code></td>
+	<td style="text-align:left;"><code>\1</code>**</td>
+</tr>
+<tr>
+	<td style="text-align:left;">Non-capturing</td>
+	<td style="text-align:left;"><code>a.ncg</code> or <code>a.%</code></td>
+	<td style="text-align:left;"><code>(?:aa)</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;">Non-capturing, with flags</td>
+	<td style="text-align:left;"><code>a.ncg(&quot;i-d&quot;)</code> or <code>&quot;i-d&quot; ?: a</code></td>
+	<td style="text-align:left;"><code>(?i-d:aa)</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><a  href="http://www.regular-expressions.info/atomic.html">Atomic</a></td>
+	<td style="text-align:left;"><code>a.ag</code>, <code>?&gt;(a)</code> or <code>a.?&gt;</code></td>
+	<td style="text-align:left;"><code>(?&gt;aa)</code></td>
+</tr>
+</tbody>
+</table>
+
+<p><em>* A unique group name is generated internally.</em>  
+<br/>
+<em>** Back-reference on most recent (i.e. rightmost previous) group <code>g</code>. <code>val g = (a|b).g; g - a - !g</code> → <code>(aa|bb)aa\1</code></em>
+</p><p>In a named capturing group, the name <code>group_a</code> will be passed to the <a  href="http://www.scala-lang.org/api/current/index.html#scala.util.matching.Regex"><code>Regex</code></a> constructor, and queryable on corresponding <a  href="http://www.scala-lang.org/api/current/index.html#scala.util.matching.Regex$$Match"><code>Match</code></a>es. If you export the regex to a flavor that supports inline embedding of capturing group names (like Java 7 or .NET), the name will be included in the output: <code>(?&lt;group_a&gt;aa)</code>.
+</p><p>In non-capturing groups, REL tries not to uselessly wrap non-breaking entities — like single characters (<code>a</code>, <code>\u00F0</code>), character classes (<code>\w</code>, <code>[^a-z]</code>, <code>\p{Lu}</code>), other groups — in order to produce ever-so-slightly less unreadable output. Non-capturing groups with flags are combined when nested, giving priority to innermost flags: <code>a.ncg(&quot;-d&quot;).ncg(&quot;id&quot;)</code> → <code>(?i-d:aa)</code>.
+</p><h2 id="Constants">Constants</h2><p>A few “constants” (expression terms with no repetitions, capturing groups, or unprotected alternatives) are also predefined. Some of them have a UTF-8 Greek symbol alias for conciseness (import <code>rel.Symbols._</code> to use them), uppercase for negation. You can add your own by instancing case class <code>RECst(expr)</code>.
+</p><table>
+<colgroup>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+</colgroup>
+
+<thead>
+<tr>
+	<th style="text-align:left;">Object name</th>
+	<th style="text-align:left;">Symbol</th>
+	<th style="text-align:left;">Output / Matches</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td style="text-align:left;"><code>Epsilon</code></td>
+	<td style="text-align:left;"><code>ε</code></td>
+	<td style="text-align:left;">Empty string</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>Dot</code></td>
+	<td style="text-align:left;"><code>τ</code></td>
+	<td style="text-align:left;"><code>.</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>MLDot</code></td>
+	<td style="text-align:left;"><code>ττ</code></td>
+	<td style="text-align:left;"><code>[\s\S]</code> (will match any char, including line terminators, even when the <a  href="http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html#DOTALL"><code>DOTALL</code></a> or <a  href="http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html#MULTILINE"><code>MULTILINE</code></a> modes are disabled)</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>LineTerminator</code></td>
+	<td style="text-align:left;"><code>Τ</code>*</td>
+	<td style="text-align:left;"><code>(?:\r\n?|[\u000A-\u000C\u0085\u2028\u2029])</code> (<a  href="http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html#lt">line terminators</a>, PCRE/Perl’s <code>\R</code>)</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>AlphaLower</code></td>
+	<td style="text-align:left;"><em>none</em></td>
+	<td style="text-align:left;"><code>[a-z]</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>AlphaUpper</code></td>
+	<td style="text-align:left;"><em>none</em></td>
+	<td style="text-align:left;"><code>[A-Z]</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>Alpha</code></td>
+	<td style="text-align:left;"><code>α</code></td>
+	<td style="text-align:left;"><code>[a-zA-Z]</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>NotAlpha</code></td>
+	<td style="text-align:left;"><code>Α</code>*</td>
+	<td style="text-align:left;"><code>[^a-zA-Z]</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>Letter</code></td>
+	<td style="text-align:left;"><code>λ</code></td>
+	<td style="text-align:left;"><code>\p{L}</code> (unicode letters, including diacritics)</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>NotLetter</code></td>
+	<td style="text-align:left;"><code>Λ</code></td>
+	<td style="text-align:left;"><code>\P{L}</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>LetterLower</code></td>
+	<td style="text-align:left;"><em>none</em></td>
+	<td style="text-align:left;"><code>\p{Ll}</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>LetterUpper</code></td>
+	<td style="text-align:left;"><em>none</em></td>
+	<td style="text-align:left;"><code>\p{Lu}</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>Digit</code></td>
+	<td style="text-align:left;"><code>δ</code></td>
+	<td style="text-align:left;"><code>\d</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>NotDigit</code></td>
+	<td style="text-align:left;"><code>Δ</code></td>
+	<td style="text-align:left;"><code>\D</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>WhiteSpace</code></td>
+	<td style="text-align:left;"><code>σ</code></td>
+	<td style="text-align:left;"><code>\s</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>NotWhiteSpace</code></td>
+	<td style="text-align:left;"><code>Σ</code></td>
+	<td style="text-align:left;"><code>\S</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>Word</code></td>
+	<td style="text-align:left;"><code>μ</code></td>
+	<td style="text-align:left;"><code>\w</code> (<code>Alpha</code> or <code>_</code>)</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>NotWord</code></td>
+	<td style="text-align:left;"><code>Μ</code>*</td>
+	<td style="text-align:left;"><code>\W</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>WordBoundary</code></td>
+	<td style="text-align:left;"><code>ß</code></td>
+	<td style="text-align:left;"><code>\b</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>NotWordBoundary</code></td>
+	<td style="text-align:left;"><code>Β</code>*</td>
+	<td style="text-align:left;"><code>\B</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>LineBegin</code></td>
+	<td style="text-align:left;"><code>^</code></td>
+	<td style="text-align:left;"><code>^</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>LineEnd</code></td>
+	<td style="text-align:left;"><code>$</code></td>
+	<td style="text-align:left;"><code>$</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>InputBegin</code>  </td>
+	<td style="text-align:left;"><code>^^</code></td>
+	<td style="text-align:left;"><code>\A</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>InputEnd</code></td>
+	<td style="text-align:left;"><code>$$</code></td>
+	<td style="text-align:left;"><code>\z</code></td>
+</tr>
+</tbody>
+</table>
+
+<p><em>* Those are uppercase <code>α</code>/<code>ß</code>/<code>μ</code>/<code>τ</code>, not latin <code>A</code>/<code>B</code>/<code>M</code>/<code>T</code></em>
+</p><div class="bottom nav">
+                        <em>Next Page</em>
+                        <span class="arrow">❧</span>
+                        <a href="Extractors.html"> Extractors </a>
+                      </div><div class="tocwrapper show">
+      <a class="tochead nav" style="display: none" href="#toc">❦</a>
+      <a name="toc"></a>
+      <h4 class="toctitle">Contents</h4>
+      <div class="tocbody">
+      <div><a href="index.html">REL</a></div><ol class="toc"> <li><div class="current">DSL Syntax</div></li><li><div><a href="Extractors.html">Extractors</a></div></li><li><div><a href="Matchers.html">Matchers</a></div></li><li><div><a href="Tree+rewriting+%26+Flavors.html">Tree rewriting &amp; Flavors</a></div></li><li><div><a href="Cleaners.html">Cleaners</a></div></li><li><div><a href="Limitations+%26+Known+Issues.html">Limitations &amp; Known Issues</a></div></li><li class="generated"><div><a href="Contents+in+Depth.html">Contents in Depth</a></div></li><li class="generated"><div><a href="Combined+Pages.html">Combined Pages</a></div></li> </ol></div></div>
+          </div>
+        </div>
+        
+      </body>
+    </html>

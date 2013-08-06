@@ -1,0 +1,219 @@
+<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html>
+      <head>
+        <title>REL — Extractors</title>
+        <link type="text/css" media="screen, projection" rel="stylesheet" href="css/blueprint/screen.css"></link>
+        <link type="text/css" media="screen and (min-device-width: 800px), projection" rel="stylesheet" href="css/blueprint/grid.css"></link>
+        <link type="text/css" media="print" rel="stylesheet" href="css/blueprint/print.css"></link> 
+        <!--[if lt IE 8]>
+          <link rel="stylesheet" href="css/blueprint/ie.css" type="text/css" media="screen, projection"/>
+        <![endif]-->
+        <link type="text/css" media="screen, projection" rel="stylesheet" href="css/pamflet.css"></link>
+        <link type="text/css" media="print" rel="stylesheet" href="css/pamflet-print.css"></link>
+        <link type="text/css" media="screen and (min-device-width: 800px), projection" rel="stylesheet" href="css/pamflet-grid.css"></link>
+        <link type="text/css" media="screen, projection" rel="stylesheet" href="css/custom.css"></link>
+        <script src="js/jquery-1.6.2.min.js"></script>
+        <script src="js/jquery.collapse.js"></script>
+        <script src="js/pamflet.js"></script>
+        <script type="text/javascript" src="js/prettify/prettify.js"></script><script type="text/javascript" src="js/prettify/lang-scala.js"></script><link type="text/css" rel="stylesheet" href="css/prettify.css"></link><script type="text/javascript"><!--
+        window.onload=function() { prettyPrint(); };
+      --></script>
+        <meta charset="utf-8"></meta>
+        <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+        
+      </head>
+      <body>
+        <a class="page prev nav" href="DSL+Syntax.html">
+            <span class="space">&nbsp;</span>
+            <span class="flip">❧</span>
+          </a><a class="page next nav" href="Matchers.html">
+            <span class="space">&nbsp;</span>
+            <span>❧</span>
+          </a>
+        <div class="container">
+          <div class="span-16 prepend-1 append-1">
+            <div class="top nav span-16 title">
+              <span>REL</span> — Extractors
+            </div>
+          </div>
+          <div class="span-16 prepend-1 append-1 contents">
+            <h1 id="Extractors">Extractors</h1><p>Extractors are meant to help you extract information from text, using the regexes you made, especially by using the text matched in the capturing groups of you regex.
+</p><h2 id="Reminder+on+capturing+groups">Reminder on capturing groups</h2><p>Capturing groups will yield <code>String</code> object that may be empty (if the group was matched to an empty part) or <code>null</code> (if the group wasn’t matched). For instance, matching the string <code>&quot;A&quot;</code> against the regex <code>&quot;(A)(B?)(C)?&quot;</code> will yield values <code>&quot;A&quot;, &quot;&quot;, null</code>.
+</p><p>For example, say we want to extract information form the captured matches of the following regex:
+</p><pre><code class="prettyprint lang-scala">val abc = (&quot;.&quot; \ &quot;a&quot;) - (&quot;.&quot;.? \ &quot;b&quot;) - (&quot;.&quot; \ &quot;c&quot;).?
+</code></pre><p>An empty string won’t match and strings longer than 3 characters will match multiple times. Thus, for each match, the possible results are:
+</p><table>
+<colgroup>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+</colgroup>
+
+<thead>
+<tr>
+	<th style="text-align:left;">String</th>
+	<th style="text-align:left;"><code>a</code> (#1)</th>
+	<th style="text-align:left;"><code>b</code> (#2)</th>
+	<th style="text-align:left;"><code>c</code> (#3)</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td style="text-align:left;"><code>&quot;A&quot;</code></td>
+	<td style="text-align:left;"><code>&quot;A&quot;</code></td>
+	<td style="text-align:left;"><code>&quot;&quot;</code></td>
+	<td style="text-align:left;">null</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>&quot;AB&quot;</code></td>
+	<td style="text-align:left;"><code>&quot;A&quot;</code></td>
+	<td style="text-align:left;"><code>&quot;B&quot;</code></td>
+	<td style="text-align:left;">null</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>&quot;ABC&quot;</code></td>
+	<td style="text-align:left;"><code>&quot;A&quot;</code></td>
+	<td style="text-align:left;"><code>&quot;B&quot;</code></td>
+	<td style="text-align:left;"><code>&quot;C&quot;</code></td>
+</tr>
+</tbody>
+</table>
+
+<p>Also, Java &lt; 7 does not support named capturing groups, and Scala only emulates them, mapping a list of names given at the compilation of the Regex against the indexes of the capturing groups. Thus, it is risky to have multiple instances of the same group name. In practice, using <code>myMatch.group(&quot;myGroup&quot;)</code> seems to always refer to the last occurrence of the <code>myGroup</code>.
+</p><p>On the other hand, the <code>Match</code> object carries the full list of group names (in its eponymous <code>groupNames</code> val), and REL uses it to compute the group tree. Thus, you <em>can</em> reuse the same group name in a single expression.
+</p><h2 id="The+Extractor+trait">The Extractor trait</h2><p>The <code>Extractor</code> trait is mainly a function that takes in a <code>String</code> and gives an <code>Iterator</code> of the parametrized type, with utility methods for composing and pattern matching.
+</p><p>This <code>Extractor</code> trait works with a sub-extractor, which can be of two types:
+</p><ul><li>A <code>PartialFunction[Regex.Match, A]</code>, which is pattern matching-friendly 
+</li><li>A <code>PartialFunction[Regex.Match, Option[A]]</code>, which can allow a bit more flexibility and/or performance
+</li></ul><p><code>RE</code> expressions offer a utility <code>&lt;&lt;</code> method to which you can pass in sub-extractors of either types, getting an <code>Extractor[A]</code> that you can <code>apply</code> to <code>String</code>s to perform extraction.
+</p><h2 id="Basic+extractors">Basic extractors</h2><p>Some trivial sub-extractors are provided for convenience:
+</p><ul><li>The simplest extractor is <code>MatchedExtractor</code>, which only yields every matches as <code>String</code>s.
+</li><li><code>NthGroupExtractor</code> yields the content matched by the nth capturing group, with <code>n</code> defaulting to <code>1</code>.
+</li><li><code>NamedGroupExtractor</code> does the same with the group holding the specified name.
+</li></ul><p>Example:
+</p><pre><code class="prettyprint lang-scala">val extractABC = abc &lt;&lt; MatchedExtractor()
+extractABC(&quot;1234567890&quot;).toList === List(&quot;123&quot;, &quot;456&quot;, &quot;789&quot;, &quot;0&quot;)
+val extractB = abc &lt;&lt; NthGroupExtractor(2)
+extractB(&quot;1234567890&quot;).toList === List(&quot;2&quot;, &quot;5&quot;, &quot;8&quot;, &quot;&quot;)
+val extractC = abc &lt;&lt; NamedGroupExtractor(&quot;c&quot;)
+extractC(&quot;1234567890&quot;).toList === List(&quot;3&quot;, &quot;6&quot;, &quot;9&quot;, null)
+</code></pre><h2 id="MatchGroups+for+quick%2C+flat+Pattern+Matching">MatchGroups for quick, flat Pattern Matching</h2><p>If you want to do pattern matching on the list of strings matched by the capturing groups, you can use:
+</p><ul><li><code>MatchGroups(val1, val2, …)</code> where <code>valn</code> are matched <code>String</code>s that may be <code>null</code> or empty.
+</li><li><code>NotNull(opt1, Some(val2), …)</code> where <code>optn</code> are <code>Option[String]</code>: <code>Some(valn)</code> if nth group matched (even if empty), <code>None</code> otherwise.
+</li><li><code>NotNull.NamedMap(map)</code> where <code>map</code> will be a <code>Map[String, Option[String]]</code> with group names as keys.
+</li><li><code>NotNull.NamedPairs(pair1, (name2, opt2), …)</code> where each pair is a <code>Tuple2[String, Option[String]]</code> with the group name and optional value.
+</li><li><code>NotEmpty</code>, <code>NotEmpty.NamedMap</code> and <code>NotEmpty.NamedPairs</code> if you don’t care for empty matches: options will only be <code>Some(value)</code> if <code>value</code> is not an empty string.
+</li></ul><p>Extractor examples:
+</p><pre><code class="prettyprint lang-scala">import fr.splayce.rel.util.MatchGroups._
+val pf: MatchExtractor[String] = {
+  case NamedGroups(&quot;A&quot;, &quot;&quot;, null)                 =&gt; &quot;'A' only&quot;
+  case NotNull(Some(&quot;1&quot;), Some(&quot;&quot;), None)         =&gt; &quot;'1' only&quot;
+  case NotNull.NamedMap(m) if (m contains &quot;d&quot;)    =&gt; &quot;unreachable&quot;
+  case NotNull.NamedPairs(_, (&quot;b&quot;, Some(&quot;B&quot;)), _) =&gt; &quot;b has 'B'&quot;
+  case NotEmpty(Some(&quot;x&quot;), None, None)            =&gt; &quot;'x' only&quot;
+  case NotEmpty.NamedMap(m) if (m contains &quot;d&quot;)   =&gt; &quot;unreachable&quot;
+  case NotEmpty.NamedPairs(_, (&quot;b&quot;, Some(b)), _)  =&gt; &quot;b has: &quot; + b
+}
+val extract = re &lt;&lt; pf
+// extract(someString)
+</code></pre><h2 id="Reusable+extractors%3A+MatchGroup+hierarchies">Reusable extractors: MatchGroup hierarchies</h2><p>One of the incentive for using REL is to reuse regex parts in other regexes. So we also need a way to reuse the corresponding extractors, including nesting them in other extractors.
+</p><p>Since a REL term is a tree, it can compute the resulting capturing groups tree with the <code>matchGroup</code> val, containing a tree of <code>MatchGroup</code>s. The top group corresponds to the entire match: it is unnamed, contains the matched content and has the first-level capturing groups nested as subgroups. When applied to a <code>Match</code>, it returns a copy of the capturing groups tree with the content filled for each group that matched. Thus, you can use pattern matching with nested groups to extract any group at several levels of imbrication with little code.
+</p><p>For example, let’s say we want to match simple usernames that have the form <code>user@machine</code> where both part have only alphabetic characters. We can define the regex:
+</p><pre><code class="prettyprint lang-scala">val user     = α.+ \ &quot;user&quot;
+val at       = &quot;@&quot;
+val machine  = α.+ \ &quot;machine&quot;
+val username = (user - at - machine) \ &quot;username&quot;
+</code></pre><p>And make a simple extractor that yields a tuple of Strings:
+</p><pre><code class="prettyprint lang-scala">val userMatcher: PartialFunction[MatchGroup, (String, String)] = {
+  case MatchGroup(None, Some(_), List(              // $0
+      MatchGroup(Some(&quot;username&quot;), Some(_), List(   // $1
+        MatchGroup(Some(&quot;user&quot;),    Some(u), Nil),  // $2
+        MatchGroup(Some(&quot;machine&quot;), Some(m), Nil)   // $3
+      ))
+    )) =&gt; (u, m)
+}
+</code></pre><p>Extraction in a String can be done like this:
+</p><pre><code class="prettyprint lang-scala">import ByOptionExtractor._   // lift (and toPM later)
+val userExtractor = username &lt;&lt; lift(userMatcher)
+val users = userExtractor(&quot;me@dev, you@dev&quot;)  // Iterator
+users.toList.toString === &quot;List((me,dev), (you,dev))&quot;
+</code></pre><p>BTW, you don’t need <code>lift</code> if you use a <code>Function[MatchGroup, Option[A]</code> instead of a <code>PartialFunction[MatchGroup, A]</code>.
+</p><p>Since REL supports multiple capturing groups with the same name, we can extract items formatted with <code>username-&gt;username</code>:
+</p><pre><code class="prettyprint lang-scala">val interaction = username - &quot;-&gt;&quot; - username
+val iaMatcher: PartialFunction[MatchGroup, (String, String)] = {
+  case MatchGroup(None, Some(_), List(
+      MatchGroup(Some(&quot;username&quot;), Some(un1), _),
+      MatchGroup(Some(&quot;username&quot;), Some(un2), _)
+    )) =&gt; (un1, un2)
+}
+val iaExtractor = interaction &lt;&lt; lift(iaMatcher)
+val interactions =
+  iaExtractor(&quot;me@dev-&gt;you@dev, you@dev-&gt;me@dev&quot;)
+interactions.toList.toString ===
+  &quot;List((me@dev,you@dev), (you@dev,me@dev))&quot;
+</code></pre><p>And then you make a reusable extractor, <strong>which can directly provide the extracted object</strong>. Just place the extractor one level deeper to avoid the <code>$0</code> group:
+</p><pre><code class="prettyprint lang-scala">val userMatcher2: PartialFunction[MatchGroup, (String, String)] = {
+  case MatchGroup(Some(&quot;username&quot;), Some(_), List(
+      MatchGroup(Some(&quot;user&quot;),    Some(u), Nil),
+      MatchGroup(Some(&quot;machine&quot;), Some(m), Nil)
+    )) =&gt; (u, m)
+}
+val userPattern = toPM(lift(userMatcher2))
+val iaMatcher2: PartialFunction[MatchGroup,
+       (String, String, String, String)] = {
+  case MatchGroup(None, Some(_), List(
+      userPattern(u1, m1),
+      userPattern(u2, m2)
+    )) =&gt; (u1, m1, u2, m2)
+}
+val iaExtractor2 = interaction &lt;&lt; lift(iaMatcher2)
+val interactions2 =
+  iaExtractor2(&quot;me@dev-&gt;you@dev, you@dev-&gt;me@dev&quot;)
+interactions2.toList.toString ===
+  &quot;List((me,dev,you,dev), (you,dev,me,dev))&quot;
+</code></pre><p>In the same way, there are date extractor bundled in REL that can extract dates from strings, each match giving a list of possible dates interpretations (to account for ambiguity). See the doc on <a  href="Matchers.md">Matchers</a> for more details.
+</p><p>The following example demonstrates the use of <strong>pattern matching directly on a <code>String</code></strong>:
+</p><pre><code class="prettyprint lang-scala">val nfDateX = fr.splayce.rel.matchers.DateExtractor.NUMERIC_FULL
+&quot;From 21/10/2000 to 21/11/2000&quot; match {
+  case nfDateX(List(a), List(b)) =&gt; (a.m, b.m) === (10, 11)
+}
+</code></pre><h2 id="Debugging">Debugging</h2><p>Finally, the <code>toString</code> representation of a <code>MatchGroup</code> can be really helpful when debugging an Extractor or a regex.
+</p><pre><code>scala&gt; val nfd = fr.splayce.rel.matchers.Date.NUMERIC_FULL
+scala&gt; nfd.matchGroup
+res1: fr.splayce.rel.util.MatchGroup = 
+None	None
+	Some(n_f)	None
+		Some(n_ymd)	None
+			Some(n_sep)	None
+			Some(n_sep)	None
+		Some(n_dmy)	None
+			Some(n_sep)	None
+			Some(n_sep)	None
+</code></pre><p>The top group has no name (first column is <code>None</code>), for it represents the whole match. We can see the sub-hierarchy of named groups, but it has no content yet. To fill the content, it must be applied to a <code>Match</code>:
+</p><pre><code>nfd.matchGroup(nfd.r.findFirstMatchIn(&quot;1998-10-20&quot;).get)
+res2: fr.splayce.rel.util.MatchGroup = 
+None	Some(1998-10-20)
+	Some(n_f)	Some(1998-10-20)
+		Some(n_ymd)	Some(1998-10-20)
+			Some(n_sep)	Some(-)
+			Some(n_sep)	None
+		Some(n_dmy)	None
+			Some(n_sep)	None
+			Some(n_sep)	None
+</code></pre><p>Then we can see which groups matched which part.</p><div class="bottom nav">
+                        <em>Next Page</em>
+                        <span class="arrow">❧</span>
+                        <a href="Matchers.html"> Matchers </a>
+                      </div><div class="tocwrapper show">
+      <a class="tochead nav" style="display: none" href="#toc">❦</a>
+      <a name="toc"></a>
+      <h4 class="toctitle">Contents</h4>
+      <div class="tocbody">
+      <div><a href="index.html">REL</a></div><ol class="toc"> <li><div><a href="DSL+Syntax.html">DSL Syntax</a></div></li><li><div class="current">Extractors</div></li><li><div><a href="Matchers.html">Matchers</a></div></li><li><div><a href="Tree+rewriting+%26+Flavors.html">Tree rewriting &amp; Flavors</a></div></li><li><div><a href="Cleaners.html">Cleaners</a></div></li><li><div><a href="Limitations+%26+Known+Issues.html">Limitations &amp; Known Issues</a></div></li><li class="generated"><div><a href="Contents+in+Depth.html">Contents in Depth</a></div></li><li class="generated"><div><a href="Combined+Pages.html">Combined Pages</a></div></li> </ol></div></div>
+          </div>
+        </div>
+        
+      </body>
+    </html>

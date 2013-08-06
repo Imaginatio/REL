@@ -1,0 +1,859 @@
+<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html>
+      <head>
+        <title>REL — Combined Pages</title>
+        <link type="text/css" media="screen, projection" rel="stylesheet" href="css/blueprint/screen.css"></link>
+        <link type="text/css" media="screen and (min-device-width: 800px), projection" rel="stylesheet" href="css/blueprint/grid.css"></link>
+        <link type="text/css" media="print" rel="stylesheet" href="css/blueprint/print.css"></link> 
+        <!--[if lt IE 8]>
+          <link rel="stylesheet" href="css/blueprint/ie.css" type="text/css" media="screen, projection"/>
+        <![endif]-->
+        <link type="text/css" media="screen, projection" rel="stylesheet" href="css/pamflet.css"></link>
+        <link type="text/css" media="print" rel="stylesheet" href="css/pamflet-print.css"></link>
+        <link type="text/css" media="screen and (min-device-width: 800px), projection" rel="stylesheet" href="css/pamflet-grid.css"></link>
+        <link type="text/css" media="screen, projection" rel="stylesheet" href="css/custom.css"></link>
+        <script src="js/jquery-1.6.2.min.js"></script>
+        <script src="js/jquery.collapse.js"></script>
+        <script src="js/pamflet.js"></script>
+        <script type="text/javascript" src="js/prettify/prettify.js"></script><script type="text/javascript" src="js/prettify/lang-scala.js"></script><link type="text/css" rel="stylesheet" href="css/prettify.css"></link><script type="text/javascript"><!--
+        window.onload=function() { prettyPrint(); };
+      --></script>
+        <meta charset="utf-8"></meta>
+        <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+        
+      </head>
+      <body>
+        <a class="page prev nav" href="Contents+in+Depth.html">
+            <span class="space">&nbsp;</span>
+            <span class="flip">❧</span>
+          </a>
+        <div class="container">
+          <div class="span-16 prepend-1 append-1">
+            <div class="top nav span-16 title">
+              <span>REL</span> — Combined Pages
+            </div>
+          </div>
+          <div class="span-16 prepend-1 append-1 contents">
+            <div class="tocwrapper show">
+      <a class="tochead nav" style="display: none" href="#toc">❦</a>
+      <a name="toc"></a>
+      <h4 class="toctitle">Contents</h4>
+      <div class="tocbody">
+      <div><a href="#REL">REL</a></div><ol class="toc"> <li><div><a href="#DSL+Syntax">DSL Syntax</a></div></li><li><div><a href="#Extractors">Extractors</a></div></li><li><div><a href="#Matchers">Matchers</a></div></li><li><div><a href="#Tree+rewriting+%26+Flavors">Tree rewriting &amp; Flavors</a></div></li><li><div><a href="#Cleaners">Cleaners</a></div></li><li><div><a href="#Limitations+%26+Known+Issues">Limitations &amp; Known Issues</a></div></li> </ol></div></div><h1 id="REL">REL</h1><p><strong>A Regular Expression composition Library</strong>
+</p><p>REL is a small utility Scala library for people dealing with complex, modular regular expressions. It defines a DSL with most of the operators you already know and love. This allows you to isolate portions of your regex for easier testing and reuse.
+</p><p>Consider the following YYYY-MM-DD date regex: <code>^(?:19|20)\d\d([- /.])(?:0[1-9]|1[012])\1(?:0[1-9]|[12]\d|3[01])$</code>. It is a bit more readable and reusable expressed like this:
+</p><pre><code class="prettyprint lang-scala">import fr.splayce.rel._
+import Implicits._
+
+val sep     = &quot;[- /.]&quot; \ &quot;sep&quot;            // group named &quot;sep&quot;
+val year    = (&quot;19&quot; | &quot;20&quot;) ~ &quot;&quot;&quot;\d\d&quot;&quot;&quot;  // ~ is concatenation
+val month   = &quot;0[1-9]&quot; | &quot;1[012]&quot;
+val day     = &quot;0[1-9]&quot; | &quot;[12]\\d&quot; | &quot;3[01]&quot;
+val dateYMD = ^ ~ year  ~ sep ~ month ~ !sep ~ day  ~ $
+val dateMDY = ^ ~ month ~ sep ~ day   ~ !sep ~ year ~ $
+</code></pre><p>These values are <code>RE</code> objects (also named <em>terms</em> or <em>trees</em>/<em>subtrees</em>), which can be converted to <code>scala.util.matching.Regex</code> instances either implicitly (by importing <code>rel.Implicits._</code>) or explicitly (via the <code>.r</code> method).
+</p><p>The embedded <a  href="https://github.com/Imaginatio/REL/blob/master/src/main/scala/matchers/Date.scala">Date regexes</a> and <a  href="https://github.com/Imaginatio/REL/blob/master/src/main/scala/matchers/DateExtractor.scala">extractors</a> will give you more complete examples, matching several date formats at once with little prior knowledge.
+</p><h2 id="Usage+and+downloads">Usage and downloads</h2><ul><li>download the <a  href="https://github.com/Imaginatio/REL">source from github</a> and build the library with SBT
+</li><li>download the <a  href="https://github.com/Imaginatio/Maven-repository/tree/master/fr/splayce/">latest binary release</a>
+</li><li>use <a  href="https://github.com/Imaginatio/Maven-repository/">our public Maven repository</a>
+</li><li>check out the <a  href="http://imaginatio.github.io/REL/api/">API reference</a>
+</li></ul><h2 id="License">License</h2><p>Copyright &copy; 2012 Imaginatio SAS
+</p><p>REL is released under the <a  href="http://www.opensource.org/licenses/MIT">MIT License</a>
+</p><h2 id="Authors">Authors</h2><p>REL was developed at <a  href="http://imaginatio.fr">Imaginatio</a> for project <a  href="http://splayce.com">Splayce</a> by:
+</p><ul><li><a  href="http://instanceof.me/">Adrien Lavoillotte</a> (<a  href="https://github.com/streetpc">@streetpc</a>)
+</li><li>Julien Martin
+</li></ul><p>Contributors:
+</p><ul><li>Guillaume Vauvert (<a  href="https://github.com/gvauvert">@gvauvert</a>) designed the <code>TrackString</code> algorithm
+</li></ul><h1 id="DSL+Syntax">DSL Syntax</h1><p>Some examples are noted <code>DSL expression</code> → <code>resulting regex</code>.  
+<br/>
+All assume:
+</p><pre><code class="prettyprint lang-scala">import fr.splayce.rel._
+import Implicits._
+val a = RE(&quot;aa&quot;)
+val b = RE(&quot;bb&quot;)
+</code></pre><h2 id="Operators">Operators</h2><h3 id="Binary+operators">Binary operators</h3><table>
+<colgroup>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+</colgroup>
+
+<thead>
+<tr>
+	<th style="text-align:left;">Operation</th>
+	<th style="text-align:left;">REL Syntax</th>
+	<th style="text-align:left;">RE Output</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td style="text-align:left;">Alternative</td>
+	<td style="text-align:left;"><code>a | b</code></td>
+	<td style="text-align:left;"><code>aa|bb</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;">Concatenation (protected)</td>
+	<td style="text-align:left;"><code>a ~ b</code></td>
+	<td style="text-align:left;"><code>(?:aa)(?:bb)</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;">Concatenation (unprotected)</td>
+	<td style="text-align:left;"><code>a - b</code></td>
+	<td style="text-align:left;"><code>aabb</code></td>
+</tr>
+</tbody>
+</table>
+
+<p>Generally speaking, you should start with protected concatenation. It is harder to read once serialized, but it is far safer from unwanted side-effects when reusing regex parts.
+</p><h3 id="Quantifiers+%2F+repeaters">Quantifiers / repeaters</h3><p>When used in the table below, the dot syntax <code>a.?</code> is recommended for clearer priority.
+</p><table>
+<colgroup>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+</colgroup>
+
+<thead>
+<tr>
+	<th style="text-align:left;">Quantifier</th>
+	<th style="text-align:left;"><a  href="http://www.regular-expressions.info/repeat.html#greedy">Greedy</a></th>
+	<th style="text-align:left;"><a  href="http://www.regular-expressions.info/repeat.html#lazy">Reluctant / Lazy</a></th>
+	<th style="text-align:left;"><a  href="http://www.regular-expressions.info/possessive.html">Possessive</a></th>
+	<th style="text-align:left;">Output for (greedy)</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td style="text-align:left;">Option</td>
+	<td style="text-align:left;"><code>a.?</code></td>
+	<td style="text-align:left;"><code>a.??</code></td>
+	<td style="text-align:left;"><code>a.?+</code></td>
+	<td style="text-align:left;"><code>(?:aa)?</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;">≥ 1</td>
+	<td style="text-align:left;"><code>a.+</code></td>
+	<td style="text-align:left;"><code>a.+?</code></td>
+	<td style="text-align:left;"><code>a.++</code></td>
+	<td style="text-align:left;"><code>(?:aa)+</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;">≥ 0</td>
+	<td style="text-align:left;"><code>a.*</code></td>
+	<td style="text-align:left;"><code>a.*?</code></td>
+	<td style="text-align:left;"><code>a.*+</code></td>
+	<td style="text-align:left;"><code>(?:aa)*</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;">At most</td>
+	<td style="text-align:left;"><code>a &lt; 3</code></td>
+	<td style="text-align:left;"><code>a.&lt;?(3)</code>*</td>
+	<td style="text-align:left;"><code>a &lt;+ 3</code></td>
+	<td style="text-align:left;"><code>(?:aa){0,3}</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;">At least</td>
+	<td style="text-align:left;"><code>a &gt; 3</code></td>
+	<td style="text-align:left;"><code>a &gt;? 3</code></td>
+	<td style="text-align:left;"><code>a &gt;+ 3</code></td>
+	<td style="text-align:left;"><code>(?:aa){3,}</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;">In range</td>
+	<td style="text-align:left;"><code>a(1, 3)</code>, <code>a{1 to 3}</code> or <code>a{1 -&gt; 3}</code></td>
+	<td style="text-align:left;"><code>a(1, 3, Reluctant)</code></td>
+	<td style="text-align:left;"><code>a(1, 3, Possessive)</code></td>
+	<td style="text-align:left;"><code>(?:aa){1,3}</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;">Exactly</td>
+	<td style="text-align:left;"><code>a{3}</code> or <code>a(3)</code></td>
+	<td style="text-align:left;"><em>N/A</em></td>
+	<td style="text-align:left;"><em>N/A</em></td>
+	<td style="text-align:left;"><code>(?:aa){3}</code></td>
+</tr>
+</tbody>
+</table>
+
+<p><em>* For reluctant at-most repeater, dotted form <code>a.&lt;?(3)</code> is mandatory, standalone <code>&lt;?</code> being syntactically significant in Scala (<code>XMLSTART</code>).</em>
+</p><h3 id="Look-around">Look-around</h3><table>
+<colgroup>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+</colgroup>
+
+<thead>
+<tr>
+	<th style="text-align:left;"> </th>
+	<th style="text-align:left;">Prefixed form</th>
+	<th style="text-align:left;"> Dotted form</th>
+	<th style="text-align:left;">Output</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td style="text-align:left;">Look-ahead</td>
+	<td style="text-align:left;"><code>?=(a)</code></td>
+	<td style="text-align:left;"><code>a.?=</code></td>
+	<td style="text-align:left;"><code>(?=aa)</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;">Look-behind</td>
+	<td style="text-align:left;"><code>?&lt;=(a)</code></td>
+	<td style="text-align:left;"><code>a.?&lt;=</code></td>
+	<td style="text-align:left;"><code>(?&lt;=aa)</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;">Negative look-ahead</td>
+	<td style="text-align:left;"><code>?!(a)</code></td>
+	<td style="text-align:left;"><code>a.?!</code></td>
+	<td style="text-align:left;"><code>(?!aa)</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;">Negative look-behind</td>
+	<td style="text-align:left;"><code>?&lt;!(a)</code></td>
+	<td style="text-align:left;"><code>a.?&lt;!</code></td>
+	<td style="text-align:left;"><code>(?&lt;!aa)</code></td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="Grouping">Grouping</h3><table>
+<colgroup>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+</colgroup>
+
+<thead>
+<tr>
+	<th style="text-align:left;">Type</th>
+	<th style="text-align:left;">REL Syntax</th>
+	<th style="text-align:left;">Output</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td style="text-align:left;">Named capturing</td>
+	<td style="text-align:left;"><code>a \ &quot;group_a&quot;</code></td>
+	<td style="text-align:left;"><code>(aa)</code>.</td>
+</tr>
+<tr>
+	<td style="text-align:left;">Unnamed capturing *</td>
+	<td style="text-align:left;"><code>a.g</code></td>
+	<td style="text-align:left;"><code>(aa)</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;">Back-reference</td>
+	<td style="text-align:left;"><code>g!</code></td>
+	<td style="text-align:left;"><code>\1</code>**</td>
+</tr>
+<tr>
+	<td style="text-align:left;">Non-capturing</td>
+	<td style="text-align:left;"><code>a.ncg</code> or <code>a.%</code></td>
+	<td style="text-align:left;"><code>(?:aa)</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;">Non-capturing, with flags</td>
+	<td style="text-align:left;"><code>a.ncg(&quot;i-d&quot;)</code> or <code>&quot;i-d&quot; ?: a</code></td>
+	<td style="text-align:left;"><code>(?i-d:aa)</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><a  href="http://www.regular-expressions.info/atomic.html">Atomic</a></td>
+	<td style="text-align:left;"><code>a.ag</code>, <code>?&gt;(a)</code> or <code>a.?&gt;</code></td>
+	<td style="text-align:left;"><code>(?&gt;aa)</code></td>
+</tr>
+</tbody>
+</table>
+
+<p><em>* A unique group name is generated internally.</em>  
+<br/>
+<em>** Back-reference on most recent (i.e. rightmost previous) group <code>g</code>. <code>val g = (a|b).g; g - a - !g</code> → <code>(aa|bb)aa\1</code></em>
+</p><p>In a named capturing group, the name <code>group_a</code> will be passed to the <a  href="http://www.scala-lang.org/api/current/index.html#scala.util.matching.Regex"><code>Regex</code></a> constructor, and queryable on corresponding <a  href="http://www.scala-lang.org/api/current/index.html#scala.util.matching.Regex$$Match"><code>Match</code></a>es. If you export the regex to a flavor that supports inline embedding of capturing group names (like Java 7 or .NET), the name will be included in the output: <code>(?&lt;group_a&gt;aa)</code>.
+</p><p>In non-capturing groups, REL tries not to uselessly wrap non-breaking entities — like single characters (<code>a</code>, <code>\u00F0</code>), character classes (<code>\w</code>, <code>[^a-z]</code>, <code>\p{Lu}</code>), other groups — in order to produce ever-so-slightly less unreadable output. Non-capturing groups with flags are combined when nested, giving priority to innermost flags: <code>a.ncg(&quot;-d&quot;).ncg(&quot;id&quot;)</code> → <code>(?i-d:aa)</code>.
+</p><h2 id="Constants">Constants</h2><p>A few “constants” (expression terms with no repetitions, capturing groups, or unprotected alternatives) are also predefined. Some of them have a UTF-8 Greek symbol alias for conciseness (import <code>rel.Symbols._</code> to use them), uppercase for negation. You can add your own by instancing case class <code>RECst(expr)</code>.
+</p><table>
+<colgroup>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+</colgroup>
+
+<thead>
+<tr>
+	<th style="text-align:left;">Object name</th>
+	<th style="text-align:left;">Symbol</th>
+	<th style="text-align:left;">Output / Matches</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td style="text-align:left;"><code>Epsilon</code></td>
+	<td style="text-align:left;"><code>ε</code></td>
+	<td style="text-align:left;">Empty string</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>Dot</code></td>
+	<td style="text-align:left;"><code>τ</code></td>
+	<td style="text-align:left;"><code>.</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>MLDot</code></td>
+	<td style="text-align:left;"><code>ττ</code></td>
+	<td style="text-align:left;"><code>[\s\S]</code> (will match any char, including line terminators, even when the <a  href="http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html#DOTALL"><code>DOTALL</code></a> or <a  href="http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html#MULTILINE"><code>MULTILINE</code></a> modes are disabled)</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>LineTerminator</code></td>
+	<td style="text-align:left;"><code>Τ</code>*</td>
+	<td style="text-align:left;"><code>(?:\r\n?|[\u000A-\u000C\u0085\u2028\u2029])</code> (<a  href="http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html#lt">line terminators</a>, PCRE/Perl’s <code>\R</code>)</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>AlphaLower</code></td>
+	<td style="text-align:left;"><em>none</em></td>
+	<td style="text-align:left;"><code>[a-z]</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>AlphaUpper</code></td>
+	<td style="text-align:left;"><em>none</em></td>
+	<td style="text-align:left;"><code>[A-Z]</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>Alpha</code></td>
+	<td style="text-align:left;"><code>α</code></td>
+	<td style="text-align:left;"><code>[a-zA-Z]</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>NotAlpha</code></td>
+	<td style="text-align:left;"><code>Α</code>*</td>
+	<td style="text-align:left;"><code>[^a-zA-Z]</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>Letter</code></td>
+	<td style="text-align:left;"><code>λ</code></td>
+	<td style="text-align:left;"><code>\p{L}</code> (unicode letters, including diacritics)</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>NotLetter</code></td>
+	<td style="text-align:left;"><code>Λ</code></td>
+	<td style="text-align:left;"><code>\P{L}</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>LetterLower</code></td>
+	<td style="text-align:left;"><em>none</em></td>
+	<td style="text-align:left;"><code>\p{Ll}</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>LetterUpper</code></td>
+	<td style="text-align:left;"><em>none</em></td>
+	<td style="text-align:left;"><code>\p{Lu}</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>Digit</code></td>
+	<td style="text-align:left;"><code>δ</code></td>
+	<td style="text-align:left;"><code>\d</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>NotDigit</code></td>
+	<td style="text-align:left;"><code>Δ</code></td>
+	<td style="text-align:left;"><code>\D</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>WhiteSpace</code></td>
+	<td style="text-align:left;"><code>σ</code></td>
+	<td style="text-align:left;"><code>\s</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>NotWhiteSpace</code></td>
+	<td style="text-align:left;"><code>Σ</code></td>
+	<td style="text-align:left;"><code>\S</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>Word</code></td>
+	<td style="text-align:left;"><code>μ</code></td>
+	<td style="text-align:left;"><code>\w</code> (<code>Alpha</code> or <code>_</code>)</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>NotWord</code></td>
+	<td style="text-align:left;"><code>Μ</code>*</td>
+	<td style="text-align:left;"><code>\W</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>WordBoundary</code></td>
+	<td style="text-align:left;"><code>ß</code></td>
+	<td style="text-align:left;"><code>\b</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>NotWordBoundary</code></td>
+	<td style="text-align:left;"><code>Β</code>*</td>
+	<td style="text-align:left;"><code>\B</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>LineBegin</code></td>
+	<td style="text-align:left;"><code>^</code></td>
+	<td style="text-align:left;"><code>^</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>LineEnd</code></td>
+	<td style="text-align:left;"><code>$</code></td>
+	<td style="text-align:left;"><code>$</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>InputBegin</code>  </td>
+	<td style="text-align:left;"><code>^^</code></td>
+	<td style="text-align:left;"><code>\A</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>InputEnd</code></td>
+	<td style="text-align:left;"><code>$$</code></td>
+	<td style="text-align:left;"><code>\z</code></td>
+</tr>
+</tbody>
+</table>
+
+<p><em>* Those are uppercase <code>α</code>/<code>ß</code>/<code>μ</code>/<code>τ</code>, not latin <code>A</code>/<code>B</code>/<code>M</code>/<code>T</code></em>
+</p><h1 id="Extractors">Extractors</h1><p>Extractors are meant to help you extract information from text, using the regexes you made, especially by using the text matched in the capturing groups of you regex.
+</p><h2 id="Reminder+on+capturing+groups">Reminder on capturing groups</h2><p>Capturing groups will yield <code>String</code> object that may be empty (if the group was matched to an empty part) or <code>null</code> (if the group wasn’t matched). For instance, matching the string <code>&quot;A&quot;</code> against the regex <code>&quot;(A)(B?)(C)?&quot;</code> will yield values <code>&quot;A&quot;, &quot;&quot;, null</code>.
+</p><p>For example, say we want to extract information form the captured matches of the following regex:
+</p><pre><code class="prettyprint lang-scala">val abc = (&quot;.&quot; \ &quot;a&quot;) - (&quot;.&quot;.? \ &quot;b&quot;) - (&quot;.&quot; \ &quot;c&quot;).?
+</code></pre><p>An empty string won’t match and strings longer than 3 characters will match multiple times. Thus, for each match, the possible results are:
+</p><table>
+<colgroup>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+</colgroup>
+
+<thead>
+<tr>
+	<th style="text-align:left;">String</th>
+	<th style="text-align:left;"><code>a</code> (#1)</th>
+	<th style="text-align:left;"><code>b</code> (#2)</th>
+	<th style="text-align:left;"><code>c</code> (#3)</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td style="text-align:left;"><code>&quot;A&quot;</code></td>
+	<td style="text-align:left;"><code>&quot;A&quot;</code></td>
+	<td style="text-align:left;"><code>&quot;&quot;</code></td>
+	<td style="text-align:left;">null</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>&quot;AB&quot;</code></td>
+	<td style="text-align:left;"><code>&quot;A&quot;</code></td>
+	<td style="text-align:left;"><code>&quot;B&quot;</code></td>
+	<td style="text-align:left;">null</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>&quot;ABC&quot;</code></td>
+	<td style="text-align:left;"><code>&quot;A&quot;</code></td>
+	<td style="text-align:left;"><code>&quot;B&quot;</code></td>
+	<td style="text-align:left;"><code>&quot;C&quot;</code></td>
+</tr>
+</tbody>
+</table>
+
+<p>Also, Java &lt; 7 does not support named capturing groups, and Scala only emulates them, mapping a list of names given at the compilation of the Regex against the indexes of the capturing groups. Thus, it is risky to have multiple instances of the same group name. In practice, using <code>myMatch.group(&quot;myGroup&quot;)</code> seems to always refer to the last occurrence of the <code>myGroup</code>.
+</p><p>On the other hand, the <code>Match</code> object carries the full list of group names (in its eponymous <code>groupNames</code> val), and REL uses it to compute the group tree. Thus, you <em>can</em> reuse the same group name in a single expression.
+</p><h2 id="The+Extractor+trait">The Extractor trait</h2><p>The <code>Extractor</code> trait is mainly a function that takes in a <code>String</code> and gives an <code>Iterator</code> of the parametrized type, with utility methods for composing and pattern matching.
+</p><p>This <code>Extractor</code> trait works with a sub-extractor, which can be of two types:
+</p><ul><li>A <code>PartialFunction[Regex.Match, A]</code>, which is pattern matching-friendly 
+</li><li>A <code>PartialFunction[Regex.Match, Option[A]]</code>, which can allow a bit more flexibility and/or performance
+</li></ul><p><code>RE</code> expressions offer a utility <code>&lt;&lt;</code> method to which you can pass in sub-extractors of either types, getting an <code>Extractor[A]</code> that you can <code>apply</code> to <code>String</code>s to perform extraction.
+</p><h2 id="Basic+extractors">Basic extractors</h2><p>Some trivial sub-extractors are provided for convenience:
+</p><ul><li>The simplest extractor is <code>MatchedExtractor</code>, which only yields every matches as <code>String</code>s.
+</li><li><code>NthGroupExtractor</code> yields the content matched by the nth capturing group, with <code>n</code> defaulting to <code>1</code>.
+</li><li><code>NamedGroupExtractor</code> does the same with the group holding the specified name.
+</li></ul><p>Example:
+</p><pre><code class="prettyprint lang-scala">val extractABC = abc &lt;&lt; MatchedExtractor()
+extractABC(&quot;1234567890&quot;).toList === List(&quot;123&quot;, &quot;456&quot;, &quot;789&quot;, &quot;0&quot;)
+val extractB = abc &lt;&lt; NthGroupExtractor(2)
+extractB(&quot;1234567890&quot;).toList === List(&quot;2&quot;, &quot;5&quot;, &quot;8&quot;, &quot;&quot;)
+val extractC = abc &lt;&lt; NamedGroupExtractor(&quot;c&quot;)
+extractC(&quot;1234567890&quot;).toList === List(&quot;3&quot;, &quot;6&quot;, &quot;9&quot;, null)
+</code></pre><h2 id="MatchGroups+for+quick%2C+flat+Pattern+Matching">MatchGroups for quick, flat Pattern Matching</h2><p>If you want to do pattern matching on the list of strings matched by the capturing groups, you can use:
+</p><ul><li><code>MatchGroups(val1, val2, …)</code> where <code>valn</code> are matched <code>String</code>s that may be <code>null</code> or empty.
+</li><li><code>NotNull(opt1, Some(val2), …)</code> where <code>optn</code> are <code>Option[String]</code>: <code>Some(valn)</code> if nth group matched (even if empty), <code>None</code> otherwise.
+</li><li><code>NotNull.NamedMap(map)</code> where <code>map</code> will be a <code>Map[String, Option[String]]</code> with group names as keys.
+</li><li><code>NotNull.NamedPairs(pair1, (name2, opt2), …)</code> where each pair is a <code>Tuple2[String, Option[String]]</code> with the group name and optional value.
+</li><li><code>NotEmpty</code>, <code>NotEmpty.NamedMap</code> and <code>NotEmpty.NamedPairs</code> if you don’t care for empty matches: options will only be <code>Some(value)</code> if <code>value</code> is not an empty string.
+</li></ul><p>Extractor examples:
+</p><pre><code class="prettyprint lang-scala">import fr.splayce.rel.util.MatchGroups._
+val pf: MatchExtractor[String] = {
+  case NamedGroups(&quot;A&quot;, &quot;&quot;, null)                 =&gt; &quot;'A' only&quot;
+  case NotNull(Some(&quot;1&quot;), Some(&quot;&quot;), None)         =&gt; &quot;'1' only&quot;
+  case NotNull.NamedMap(m) if (m contains &quot;d&quot;)    =&gt; &quot;unreachable&quot;
+  case NotNull.NamedPairs(_, (&quot;b&quot;, Some(&quot;B&quot;)), _) =&gt; &quot;b has 'B'&quot;
+  case NotEmpty(Some(&quot;x&quot;), None, None)            =&gt; &quot;'x' only&quot;
+  case NotEmpty.NamedMap(m) if (m contains &quot;d&quot;)   =&gt; &quot;unreachable&quot;
+  case NotEmpty.NamedPairs(_, (&quot;b&quot;, Some(b)), _)  =&gt; &quot;b has: &quot; + b
+}
+val extract = re &lt;&lt; pf
+// extract(someString)
+</code></pre><h2 id="Reusable+extractors%3A+MatchGroup+hierarchies">Reusable extractors: MatchGroup hierarchies</h2><p>One of the incentive for using REL is to reuse regex parts in other regexes. So we also need a way to reuse the corresponding extractors, including nesting them in other extractors.
+</p><p>Since a REL term is a tree, it can compute the resulting capturing groups tree with the <code>matchGroup</code> val, containing a tree of <code>MatchGroup</code>s. The top group corresponds to the entire match: it is unnamed, contains the matched content and has the first-level capturing groups nested as subgroups. When applied to a <code>Match</code>, it returns a copy of the capturing groups tree with the content filled for each group that matched. Thus, you can use pattern matching with nested groups to extract any group at several levels of imbrication with little code.
+</p><p>For example, let’s say we want to match simple usernames that have the form <code>user@machine</code> where both part have only alphabetic characters. We can define the regex:
+</p><pre><code class="prettyprint lang-scala">val user     = α.+ \ &quot;user&quot;
+val at       = &quot;@&quot;
+val machine  = α.+ \ &quot;machine&quot;
+val username = (user - at - machine) \ &quot;username&quot;
+</code></pre><p>And make a simple extractor that yields a tuple of Strings:
+</p><pre><code class="prettyprint lang-scala">val userMatcher: PartialFunction[MatchGroup, (String, String)] = {
+  case MatchGroup(None, Some(_), List(              // $0
+      MatchGroup(Some(&quot;username&quot;), Some(_), List(   // $1
+        MatchGroup(Some(&quot;user&quot;),    Some(u), Nil),  // $2
+        MatchGroup(Some(&quot;machine&quot;), Some(m), Nil)   // $3
+      ))
+    )) =&gt; (u, m)
+}
+</code></pre><p>Extraction in a String can be done like this:
+</p><pre><code class="prettyprint lang-scala">import ByOptionExtractor._   // lift (and toPM later)
+val userExtractor = username &lt;&lt; lift(userMatcher)
+val users = userExtractor(&quot;me@dev, you@dev&quot;)  // Iterator
+users.toList.toString === &quot;List((me,dev), (you,dev))&quot;
+</code></pre><p>BTW, you don’t need <code>lift</code> if you use a <code>Function[MatchGroup, Option[A]</code> instead of a <code>PartialFunction[MatchGroup, A]</code>.
+</p><p>Since REL supports multiple capturing groups with the same name, we can extract items formatted with <code>username-&gt;username</code>:
+</p><pre><code class="prettyprint lang-scala">val interaction = username - &quot;-&gt;&quot; - username
+val iaMatcher: PartialFunction[MatchGroup, (String, String)] = {
+  case MatchGroup(None, Some(_), List(
+      MatchGroup(Some(&quot;username&quot;), Some(un1), _),
+      MatchGroup(Some(&quot;username&quot;), Some(un2), _)
+    )) =&gt; (un1, un2)
+}
+val iaExtractor = interaction &lt;&lt; lift(iaMatcher)
+val interactions =
+  iaExtractor(&quot;me@dev-&gt;you@dev, you@dev-&gt;me@dev&quot;)
+interactions.toList.toString ===
+  &quot;List((me@dev,you@dev), (you@dev,me@dev))&quot;
+</code></pre><p>And then you make a reusable extractor, <strong>which can directly provide the extracted object</strong>. Just place the extractor one level deeper to avoid the <code>$0</code> group:
+</p><pre><code class="prettyprint lang-scala">val userMatcher2: PartialFunction[MatchGroup, (String, String)] = {
+  case MatchGroup(Some(&quot;username&quot;), Some(_), List(
+      MatchGroup(Some(&quot;user&quot;),    Some(u), Nil),
+      MatchGroup(Some(&quot;machine&quot;), Some(m), Nil)
+    )) =&gt; (u, m)
+}
+val userPattern = toPM(lift(userMatcher2))
+val iaMatcher2: PartialFunction[MatchGroup,
+       (String, String, String, String)] = {
+  case MatchGroup(None, Some(_), List(
+      userPattern(u1, m1),
+      userPattern(u2, m2)
+    )) =&gt; (u1, m1, u2, m2)
+}
+val iaExtractor2 = interaction &lt;&lt; lift(iaMatcher2)
+val interactions2 =
+  iaExtractor2(&quot;me@dev-&gt;you@dev, you@dev-&gt;me@dev&quot;)
+interactions2.toList.toString ===
+  &quot;List((me,dev,you,dev), (you,dev,me,dev))&quot;
+</code></pre><p>In the same way, there are date extractor bundled in REL that can extract dates from strings, each match giving a list of possible dates interpretations (to account for ambiguity). See the doc on <a  href="Matchers.md">Matchers</a> for more details.
+</p><p>The following example demonstrates the use of <strong>pattern matching directly on a <code>String</code></strong>:
+</p><pre><code class="prettyprint lang-scala">val nfDateX = fr.splayce.rel.matchers.DateExtractor.NUMERIC_FULL
+&quot;From 21/10/2000 to 21/11/2000&quot; match {
+  case nfDateX(List(a), List(b)) =&gt; (a.m, b.m) === (10, 11)
+}
+</code></pre><h2 id="Debugging">Debugging</h2><p>Finally, the <code>toString</code> representation of a <code>MatchGroup</code> can be really helpful when debugging an Extractor or a regex.
+</p><pre><code>scala&gt; val nfd = fr.splayce.rel.matchers.Date.NUMERIC_FULL
+scala&gt; nfd.matchGroup
+res1: fr.splayce.rel.util.MatchGroup = 
+None	None
+	Some(n_f)	None
+		Some(n_ymd)	None
+			Some(n_sep)	None
+			Some(n_sep)	None
+		Some(n_dmy)	None
+			Some(n_sep)	None
+			Some(n_sep)	None
+</code></pre><p>The top group has no name (first column is <code>None</code>), for it represents the whole match. We can see the sub-hierarchy of named groups, but it has no content yet. To fill the content, it must be applied to a <code>Match</code>:
+</p><pre><code>nfd.matchGroup(nfd.r.findFirstMatchIn(&quot;1998-10-20&quot;).get)
+res2: fr.splayce.rel.util.MatchGroup = 
+None	Some(1998-10-20)
+	Some(n_f)	Some(1998-10-20)
+		Some(n_ymd)	Some(1998-10-20)
+			Some(n_sep)	Some(-)
+			Some(n_sep)	None
+		Some(n_dmy)	None
+			Some(n_sep)	None
+			Some(n_sep)	None
+</code></pre><p>Then we can see which groups matched which part.</p><h1 id="Matchers">Matchers</h1><p>REL comes with some <em>matchers</em> built-in for commonly needed entities like dates. <em>Matchers</em> are <code>RE</code> expressions and corresponding extractors.
+</p><p>As the matchers collection will probably grow, they may come in a separate packaging one day (e.g. <em>rel-contrib</em>), but should keep their package and class names.
+</p><h2 id="Dates">Dates</h2><p>The dates matchers provide regexes and extractors for dates, both numeric (1/23/12, 2012-01-23) and alphanumeric (january 23rd, 2012), for English and French, partial (with at least a month or a year) or full.
+</p><h3 id="Regexes">Regexes</h3><table>
+<colgroup>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+</colgroup>
+
+<thead>
+<tr>
+	<th style="text-align:left;">Regex in <code>rel.matchers.…</code></th>
+	<th style="text-align:left;">Matches</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td style="text-align:left;"><code>Date.FULL</code></td>
+	<td style="text-align:left;"><code>YMD</code> and <code>DMY</code> numerical formats</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>Date.FULL_US</code></td>
+	<td style="text-align:left;"><code>MDY</code>, <code>YMD</code> and <code>DMY</code> numerical formats</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>Date.NUMERIC</code></td>
+	<td style="text-align:left;">Numerical, including partial dates</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>Date.NUMERIC_US</code></td>
+	<td style="text-align:left;">Numerical, including <code>MDY</code> and partials</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>en.Date.ALPHA</code></td>
+	<td style="text-align:left;">English alphanumerical dates or partials</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>en.Date.ALPHA_FULL</code></td>
+	<td style="text-align:left;">English alphanumerical dates</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>en.Date.ALL</code></td>
+	<td style="text-align:left;">English alphanumerical or numerical dates or partials</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>en.Date.ALL_FULL</code></td>
+	<td style="text-align:left;">English alphanumerical or numerical dates</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>fr.Date.ALPHA</code></td>
+	<td style="text-align:left;">French alphanumerical dates or partials</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>fr.Date.ALPHA_FULL</code></td>
+	<td style="text-align:left;">French alphanumerical dates</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>fr.Date.ALL</code></td>
+	<td style="text-align:left;">French alphanumerical or numerical dates or partials</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>fr.Date.ALL_FULL</code></td>
+	<td style="text-align:left;">French alphanumerical or numerical dates</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="Extractors">Extractors</h3><p>Numerical dates may be ambiguous. For this reason, the date extractors will extract, for each match in the input string, a <code>List[DateExtractor.Result]</code>. Any additional disambiguation is left to client code.
+</p><p><code>DateExtractor.Result</code> is a case class with three <code>Option[Int]</code>: <code>y</code>, <code>m</code>, <code>d</code>. A year may be on 2 or 4 digits, left for interpretation too. The <code>toString</code> method provides search-engine-friendly tokens: <code>1998-10-20</code> will yield <code>Y1998 Y10 M10 D20</code> (note the doubling of the year in 2 digits form too).
+</p><p>The extractors to use are:
+</p><ul><li><code>matchers.DateExtractor</code> for numeric (full or partial, English or French)
+</li><li><code>matchers.en.FullDateExtractor</code> for <code>matchers.en.*_FULL</code>
+</li><li><code>matchers.en.DateExtractor</code> for <code>matchers.en.*</code>
+</li><li><code>matchers.fr.FullDateExtractor</code> for <code>matchers.fr.*_FULL</code>
+</li><li><code>matchers.fr.DateExtractor</code> for <code>matchers.fr.*</code>
+</li></ul><p>To extract dates from a <code>String</code>:
+</p><pre><code class="prettyprint lang-scala">import fr.splayce.rel.matchers
+import matchers.DateExtractor.NUMERIC
+import matchers.fr.{FullDateExtractor =&gt; FrDateExtr}
+
+NUMERIC(&quot;2012-12-31&quot;).next // List(Y2012 Y12 M12 D31)
+FrDateExtr(&quot;31 janvier 2013&quot;).next // List(Y2013 Y13 M01 D31)
+</code></pre><p>We can also reuse those extractor in other extractors to get Lists of <code>DateExtractor.Result</code> directly form a <code>String</code>, <code>Regex.Match</code>, <code>MatchGroup</code>… <code>DateExtratorSpec</code> contains several examples and use cases.
+</p><h2 id="Utilities">Utilities</h2><p>The <code>matchers</code> package also provides a few utility functions to help build other matchers. The <code>escaped</code> and <code>unescaped</code> functions build a <code>RE</code> expression to match an escaped (resp. unescaped) sub-expression, i.e. preceded by an even (resp. odd) number of the escape string.</p><h1 id="Tree+rewriting+%26+Flavors">Tree rewriting &amp; Flavors</h1><p>This chapter shows you how to recursively rewrite a REL expression, and how to use <code>Flavor</code>s to express your regex on other flavors/languages than Scala/Java.
+</p><h2 id="Subtree+rewriting">Subtree rewriting</h2><p>An advantage to having a manipulable expression tree, other than reusing components, is that you can transform them as you please.
+</p><p>REL offers a way to do such manipulation quite simply using Scala’s powerful pattern matching. By passing a <code>Rewriter</code> to a <code>RE</code> object’s <code>map</code> method, you can recursively rewrite this object’s subtree. A <code>Rewriter</code> is actually a <code>PartialFunction[RE, RE]</code>.
+</p><p>For example, we have a regex matching and capturing a <a  href="http://en.wikipedia.org/wiki/UUID">UUID</a> in its canonical form (lowercase hexadecimal, 8-4-4-4-12 digits). It is then used in a more complex expression as a capturing group. 
+</p><pre><code class="prettyprint lang-scala">val s = RE(&quot;-&quot;)
+val h = RE(&quot;[0-9a-f]&quot;)
+val uuid = h{8} - s - h{4} - s - h{4} - s - h{4} - s - h{12}
+val complexExpression = /* … */ a ~ (uuid \ &quot;uuid1&quot;) ~
+    b ~ (uuid \ &quot;uuid2&quot;) ~ c /* … */
+</code></pre><p>Say we want to match a <code>complexExpression</code> elsewhere, <em>without capturing the uuid</em>. We can just transform capturing our capturing <code>&quot;uuid&quot;</code> groups into non-capturing groups:
+</p><pre><code class="prettyprint lang-scala">val toOther: Rewriter = {
+  case Group(_, uuid, _) =&gt; uuid.ncg
+}
+val other = complexExpression map toOther
+</code></pre><p>Now, say we want uppercase hexadecimal in this expression, <code>h</code> is being also used in other places than <code>uuid</code>. We can complete our <code>Rewriter</code>:
+</p><pre><code class="prettyprint lang-scala">val H = RE(&quot;[0-9A-F]&quot;)
+val toOther: Rewriter = {
+  case `h` =&gt; H
+  case Group(_, uuid, _) =&gt; uuid.ncg
+}
+val other = complexExpression map toOther
+</code></pre><h2 id="Flavors">Flavors</h2><p>Other languages and tools have <a  href="http://www.regular-expressions.info/refflavors.html">other regex flavors</a>, with (sometimes subtle) differences in implementation and additional or lacking features (with respect to Java’s regex flavor). If we want to use our regexes in other flavors, we can apply some transformation to obtain compatible regexes (up to a point, the limit being unimplemented, unreplicable features).
+</p><ul><li>For some differences, a simple transformation will suffice. For instance, <a  href="http://www.regular-expressions.info/dotnet.html">.NET’s regex flavor</a> considers that <code>\w</code> should match all letters, including diacritics (accented letters). Thus, <code>DotNETFlavor</code> will transform <code>\w</code>s (when used with <code>μ</code>/<code>Word</code>) into <code>[a-zA-Z0-9_]</code> to avoid unwanted surprises.
+</li><li>For some lacking features, an exact equivalent exists. Possessive quantifiers are not implemented in .NET, but it supports atomic grouping, and a possessive quantifier is no more than an atomic grouping of a greedy quantifier. <code>DotNETFlavor</code> therefore changes <code>a++</code> into the equivalent expression <code>(?&gt;a+)</code>.
+</li><li>Other lacking feature can be emulated. <a  href="http://www.regular-expressions.info/javascript.html">JavaScript’s regex flavor</a> does not support atomic grouping any more than possessive quantifiers. But atomic grouping may be emulated by capturing the expression in a look-ahead, then using an immediate back-reference to consume it without the possibility of backtracking. So <code>JavaScriptFlavor</code> mimics <code>a++</code> (or <code>(?&gt;a+)</code>) with <code>(?=(a+))\1</code>. It is a stretch, since it add a possibly undesired capturing group, but it’s still better than no support.
+</li><li>Some lacking features unfortunately cannot be emulated. For instance, JavaScript does not support look-behind at all. There is no way to emulate this support, so <code>JavaScriptFlavor</code> will throw an <code>IllegalArgumentException</code> when you try to convert an expression containing a look-behind.
+</li><li>Some additional features are implemented at REL level and can be used. Java priori to version 7 does not support inline naming of capturing groups, as .NET does. The <code>DotNETFlavor</code> (as well as the <code>Java7Flavor</code>) inlines the group names for capture (<code>(?&lt;name&gt;expr)</code>) and reference (<code>\k&lt;name&gt;</code>). 
+</li></ul><p><code>Flavor</code>s expose two main methods: <code>.express(re: RE)</code> and <code>.translate(re: RE)</code>. The first one returns a <code>Tuple2[String, List[String]]</code>, whose first element is the translated regex string and whose second is a list of the group names (in order of appearance) allowing you to perform a mapping to capturing group indexes (like Scala does) if needed. The second method only performs the translation of a <code>RE</code> term into another.
+</p><p>The following flavors are bundled with REL:
+</p><ul><li><a  href="http://docs.oracle.com/javase/6/docs/api/java/util/regex/Pattern.html">Java6</a>, <a  href="http://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html">Java7</a>
+</li><li><a  href="http://www.regular-expressions.info/dotnet.html">.NET</a>
+</li><li><a  href="http://www.regular-expressions.info/javascript.html">JavaScript</a>
+</li><li><a  href="http://www.regular-expressions.info/pcre.html">PCRE</a> (C, PHP, Ruby 1.9 / <a  href="http://www.geocities.jp/kosako3/oniguruma/">Oniguruma</a>…)
+</li><li><a  href="http://www.regular-expressions.info/ruby.html">Legacy Ruby</a> (Ruby 1.8, <a  href="http://www.regular-expressions.info/unicode8bit.html">does not support any Unicode</a>)
+</li></ul><p>For example, to express a regex in the .NET regex flavor:
+</p><pre><code class="prettyprint lang-scala">val myRegex = ^^ - (α.++ \ &quot;firstWord&quot;)
+DotNETFlavor.translate(myRegex) // approximately* ^^ - (?&gt;(α.+) \ &quot;firstWord&quot;)
+DotNETFlavor.express(myRegex)._1 === &quot;\A(?&lt;firstWord&gt;(?&gt;[a-zA-Z]+))&quot;
+DotNETFlavor.express(myRegex)._2.toString === &quot;List(firstWord)&quot;
+</code></pre><p>* approximately because the named capturing group will also have an inline naming strategy (for which there is no short DSL syntax, thus skipped here for the sake of simplicity)
+</p><p>But Flavors are not limited to other regex implementations. You can define your own for various uses, e.g.:
+</p><ul><li>maintaining an easily readable/maintainable tree in your code, injecting more capturing before runtime
+</li><li>debugging existing regexes without altering the original <code>RE</code> tree
+</li><li>extending pre-existing/vendor regexes
+</li><li>reusing the same base regex in multiple contexts requiring small changes</li></ul><h1 id="Cleaners">Cleaners</h1><h2 id="Usage">Usage</h2><p><code>Cleaner</code> is really just a case class around a <code>String =&gt; String</code> function. It is aimed to help pre-processing text before matching; its usage is completely optional. It also holds some utility methods to ease composing and instantiation.
+</p><p>You create a <code>Cleaner</code> simply by giving it a function:
+</p><pre><code class="prettyprint lang-scala">val lineBreakNormalizer = Cleaner(_.replaceAllLiterally(&quot;\r\n&quot;, &quot;\n&quot;);
+</code></pre><p>There is a shorthand for regex replacement:
+</p><pre><code class="prettyprint lang-scala">val stripMultipleDashes = Cleaner.regexReplaceAll(&quot;--+&quot;.r, &quot;-&quot;)
+</code></pre><p>A <code>Cleaner</code> extends <code>Function[String, String]</code>, you use it like any other function, either <code>someCleaner(someString)</code> or <code>someCleaner.apply(someString)</code>.
+</p><p>The most readable/familiar form of composing is using unix-like pipes, intuitively applied from left to right:
+</p><pre><code class="prettyprint lang-scala">val myCleaner = lineBreakNormalizer | TrimFilter | LowerCaseFilter
+</code></pre><p>The pros of heavy cleaning when you can afford it is to match more variations (accents, case sensitivity, double spaces…) with simpler (and possibly faster) regexes. The cons are an upfront performance cost (not necessarily worse than a more complex/permissive regex) and more importantly matching on an altered text, making it harder to locate matches in the original text. This can be addressed by <code>TrackString</code> (covered later in this chapter) but at an additional performance cost.
+</p><h2 id="Built-in+Cleaners">Built-in Cleaners</h2><p>In the built-in Cleaners, the naming convention follow these rules of thumb:
+</p><ul><li><code>*Normalizer</code> normalizes variations of the same things
+</li><li><code>*Cleaner</code> cleans up information that is irrelevant for the task at hand
+</li><li><code>*Filter</code> transforms the text to prepare it for matching
+</li></ul><p>The bundled Cleaners are:
+</p><table>
+<colgroup>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+</colgroup>
+
+<thead>
+<tr>
+	<th style="text-align:left;">Name</th>
+	<th style="text-align:left;">Usage</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td style="text-align:left;"><code>IdentityCleaner</code></td>
+	<td style="text-align:left;">Utility no-op Cleaner</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>CamelCaseSplitFilter</code></td>
+	<td style="text-align:left;">Split CamelCase words; follows the the form <code>aBc</code> (lower-upper-lower): will split <code>someWords</code> but not <code>iOS</code> nor <code>VitaminC</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>LowerCaseFilter</code></td>
+	<td style="text-align:left;">Transform the text in lowercase; a lowercase-only regexes will often outperform case-insensitive</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>LineSeparatorNormalizer</code></td>
+	<td style="text-align:left;">Normalize all Unicode line breaks and vertical tabs to ASCII new line <code>U+000A</code> / <code>\n</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>WhiteSpaceNormalizer</code></td>
+	<td style="text-align:left;">Normalize all Unicode spaces and horizontal tabs to ASCII spaces <code>U+0020</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>WhiteSpaceCleaner</code></td>
+	<td style="text-align:left;">Replace multiple instances of regular whitespaces (<code>\s+</code>) by a single space (<strong>strip line breaks</strong>)</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>AllWhiteSpaceCleaner</code></td>
+	<td style="text-align:left;">Replace multiple instances of all Unicode whitespaces by a single space (<strong>strip line breaks</strong>)</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>SingleQuoteNormalizer</code></td>
+	<td style="text-align:left;">Normalize frequent Unicode single quote / apostrophe variations (like prime of curved apostrophe) to ASCII straight apostrophe <code>U+0027</code> / <code>&#8217;</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>DoubleQuoteNormalizer</code></td>
+	<td style="text-align:left;">Normalize frequent Unicode double quote variations to ASCII quotation mark <code>U+0022</code> / <code>&quot;</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>QuoteNormalizer</code></td>
+	<td style="text-align:left;">Combines <code>SingleQuoteNormalizer</code> and <code>DoubleQuoteNormalizer</code></td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>DiacriticCleaner</code></td>
+	<td style="text-align:left;">Pseudo ASCII folding, remove <a  href="http://en.wikipedia.org/wiki/Diacritic">diacritical marks</a> (like accents) and some common Unicode variants on Latin characters</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>FullwidthNormalizer</code></td>
+	<td style="text-align:left;">Normalize <a  href="http://en.wikipedia.org/wiki/Halfwidth_and_fullwidth_forms">CJK Fullwidth</a> Latin characters to their ASCII equivalents</td>
+</tr>
+</tbody>
+</table>
+
+<h2 id="Create+a+new+Cleaner">Create a new Cleaner</h2><p>You can of course create your own Cleaners.
+</p><ul><li><p>If your cleaning operation can fit in a single regex replacement:
+</p><pre><code class="prettyprint lang-scala">object HtmlTagCleaner extends Cleaner(
+  Cleaner.regexReplaceFirst(&quot;&lt;html[^&gt;]*+&gt;(.*)&lt;/html&gt;&quot;, &quot;$1&quot;))
+// or val htmlTagCleaner: Cleaner = Cleaner.regexReplaceFirst(…)
+</code></pre></li><li><p>Same for multiple regex replacement:
+</p><pre><code class="prettyprint lang-scala">object HtmlCommentsCleaner extends Cleaner(
+  Cleaner.regexReplaceAll(&quot;&lt;!--(.*)--&gt;&quot;, &quot;&quot;))
+</code></pre></li><li>Otherwise, you can simply instantiate a Cleaner with your own <code>String =&gt; String</code> transformation.
+</li></ul><h2 id="TrackStrings">TrackStrings</h2><p>TrackStrings are strings that can, to a certain extent, keep track of the shifts in positions. You pass Strings through Cleaners / regex replacement and remain able to get the position (or the best estimated range) in the original string of a [group of] character[s] that have moved in the resulting string:
+</p><pre><code class="prettyprint lang-scala">import fr.splayce.rel.util.TrackString
+val ts = TrackString(&quot;Test - OK - passed&quot;)
+  .replaceAll(&quot; - &quot;.r, &quot; &quot;)  // &quot;Test OK passed&quot;
+ts.srcPos(5, 7)   // Interval [7,9) was the original position of &quot;OK&quot;
+ts.srcPos(8, 14)  // Interval [12,18) was the original position of &quot;passed&quot;
+</code></pre><p>And Cleaners support TrackStrings, so this allows you to:
+</p><ul><li>Clean an input string
+</li><li>Match it against a simplified regex (thanks to the cleaning)
+</li><li>Know the position of the match <em>in the original uncleaned string</em> (e.g. for highlighting matches, performing replacements, etc.)
+</li></ul><pre><code class="prettyprint lang-scala">import fr.splayce.rel.cleaners.CamelCaseSplitFilter
+val os = &quot;MySuperClass&quot;
+val ts = CamelCaseSplitFilter(TrackString(os))  // &quot;My Super Class&quot;
+val m = &quot;Super&quot;.r.findFirstMatchIn(ts.toString).get
+val op = ts.srcPos(m.start, m.end)  // Interval [2,7)
+val highlight = os.substring(0, op.start)
+  + &quot;&lt;strong&gt;&quot; + os.substring(op.start, op.end) + &quot;&lt;/strong&gt;&quot;
+  + os.substring(op.end)
+  // &quot;My&lt;strong&gt;Super&lt;/strong&gt;Class&quot;
+</code></pre><p>Please note that, while Cleaners made with <code>Cleaner.regexReplaceFirst</code> and <code>Cleaner.regexReplaceAll</code> automatically support position tracking, you will have to implement <code>apply: TrackString =&gt; TrackString</code> if you implement your own cleaners, e.g. by calling <code>TrackString.edit</code> (see the API doc). Otherwise, the TrackString will see your string transformation as one big replacement – i.e. it will tell you that the original position of any character is somewhere between the beginning and the end of your original string, which admittedly isn’t of much help.</p><h1 id="Limitations+%26+Known+Issues">Limitations &amp; Known Issues</h1><h2 id="Versioning">Versioning</h2><p>REL version number follows the <a  href="http://semver.org/">Semantic Versioning 2.0 Specification</a>. In the current early stage of development, the API is still unstable and backward compatibility may break.
+As an additional rule, in version <code>0.Y.Z</code>, a <code>Z</code>-only version change is expected to be backward compatible with previous <code>0.Y.*</code> versions. But a <code>Y</code> version change potentially breaks backward compatibility.
+</p><h2 id="DSL">DSL</h2><p>There is no representation in the DSL for specific character ranges nor raw strings.
+</p><p>The <strong>string primitives are not parsed</strong> (use <code>esc(str)</code> to escape a string that should be matched literally). Hence:
+</p><ul><li>Any capturing group you pass inside those strings are not taken into account by REL when the final regex is generated. The following groups and back-references will be shifted so the resulting regex will most probably be incorrect.
+</li><li>You still need to escape your expressions to match literally characters that are regex-significant like <code>+</code>, <code>?</code> or <code>(</code>, even in <code>RECst</code>. Use <code>esc(str)</code> to escape the whole string.
+</li><li>Any regex you pass as a string is kept as-is when translated into different flavors. For instance, the <code>\w</code> passed in a string (as opposed to used with <code>Word</code>/<code>μ</code>) will not be translated by the <code>DotNETFlavor</code>.
+</li></ul><h2 id="Flavors">Flavors</h2><p>The Group names are checked but not inlined silently if they fail the validation, or if they are duplicated when the flavor requires unicity.
+</p><p><code>\uXXXX</code> is not supported by PCRE, yet not translated by <code>PCREFlavor</code> so far.
+</p><p>JavaScript regexes are quite limited and work a bit differently. In JavaScript flavor:
+</p><ul><li><code>WordBoundary</code>/<code>\b</code> is kept as-is, but will not have exactly the same semantic because of the lack of Unicode support in JavaScript regex flavor. For instance, in <code>&quot;fiancé&quot;</code>, Javascript sees <code>&quot;\bfianc\bé&quot;</code> where most other flavors see <code>&quot;\bfiancé\b&quot;</code>. Same goes for <code>NotWordBoundary</code>/<code>\B</code>.
+</li><li><code>InputBegin</code> (<code>^^</code>) and <code>InputEnd</code> (<code>$$</code>) are translated to <code>LineBegin</code> (<code>^</code>) and <code>LineEnd</code> (<code>$</code>), but this is only correct if the <code>m</code> (multiline) flag is off.
+</li></ul><h2 id="Cleaners">Cleaners</h2><p>Not all Unicode ligatures and variations are known to <code>DiacriticCleaner</code>, for example:
+</p><ul><li>Enclosed Alphanumeric Supplement: <code>U+1F100-U+1F1FF</code> (Unicode 6.1)
+</li><li>CJK Compatibility: <code>U+3300-U+33FF</code> (Unicode 6.0)
+</li><li>Latin Extended-D <code>U+A720-U+A7FF</code> (Unicode 5.1 to 6.1)
+</li></ul><h2 id="TrackString">TrackString</h2><p>Regex replacement in <code>TrackString</code> do not support Java 7 embedded group names, which are not accessible in Scala’s <code>Match</code> yet. It will use Scala group names instead (inconsistent with <code>String#replaceAll</code>).
+</p><p><code>TrackString</code> cannot track intertwined/reordered replacements, i.e. you can only track <code>abc</code> =&gt; <code>bca</code> as a single group (as opposed to three reordered groups). If out-of-order <code>Repl</code>/<code>Subst</code> are introduced, <code>srcPos</code> will most probably yield incorrect results.
+</p><h2 id="TODO">TODO</h2><p>The following would be useful:
+</p><ul><li><p>Core
+</p><ul><li>Add character range support (at DSL level), with inversion (<code>[^...]</code>)
+</li><li>Compatibility with Scala Parsers?
+</li><li>Consider using <code>'symbols</code> for group names
+</li><li>Java 6/7 flavors: detect &amp; fail on unbounded repeats in LookBehind ?
+</li><li>Parse [and limit] regex strings inputted to REL, producing REL-only expression trees, thus eliminating some known issues (see below) and opening some possibilities (e.g. generating sample matching strings)
+</li></ul></li><li><p>Matchers
+</p><ul><li>date: consider extracting incorrect dates (like feb. 31st) with some flag
+</li></ul></li><li><p>Utils
+</p><ul><li>Generate sample strings that match a regex (e.g. with <a  href="http://code.google.com/p/xeger/">Xeger</a>)
+</li><li>Source generation or compiler plugin to enable REL independence [at runtime]
+</li><li>Binary tool that would take a REL file, compile it and produce regexes in several flavors / programming languages
+</li></ul></li></ul>
+          </div>
+        </div>
+        
+      </body>
+    </html>

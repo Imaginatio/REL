@@ -1,0 +1,894 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+        <head>
+          <title>fr.splayce.rel</title>
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link type="text/css" media="screen" rel="stylesheet" href="../../../lib/template.css" />
+      <script type="text/javascript" src="../../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../lib/tools.tooltip.js"></script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../../lib/package_big.png" />
+        <p id="owner"><a name="fr" class="extype" href="../../package.html">fr</a>.<a name="fr.splayce" class="extype" href="../package.html">splayce</a></p>
+        <h1>rel</h1>
+      </div>
+
+      <h4 class="signature" id="signature">
+      <span class="kind">package</span>
+      <span class="symbol"> 
+        <span class="name">rel</span>
+        
+        
+      </span>
+      </h4>
+      
+          <div class="fullcommenttop" id="comment"></div>
+        
+
+      <div id="template">
+
+        <div id="mbrsel">
+          <div id="textfilter"><span class="pre"></span><span class="input"><input accesskey="/" type="text" /></span><span class="post"></span></div>
+          
+          
+          <div id="visbl">
+              <span class="filtertype">Visibility</span>
+              <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+            </div>
+        </div>
+
+        
+
+        <div class="types members" id="types">
+              <h3>Type Members</h3>
+              <ol><li visbl="pub" name="fr.splayce.rel.AGroup" data-isabs="false">
+      <a id="AGroup:AGroup"></a>
+      <h4 class="signature">
+      <span class="kind">case class</span>
+      <span class="symbol"> 
+        <a href="AGroup.html"><span class="name">AGroup</span></a>
+        
+        <span class="params">(<span name="re">re: RE</span>)</span><span class="result"> extends RE1 with Wrapped with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Atomic group</p>
+    </li><li visbl="pub" name="fr.splayce.rel.Alt" data-isabs="false">
+      <a id="Alt:Alt"></a>
+      <h4 class="signature">
+      <span class="kind">case class</span>
+      <span class="symbol"> 
+        <a href="Alt.html"><span class="name">Alt</span></a>
+        
+        <span class="params">(<span name="lRe">lRe: RE</span>, <span name="rRe">rRe: RE</span>)</span><span class="result"> extends RE2 with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Alternative RE tree node</p>
+    </li><li visbl="pub" name="fr.splayce.rel.Atom" data-isabs="false">
+      <a id="Atom:Atom"></a>
+      <h4 class="signature">
+      <span class="kind">case class</span>
+      <span class="symbol"> 
+        <a href="Atom.html"><span class="name">Atom</span></a>
+        
+        <span class="params">(<span name="re">re: Regex</span>)</span><span class="result"> extends RE0 with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Standalone raw regex expression (not interpreted) for external instanciation</p>
+    </li><li visbl="pub" name="fr.splayce.rel.Conc" data-isabs="false">
+      <a id="Conc:Conc"></a>
+      <h4 class="signature">
+      <span class="kind">case class</span>
+      <span class="symbol"> 
+        <a href="Conc.html"><span class="name">Conc</span></a>
+        
+        <span class="params">(<span name="lRe">lRe: RE</span>, <span name="rRe">rRe: RE</span>)</span><span class="result"> extends RE2 with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Concatenation RE tree node</p>
+    </li><li visbl="pub" name="fr.splayce.rel.DigitCst" data-isabs="false">
+      <a id="DigitCst:DigitCst"></a>
+      <h4 class="signature">
+      <span class="kind">case class</span>
+      <span class="symbol"> 
+        <a href="DigitCst.html"><span class="name">DigitCst</span></a>
+        
+        <span class="params">(<span name="i">i: Int</span>)</span><span class="result"> extends RECst with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A litteral integer</p>
+    </li><li visbl="pub" name="fr.splayce.rel.Escaped" data-isabs="false">
+      <a id="Escaped:Escaped"></a>
+      <h4 class="signature">
+      <span class="kind">case class</span>
+      <span class="symbol"> 
+        <a href="Escaped.html"><span class="name">Escaped</span></a>
+        
+        <span class="params">(<span name="value">value: String</span>)</span><span class="result"> extends RE0 with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Escaped (litteral) expression</p>
+    </li><li visbl="pub" name="fr.splayce.rel.Group" data-isabs="false">
+      <a id="Group:Group"></a>
+      <h4 class="signature">
+      <span class="kind">case class</span>
+      <span class="symbol"> 
+        <a href="Group.html"><span class="name">Group</span></a>
+        
+        <span class="params">(<span name="name">name: String</span>, <span name="re">re: RE</span>, <span name="embedStyle">embedStyle: Option[GroupNamingStyle]</span>)</span><span class="result"> extends RE1 with Wrapped with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Named capturing group</p>
+    </li><li visbl="pub" name="fr.splayce.rel.GroupNamingStyle" data-isabs="false">
+      <a id="GroupNamingStyle:GroupNamingStyle"></a>
+      <h4 class="signature">
+      <span class="kind">class</span>
+      <span class="symbol"> 
+        <a href="GroupNamingStyle.html"><span class="name">GroupNamingStyle</span></a>
+        
+        <span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Strategy to represent named capturing groups and references inline</p>
+    </li><li visbl="pub" name="fr.splayce.rel.GroupRef" data-isabs="false">
+      <a id="GroupRef:GroupRef"></a>
+      <h4 class="signature">
+      <span class="kind">case class</span>
+      <span class="symbol"> 
+        <a href="GroupRef.html"><span class="name">GroupRef</span></a>
+        
+        <span class="params">(<span name="name">name: String</span>, <span name="embedStyle">embedStyle: Option[GroupNamingStyle]</span>)</span><span class="result"> extends RE0 with Wrapped with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Reference on a (named) capturing group</p>
+    </li><li visbl="pub" name="fr.splayce.rel.KCross" data-isabs="false">
+      <a id="KCross:KCross"></a>
+      <h4 class="signature">
+      <span class="kind">case class</span>
+      <span class="symbol"> 
+        <a href="KCross.html"><span class="name">KCross</span></a>
+        
+        <span class="params">(<span name="re">re: RE</span>, <span name="mode">mode: RepMode</span>)</span><span class="result"> extends Rep with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">One-or-more (<code>+</code>) quantifier</p>
+    </li><li visbl="pub" name="fr.splayce.rel.KStar" data-isabs="false">
+      <a id="KStar:KStar"></a>
+      <h4 class="signature">
+      <span class="kind">case class</span>
+      <span class="symbol"> 
+        <a href="KStar.html"><span class="name">KStar</span></a>
+        
+        <span class="params">(<span name="re">re: RE</span>, <span name="mode">mode: RepMode</span>)</span><span class="result"> extends Rep with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Zero-or-more (<code>+</code>) quantifier</p>
+    </li><li visbl="pub" name="fr.splayce.rel.LookAround" data-isabs="false">
+      <a id="LookAround:LookAround"></a>
+      <h4 class="signature">
+      <span class="kind">case class</span>
+      <span class="symbol"> 
+        <a href="LookAround.html"><span class="name">LookAround</span></a>
+        
+        <span class="params">(<span name="re">re: RE</span>, <span name="direction">direction: LookDirection</span>, <span name="positive">positive: Boolean</span>)</span><span class="result"> extends RE1 with Wrapped with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Look-around</p>
+    </li><li visbl="pub" name="fr.splayce.rel.LookDirection" data-isabs="true">
+      <a id="LookDirection:LookDirection"></a>
+      <h4 class="signature">
+      <span class="kind">class</span>
+      <span class="symbol"> 
+        <a href="LookDirection.html"><span class="name">LookDirection</span></a>
+        
+        <span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      <p class="comment cmt">LookAround directions</p>
+    </li><li visbl="pub" name="fr.splayce.rel.NCGroup" data-isabs="false">
+      <a id="NCGroup:NCGroup"></a>
+      <h4 class="signature">
+      <span class="kind">case class</span>
+      <span class="symbol"> 
+        <a href="NCGroup.html"><span class="name">NCGroup</span></a>
+        
+        <span class="params">(<span name="re">re: RE</span>, <span name="flags">flags: String</span>)</span><span class="result"> extends RE1 with Wrapped with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Non-capturing group</p>
+    </li><li visbl="pub" name="fr.splayce.rel.Opt" data-isabs="false">
+      <a id="Opt:Opt"></a>
+      <h4 class="signature">
+      <span class="kind">case class</span>
+      <span class="symbol"> 
+        <a href="Opt.html"><span class="name">Opt</span></a>
+        
+        <span class="params">(<span name="re">re: RE</span>, <span name="mode">mode: RepMode</span>)</span><span class="result"> extends Rep with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Zero-or-one (<code>?</code>) quantifier</p>
+    </li><li visbl="pub" name="fr.splayce.rel.RE" data-isabs="true">
+      <a id="RE:RE"></a>
+      <h4 class="signature">
+      <span class="kind">class</span>
+      <span class="symbol"> 
+        <a href="RE.html"><span class="name">RE</span></a>
+        
+        <span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A REL term in the expression tree</p>
+    </li><li visbl="pub" name="fr.splayce.rel.RE0" data-isabs="true">
+      <a id="RE0:RE0"></a>
+      <h4 class="signature">
+      <span class="kind">class</span>
+      <span class="symbol"> 
+        <a href="RE0.html"><span class="name">RE0</span></a>
+        
+        <span class="result"> extends RE</span>
+      </span>
+      </h4>
+      <p class="comment cmt">RE tree leaf</p>
+    </li><li visbl="pub" name="fr.splayce.rel.RE1" data-isabs="true">
+      <a id="RE1:RE1"></a>
+      <h4 class="signature">
+      <span class="kind">class</span>
+      <span class="symbol"> 
+        <a href="RE1.html"><span class="name">RE1</span></a>
+        
+        <span class="result"> extends RE</span>
+      </span>
+      </h4>
+      <p class="comment cmt">One-operand RE tree node</p>
+    </li><li visbl="pub" name="fr.splayce.rel.RE2" data-isabs="true">
+      <a id="RE2:RE2"></a>
+      <h4 class="signature">
+      <span class="kind">class</span>
+      <span class="symbol"> 
+        <a href="RE2.html"><span class="name">RE2</span></a>
+        
+        <span class="result"> extends RE</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Two-operands RE tree node</p>
+    </li><li visbl="pub" name="fr.splayce.rel.RECst" data-isabs="true">
+      <a id="RECst:RECst"></a>
+      <h4 class="signature">
+      <span class="kind">class</span>
+      <span class="symbol"> 
+        <a href="RECst.html"><span class="name">RECst</span></a>
+        
+        <span class="result"> extends REStr with Wrapped</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Abstract standalone raw regex expression that don't need non-capturing group protection.</p>
+    </li><li visbl="pub" name="fr.splayce.rel.REStr" data-isabs="true">
+      <a id="REStr:REStr"></a>
+      <h4 class="signature">
+      <span class="kind">class</span>
+      <span class="symbol"> 
+        <a href="REStr.html"><span class="name">REStr</span></a>
+        
+        <span class="result"> extends RE0</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Abstract standalone raw regex expression (not interpreted)</p>
+    </li><li visbl="pub" name="fr.splayce.rel.Rep" data-isabs="true">
+      <a id="Rep:Rep"></a>
+      <h4 class="signature">
+      <span class="kind">class</span>
+      <span class="symbol"> 
+        <a href="Rep.html"><span class="name">Rep</span></a>
+        
+        <span class="result"> extends RE1</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Quantifier (aka “repeater”)</p>
+    </li><li visbl="pub" name="fr.splayce.rel.RepAtLeastN" data-isabs="false">
+      <a id="RepAtLeastN:RepAtLeastN"></a>
+      <h4 class="signature">
+      <span class="kind">case class</span>
+      <span class="symbol"> 
+        <a href="RepAtLeastN.html"><span class="name">RepAtLeastN</span></a>
+        
+        <span class="params">(<span name="re">re: RE</span>, <span name="lb">lb: Int</span>, <span name="mode">mode: RepMode</span>)</span><span class="result"> extends Rep with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">At-least-N quantifier</p>
+    </li><li visbl="pub" name="fr.splayce.rel.RepAtMostN" data-isabs="false">
+      <a id="RepAtMostN:RepAtMostN"></a>
+      <h4 class="signature">
+      <span class="kind">case class</span>
+      <span class="symbol"> 
+        <a href="RepAtMostN.html"><span class="name">RepAtMostN</span></a>
+        
+        <span class="params">(<span name="re">re: RE</span>, <span name="max">max: Int</span>, <span name="mode">mode: RepMode</span>)</span><span class="result"> extends Rep with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">At-most-N quantifier</p>
+    </li><li visbl="pub" name="fr.splayce.rel.RepExactlyN" data-isabs="false">
+      <a id="RepExactlyN:RepExactlyN"></a>
+      <h4 class="signature">
+      <span class="kind">case class</span>
+      <span class="symbol"> 
+        <a href="RepExactlyN.html"><span class="name">RepExactlyN</span></a>
+        
+        <span class="params">(<span name="re">re: RE</span>, <span name="n">n: Int</span>)</span><span class="result"> extends Rep with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Exactly-N quantifier</p>
+    </li><li visbl="pub" name="fr.splayce.rel.RepMode" data-isabs="true">
+      <a id="RepMode:RepMode"></a>
+      <h4 class="signature">
+      <span class="kind">class</span>
+      <span class="symbol"> 
+        <a href="RepMode.html"><span class="name">RepMode</span></a>
+        
+        <span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Quantifier repeating mode</p>
+    </li><li visbl="pub" name="fr.splayce.rel.RepNToM" data-isabs="false">
+      <a id="RepNToM:RepNToM"></a>
+      <h4 class="signature">
+      <span class="kind">case class</span>
+      <span class="symbol"> 
+        <a href="RepNToM.html"><span class="name">RepNToM</span></a>
+        
+        <span class="params">(<span name="re">re: RE</span>, <span name="lb">lb: Int</span>, <span name="max">max: Int</span>, <span name="mode">mode: RepMode</span>)</span><span class="result"> extends Rep with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">N-to-M quantifier</p>
+    </li><li visbl="pub" name="fr.splayce.rel.Wrapped" data-isabs="true">
+      <a id="Wrapped:Wrapped"></a>
+      <h4 class="signature">
+      <span class="kind">trait</span>
+      <span class="symbol"> 
+        <a href="Wrapped.html"><span class="name">Wrapped</span></a>
+        
+        <span class="result"> extends RE</span>
+      </span>
+      </h4>
+      <p class="comment cmt">A Wrapped RE needs no NCGroup protection</p>
+    </li><li visbl="pub" name="fr.splayce.rel.Wrapper" data-isabs="false">
+      <a id="Wrapper:Wrapper"></a>
+      <h4 class="signature">
+      <span class="kind">case class</span>
+      <span class="symbol"> 
+        <a href="Wrapper.html"><span class="name">Wrapper</span></a>
+        
+        <span class="params">(<span name="re">re: RE</span>, <span name="prefix">prefix: String</span>, <span name="suffix">suffix: String</span>, <span name="appendGroupNames">appendGroupNames: List[String]</span>)</span><span class="result"> extends RE1 with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Utility all-purpose subtree wrapper.</p>
+    </li></ol>
+            </div>
+        
+        
+
+        <div class="values members" id="values">
+              <h3>Value Members</h3>
+              <ol><li visbl="pub" name="fr.splayce.rel.package#?!" data-isabs="false">
+      <a id="?!(RE):RE"></a>
+      <h4 class="signature">
+      <span class="kind">def</span>
+      <span class="symbol"> 
+        <span class="name">?!</span>
+        
+        <span class="params">(<span name="re">re: <a name="fr.splayce.rel.RE" class="extype" href="RE.html">RE</a></span>)</span><span class="result">: <a name="fr.splayce.rel.RE" class="extype" href="RE.html">RE</a></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="fr.splayce.rel.package" class="extype" href="package$.html">package</a></dd></dl></div>
+    </li><li visbl="pub" name="fr.splayce.rel.package#?&lt;!" data-isabs="false">
+      <a id="?&lt;!(RE):RE"></a>
+      <h4 class="signature">
+      <span class="kind">def</span>
+      <span class="symbol"> 
+        <span class="name">?&lt;!</span>
+        
+        <span class="params">(<span name="re">re: <a name="fr.splayce.rel.RE" class="extype" href="RE.html">RE</a></span>)</span><span class="result">: <a name="fr.splayce.rel.RE" class="extype" href="RE.html">RE</a></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="fr.splayce.rel.package" class="extype" href="package$.html">package</a></dd></dl></div>
+    </li><li visbl="pub" name="fr.splayce.rel.package#?&lt;=" data-isabs="false">
+      <a id="?&lt;=(RE):RE"></a>
+      <h4 class="signature">
+      <span class="kind">def</span>
+      <span class="symbol"> 
+        <span class="name">?&lt;=</span>
+        
+        <span class="params">(<span name="re">re: <a name="fr.splayce.rel.RE" class="extype" href="RE.html">RE</a></span>)</span><span class="result">: <a name="fr.splayce.rel.RE" class="extype" href="RE.html">RE</a></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="fr.splayce.rel.package" class="extype" href="package$.html">package</a></dd></dl></div>
+    </li><li visbl="pub" name="fr.splayce.rel.package#?=" data-isabs="false">
+      <a id="?=(RE):RE"></a>
+      <h4 class="signature">
+      <span class="kind">def</span>
+      <span class="symbol"> 
+        <span class="name">?=</span>
+        
+        <span class="params">(<span name="re">re: <a name="fr.splayce.rel.RE" class="extype" href="RE.html">RE</a></span>)</span><span class="result">: <a name="fr.splayce.rel.RE" class="extype" href="RE.html">RE</a></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="fr.splayce.rel.package" class="extype" href="package$.html">package</a></dd></dl></div>
+    </li><li visbl="pub" name="fr.splayce.rel.package#?&gt;" data-isabs="false">
+      <a id="?&gt;(RE):RE"></a>
+      <h4 class="signature">
+      <span class="kind">def</span>
+      <span class="symbol"> 
+        <span class="name">?&gt;</span>
+        
+        <span class="params">(<span name="re">re: <a name="fr.splayce.rel.RE" class="extype" href="RE.html">RE</a></span>)</span><span class="result">: <a name="fr.splayce.rel.RE" class="extype" href="RE.html">RE</a></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="fr.splayce.rel.package" class="extype" href="package$.html">package</a></dd></dl></div>
+    </li><li visbl="pub" name="fr.splayce.rel.Ahead" data-isabs="false">
+      <a id="Ahead:Ahead"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="Ahead$.html"><span class="name">Ahead</span></a>
+        
+        <span class="result"> extends LookDirection with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">LookAround direction: Ahead</p>
+    </li><li visbl="pub" name="fr.splayce.rel.Alpha" data-isabs="false">
+      <a id="Alpha:Alpha"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="Alpha$.html"><span class="name">Alpha</span></a>
+        
+        <span class="result"> extends RECst with Product with Serializable</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.AlphaLower" data-isabs="false">
+      <a id="AlphaLower:AlphaLower"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="AlphaLower$.html"><span class="name">AlphaLower</span></a>
+        
+        <span class="result"> extends RECst with Product with Serializable</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.AlphaUpper" data-isabs="false">
+      <a id="AlphaUpper:AlphaUpper"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="AlphaUpper$.html"><span class="name">AlphaUpper</span></a>
+        
+        <span class="result"> extends RECst with Product with Serializable</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.AposNamingStyle" data-isabs="false">
+      <a id="AposNamingStyle:AposNamingStyle"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="AposNamingStyle$.html"><span class="name">AposNamingStyle</span></a>
+        
+        <span class="result"> extends GroupNamingStyle with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Named capturing group style for ․NET (ASP-style).</p>
+    </li><li visbl="pub" name="fr.splayce.rel.Behind" data-isabs="false">
+      <a id="Behind:Behind"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="Behind$.html"><span class="name">Behind</span></a>
+        
+        <span class="result"> extends LookDirection with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">LookAround direction: Behind</p>
+    </li><li visbl="pub" name="fr.splayce.rel.ChevNamingStyle" data-isabs="false">
+      <a id="ChevNamingStyle:ChevNamingStyle"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="ChevNamingStyle$.html"><span class="name">ChevNamingStyle</span></a>
+        
+        <span class="result"> extends GroupNamingStyle with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Named capturing group style for Java 7, ․NET, modern PCRE.</p>
+    </li><li visbl="pub" name="fr.splayce.rel.Digit" data-isabs="false">
+      <a id="Digit:Digit"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="Digit$.html"><span class="name">Digit</span></a>
+        
+        <span class="result"> extends RECst with Product with Serializable</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.Dot" data-isabs="false">
+      <a id="Dot:Dot"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="Dot$.html"><span class="name">Dot</span></a>
+        
+        <span class="result"> extends RECst with Product with Serializable</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.Epsilon" data-isabs="false">
+      <a id="Epsilon:Epsilon"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="Epsilon$.html"><span class="name">Epsilon</span></a>
+        
+        <span class="result"> extends RECst with Product with Serializable</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.Greedy" data-isabs="false">
+      <a id="Greedy:Greedy"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="Greedy$.html"><span class="name">Greedy</span></a>
+        
+        <span class="result"> extends RepMode with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Greedy quantifier repeating mode</p>
+    </li><li visbl="pub" name="fr.splayce.rel.Implicits" data-isabs="false">
+      <a id="Implicits:Implicits"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="Implicits$.html"><span class="name">Implicits</span></a>
+        
+        <span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.InputBegin" data-isabs="false">
+      <a id="InputBegin:InputBegin"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="InputBegin$.html"><span class="name">InputBegin</span></a>
+        
+        <span class="result"> extends RECst with Product with Serializable</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.InputEnd" data-isabs="false">
+      <a id="InputEnd:InputEnd"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="InputEnd$.html"><span class="name">InputEnd</span></a>
+        
+        <span class="result"> extends RECst with Product with Serializable</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.Letter" data-isabs="false">
+      <a id="Letter:Letter"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="Letter$.html"><span class="name">Letter</span></a>
+        
+        <span class="result"> extends RECst with Product with Serializable</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.LetterLower" data-isabs="false">
+      <a id="LetterLower:LetterLower"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="LetterLower$.html"><span class="name">LetterLower</span></a>
+        
+        <span class="result"> extends RECst with Product with Serializable</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.LetterUpper" data-isabs="false">
+      <a id="LetterUpper:LetterUpper"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="LetterUpper$.html"><span class="name">LetterUpper</span></a>
+        
+        <span class="result"> extends RECst with Product with Serializable</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.LineBegin" data-isabs="false">
+      <a id="LineBegin:LineBegin"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="LineBegin$.html"><span class="name">LineBegin</span></a>
+        
+        <span class="result"> extends RECst with Product with Serializable</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.LineEnd" data-isabs="false">
+      <a id="LineEnd:LineEnd"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="LineEnd$.html"><span class="name">LineEnd</span></a>
+        
+        <span class="result"> extends RECst with Product with Serializable</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.LineTerminator" data-isabs="false">
+      <a id="LineTerminator:LineTerminator"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="LineTerminator$.html"><span class="name">LineTerminator</span></a>
+        
+        <span class="result"> extends RECst with Product with Serializable</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.MLDot" data-isabs="false">
+      <a id="MLDot:MLDot"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="MLDot$.html"><span class="name">MLDot</span></a>
+        
+        <span class="result"> extends RECst with Product with Serializable</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.NotAlpha" data-isabs="false">
+      <a id="NotAlpha:NotAlpha"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="NotAlpha$.html"><span class="name">NotAlpha</span></a>
+        
+        <span class="result"> extends RECst with Product with Serializable</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.NotDigit" data-isabs="false">
+      <a id="NotDigit:NotDigit"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="NotDigit$.html"><span class="name">NotDigit</span></a>
+        
+        <span class="result"> extends RECst with Product with Serializable</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.NotLetter" data-isabs="false">
+      <a id="NotLetter:NotLetter"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="NotLetter$.html"><span class="name">NotLetter</span></a>
+        
+        <span class="result"> extends RECst with Product with Serializable</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.NotWhiteSpace" data-isabs="false">
+      <a id="NotWhiteSpace:NotWhiteSpace"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="NotWhiteSpace$.html"><span class="name">NotWhiteSpace</span></a>
+        
+        <span class="result"> extends RECst with Product with Serializable</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.NotWord" data-isabs="false">
+      <a id="NotWord:NotWord"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="NotWord$.html"><span class="name">NotWord</span></a>
+        
+        <span class="result"> extends RECst with Product with Serializable</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.NotWordBoundary" data-isabs="false">
+      <a id="NotWordBoundary:NotWordBoundary"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="NotWordBoundary$.html"><span class="name">NotWordBoundary</span></a>
+        
+        <span class="result"> extends RECst with Product with Serializable</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.PNamingStyle" data-isabs="false">
+      <a id="PNamingStyle:PNamingStyle"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="PNamingStyle$.html"><span class="name">PNamingStyle</span></a>
+        
+        <span class="result"> extends GroupNamingStyle with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Named capturing group style for Python, old PCRE.</p>
+    </li><li visbl="pub" name="fr.splayce.rel.Possessive" data-isabs="false">
+      <a id="Possessive:Possessive"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="Possessive$.html"><span class="name">Possessive</span></a>
+        
+        <span class="result"> extends RepMode with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Possessive quantifier repeating mode</p>
+    </li><li visbl="pub" name="fr.splayce.rel.RE" data-isabs="false">
+      <a id="RE:RE"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="RE$.html"><span class="name">RE</span></a>
+        
+        <span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.Reluctant" data-isabs="false">
+      <a id="Reluctant:Reluctant"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="Reluctant$.html"><span class="name">Reluctant</span></a>
+        
+        <span class="result"> extends RepMode with Product with Serializable</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Reluctant quantifier repeating mode</p>
+    </li><li visbl="pub" name="fr.splayce.rel.Symbols" data-isabs="false">
+      <a id="Symbols:Symbols"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="Symbols$.html"><span class="name">Symbols</span></a>
+        
+        <span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Shorthand symbols for common regex constants</p>
+    </li><li visbl="pub" name="fr.splayce.rel.TraversalOrder" data-isabs="false">
+      <a id="TraversalOrder:TraversalOrder"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="TraversalOrder$.html"><span class="name">TraversalOrder</span></a>
+        
+        <span class="result"> extends Enumeration</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.WhiteSpace" data-isabs="false">
+      <a id="WhiteSpace:WhiteSpace"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="WhiteSpace$.html"><span class="name">WhiteSpace</span></a>
+        
+        <span class="result"> extends RECst with Product with Serializable</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.Word" data-isabs="false">
+      <a id="Word:Word"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="Word$.html"><span class="name">Word</span></a>
+        
+        <span class="result"> extends RECst with Product with Serializable</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.WordBoundary" data-isabs="false">
+      <a id="WordBoundary:WordBoundary"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="WordBoundary$.html"><span class="name">WordBoundary</span></a>
+        
+        <span class="result"> extends RECst with Product with Serializable</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.cleaners" data-isabs="false">
+      <a id="cleaners:cleaners"></a>
+      <h4 class="signature">
+      <span class="kind">package</span>
+      <span class="symbol"> 
+        <a href="cleaners/package.html"><span class="name">cleaners</span></a>
+        
+        
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.package#esc" data-isabs="false">
+      <a id="esc(String):Escaped"></a>
+      <h4 class="signature">
+      <span class="kind">def</span>
+      <span class="symbol"> 
+        <span class="name">esc</span>
+        
+        <span class="params">(<span name="str">str: String</span>)</span><span class="result">: <a name="fr.splayce.rel.Escaped" class="extype" href="Escaped.html">Escaped</a></span>
+      </span>
+      </h4>
+      <div class="fullcomment"><dl class="attributes block"> <dt>Definition Classes</dt><dd><a name="fr.splayce.rel.package" class="extype" href="package$.html">package</a></dd></dl></div>
+    </li><li visbl="pub" name="fr.splayce.rel.flavors" data-isabs="false">
+      <a id="flavors:flavors"></a>
+      <h4 class="signature">
+      <span class="kind">package</span>
+      <span class="symbol"> 
+        <a href="flavors/package.html"><span class="name">flavors</span></a>
+        
+        
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.matchers" data-isabs="false">
+      <a id="matchers:matchers"></a>
+      <h4 class="signature">
+      <span class="kind">package</span>
+      <span class="symbol"> 
+        <a href="matchers/package.html"><span class="name">matchers</span></a>
+        
+        
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.util" data-isabs="false">
+      <a id="util:util"></a>
+      <h4 class="signature">
+      <span class="kind">package</span>
+      <span class="symbol"> 
+        <a href="util/package.html"><span class="name">util</span></a>
+        
+        
+      </span>
+      </h4>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+
+      </div>
+      
+      <div id="tooltip"></div>
+      
+    </body>
+      </html>

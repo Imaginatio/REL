@@ -1,0 +1,300 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+        <head>
+          <title>fr.splayce.rel.flavors</title>
+          <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+          
+      <link type="text/css" media="screen" rel="stylesheet" href="../../../../lib/template.css" />
+      <script type="text/javascript" src="../../../../lib/jquery.js"></script>
+      <script type="text/javascript" src="../../../../lib/jquery-ui.js"></script>
+      <script type="text/javascript" src="../../../../lib/template.js"></script>
+      <script type="text/javascript" src="../../../../lib/tools.tooltip.js"></script>
+    
+        </head>
+        <body class="value">
+      <div id="definition">
+        <img src="../../../../lib/package_big.png" />
+        <p id="owner"><a name="fr" class="extype" href="../../../package.html">fr</a>.<a name="fr.splayce" class="extype" href="../../package.html">splayce</a>.<a name="fr.splayce.rel" class="extype" href="../package.html">rel</a></p>
+        <h1>flavors</h1>
+      </div>
+
+      <h4 class="signature" id="signature">
+      <span class="kind">package</span>
+      <span class="symbol"> 
+        <span class="name">flavors</span>
+        
+        
+      </span>
+      </h4>
+      
+          <div class="fullcommenttop" id="comment"></div>
+        
+
+      <div id="template">
+
+        <div id="mbrsel">
+          <div id="textfilter"><span class="pre"></span><span class="input"><input accesskey="/" type="text" /></span><span class="post"></span></div>
+          
+          
+          <div id="visbl">
+              <span class="filtertype">Visibility</span>
+              <ol><li class="public in"><span>Public</span></li><li class="all out"><span>All</span></li></ol>
+            </div>
+        </div>
+
+        
+
+        <div class="types members" id="types">
+              <h3>Type Members</h3>
+              <ol><li visbl="pub" name="fr.splayce.rel.flavors.AtomicToLookAhead" data-isabs="true">
+      <a id="AtomicToLookAhead:AtomicToLookAhead"></a>
+      <h4 class="signature">
+      <span class="kind">trait</span>
+      <span class="symbol"> 
+        <a href="AtomicToLookAhead.html"><span class="name">AtomicToLookAhead</span></a>
+        
+        <span class="result"> extends PossessiveToAtomic</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Mimick atomic grouping and possessive quantifiers with capturing LookAheads.</p>
+    </li><li visbl="pub" name="fr.splayce.rel.flavors.EmbedGroupNames" data-isabs="true">
+      <a id="EmbedGroupNames:EmbedGroupNames"></a>
+      <h4 class="signature">
+      <span class="kind">trait</span>
+      <span class="symbol"> 
+        <a href="EmbedGroupNames.html"><span class="name">EmbedGroupNames</span></a>
+        
+        <span class="result"> extends FlavorLike</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Embeds validly-named capturing groups and references, Java 7-style (<code>(?&lt;name&gt;expr)</code> and <code>(\k&lt;name&gt;)</code>).</p>
+    </li><li visbl="pub" name="fr.splayce.rel.flavors.GroupNameSimplifier" data-isabs="false">
+      <a id="GroupNameSimplifier:GroupNameSimplifier"></a>
+      <h4 class="signature">
+      <span class="kind">class</span>
+      <span class="symbol"> 
+        <a href="GroupNameSimplifier.html"><span class="name">GroupNameSimplifier</span></a>
+        
+        <span class="result"> extends Flavor</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Group name simplifier for Flavors that support limited group names.</p>
+    </li><li visbl="pub" name="fr.splayce.rel.flavors.NoLocalModeModifierSupport" data-isabs="true">
+      <a id="NoLocalModeModifierSupport:NoLocalModeModifierSupport"></a>
+      <h4 class="signature">
+      <span class="kind">trait</span>
+      <span class="symbol"> 
+        <a href="NoLocalModeModifierSupport.html"><span class="name">NoLocalModeModifierSupport</span></a>
+        
+        <span class="result"> extends FlavorLike</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Prevents usage of local mode modifiers (NCG flags like <code>(?-i:sub-expression)</code>)</p>
+    </li><li visbl="pub" name="fr.splayce.rel.flavors.NoLookAroundSupport" data-isabs="true">
+      <a id="NoLookAroundSupport:NoLookAroundSupport"></a>
+      <h4 class="signature">
+      <span class="kind">trait</span>
+      <span class="symbol"> 
+        <a href="NoLookAroundSupport.html"><span class="name">NoLookAroundSupport</span></a>
+        
+        <span class="result"> extends NoLookBehindSupport</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Prevents usage of LookAround.</p>
+    </li><li visbl="pub" name="fr.splayce.rel.flavors.NoLookBehindSupport" data-isabs="true">
+      <a id="NoLookBehindSupport:NoLookBehindSupport"></a>
+      <h4 class="signature">
+      <span class="kind">trait</span>
+      <span class="symbol"> 
+        <a href="NoLookBehindSupport.html"><span class="name">NoLookBehindSupport</span></a>
+        
+        <span class="result"> extends FlavorLike</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Prevents usage of LookBehind.</p>
+    </li><li visbl="pub" name="fr.splayce.rel.flavors.NoUnicodeCategoriesSupport" data-isabs="true">
+      <a id="NoUnicodeCategoriesSupport:NoUnicodeCategoriesSupport"></a>
+      <h4 class="signature">
+      <span class="kind">trait</span>
+      <span class="symbol"> 
+        <a href="NoUnicodeCategoriesSupport.html"><span class="name">NoUnicodeCategoriesSupport</span></a>
+        
+        <span class="result"> extends FlavorLike</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Prevents usage of Unicode categories.</p>
+    </li><li visbl="pub" name="fr.splayce.rel.flavors.NoUnicodeSupport" data-isabs="true">
+      <a id="NoUnicodeSupport:NoUnicodeSupport"></a>
+      <h4 class="signature">
+      <span class="kind">trait</span>
+      <span class="symbol"> 
+        <a href="NoUnicodeSupport.html"><span class="name">NoUnicodeSupport</span></a>
+        
+        <span class="result"> extends NoUnicodeCategoriesSupport</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Prevents usage of Unicode: single characters, categories.</p>
+    </li><li visbl="pub" name="fr.splayce.rel.flavors.PossessiveToAtomic" data-isabs="true">
+      <a id="PossessiveToAtomic:PossessiveToAtomic"></a>
+      <h4 class="signature">
+      <span class="kind">trait</span>
+      <span class="symbol"> 
+        <a href="PossessiveToAtomic.html"><span class="name">PossessiveToAtomic</span></a>
+        
+        <span class="result"> extends FlavorLike</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Translates a Possessive quantifier into a Greedy one wrapped into an AtomicGroup: <code>a++</code> becomes <code>(?&gt;a+)</code>.</p>
+    </li><li visbl="pub" name="fr.splayce.rel.flavors.StripGroupNames" data-isabs="true">
+      <a id="StripGroupNames:StripGroupNames"></a>
+      <h4 class="signature">
+      <span class="kind">trait</span>
+      <span class="symbol"> 
+        <a href="StripGroupNames.html"><span class="name">StripGroupNames</span></a>
+        
+        <span class="result"> extends FlavorLike</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Strips inline-named capturing groups and references, Java 6-style (<code>(expr)</code> and <code>(\n)</code>).</p>
+    </li><li visbl="pub" name="fr.splayce.rel.flavors.TranslatedRECst" data-isabs="false">
+      <a id="TranslatedRECst:TranslatedRECst"></a>
+      <h4 class="signature">
+      <span class="kind">class</span>
+      <span class="symbol"> 
+        <a href="TranslatedRECst.html"><span class="name">TranslatedRECst</span></a>
+        
+        <span class="result"> extends RECst</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.flavors.TranslatedREStr" data-isabs="false">
+      <a id="TranslatedREStr:TranslatedREStr"></a>
+      <h4 class="signature">
+      <span class="kind">class</span>
+      <span class="symbol"> 
+        <a href="TranslatedREStr.html"><span class="name">TranslatedREStr</span></a>
+        
+        <span class="result"> extends REStr</span>
+      </span>
+      </h4>
+      
+    </li></ol>
+            </div>
+        
+        
+
+        <div class="values members" id="values">
+              <h3>Value Members</h3>
+              <ol><li visbl="pub" name="fr.splayce.rel.flavors.AtomicToLookAhead" data-isabs="false">
+      <a id="AtomicToLookAhead:AtomicToLookAhead"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="AtomicToLookAhead$.html"><span class="name">AtomicToLookAhead</span></a>
+        
+        <span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.flavors.DotNETFlavor" data-isabs="false">
+      <a id="DotNETFlavor:DotNETFlavor"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="DotNETFlavor$.html"><span class="name">DotNETFlavor</span></a>
+        
+        <span class="result"> extends Flavor with EmbedGroupNames with PossessiveToAtomic</span>
+      </span>
+      </h4>
+      <p class="comment cmt">․NET flavor</p>
+    </li><li visbl="pub" name="fr.splayce.rel.flavors.GroupNameSimplifier" data-isabs="false">
+      <a id="GroupNameSimplifier:GroupNameSimplifier"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="GroupNameSimplifier$.html"><span class="name">GroupNameSimplifier</span></a>
+        
+        <span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      
+    </li><li visbl="pub" name="fr.splayce.rel.flavors.Java6Flavor" data-isabs="false">
+      <a id="Java6Flavor:Java6Flavor"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="Java6Flavor$.html"><span class="name">Java6Flavor</span></a>
+        
+        <span class="result"> extends Flavor with StripGroupNames</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Java ≤ 6 Flavor.</p>
+    </li><li visbl="pub" name="fr.splayce.rel.flavors.Java7Flavor" data-isabs="false">
+      <a id="Java7Flavor:Java7Flavor"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="Java7Flavor$.html"><span class="name">Java7Flavor</span></a>
+        
+        <span class="result"> extends Flavor with EmbedGroupNames</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Java ≥ 7 Flavor.</p>
+    </li><li visbl="pub" name="fr.splayce.rel.flavors.JavaScriptFlavor" data-isabs="false">
+      <a id="JavaScriptFlavor:JavaScriptFlavor"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="JavaScriptFlavor$.html"><span class="name">JavaScriptFlavor</span></a>
+        
+        <span class="result"> extends Flavor with StripGroupNames with AtomicToLookAhead with NoUnicodeCategoriesSupport with NoLookBehindSupport with NoLocalModeModifierSupport</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Vanilla JavaScript / ECMA-262 flavor, with very limited Unicode support</p>
+    </li><li visbl="pub" name="fr.splayce.rel.flavors.LegacyRubyFlavor" data-isabs="false">
+      <a id="LegacyRubyFlavor:LegacyRubyFlavor"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="LegacyRubyFlavor$.html"><span class="name">LegacyRubyFlavor</span></a>
+        
+        <span class="result"> extends Flavor with StripGroupNames with PossessiveToAtomic with NoUnicodeSupport with NoLookBehindSupport</span>
+      </span>
+      </h4>
+      <p class="comment cmt">Legacy Ruby &lt;= 1․8 flavor, which does not support Unicode (at all) nor LookBehind.</p>
+    </li><li visbl="pub" name="fr.splayce.rel.flavors.PCREFlavor" data-isabs="false">
+      <a id="PCREFlavor:PCREFlavor"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="PCREFlavor$.html"><span class="name">PCREFlavor</span></a>
+        
+        <span class="result"> extends Flavor with EmbedGroupNames</span>
+      </span>
+      </h4>
+      <p class="comment cmt">PCRE Flavor (C, PHP, Ruby 1.</p>
+    </li><li visbl="pub" name="fr.splayce.rel.flavors.PossessiveToAtomic" data-isabs="false">
+      <a id="PossessiveToAtomic:PossessiveToAtomic"></a>
+      <h4 class="signature">
+      <span class="kind">object</span>
+      <span class="symbol"> 
+        <a href="PossessiveToAtomic$.html"><span class="name">PossessiveToAtomic</span></a>
+        
+        <span class="result"> extends AnyRef</span>
+      </span>
+      </h4>
+      
+    </li></ol>
+            </div>
+
+        
+
+        
+
+      </div>
+      
+      <div id="tooltip"></div>
+      
+    </body>
+      </html>

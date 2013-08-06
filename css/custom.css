@@ -1,0 +1,29 @@
+code:not(.prettyprint) {
+	-webkit-border-radius: 3px;
+	        border-radius: 3px;
+	background-color: rgba(204, 204, 204, .25);
+	padding: 0 3px;
+	text-indent: 0;
+}
+
+table code,
+li code,
+p code {
+	display: inline-block;
+}
+
+pre {
+	border-top: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	padding-top: 3px;	
+	padding-bottom: 3px;	
+}
+
+pre code, td code, th code  {
+	background-color: transparent !important;
+}
+
+
+p + p {
+	padding-top: .5em;
+}

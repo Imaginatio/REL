@@ -1,0 +1,138 @@
+<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html>
+      <head>
+        <title>REL — Matchers</title>
+        <link type="text/css" media="screen, projection" rel="stylesheet" href="css/blueprint/screen.css"></link>
+        <link type="text/css" media="screen and (min-device-width: 800px), projection" rel="stylesheet" href="css/blueprint/grid.css"></link>
+        <link type="text/css" media="print" rel="stylesheet" href="css/blueprint/print.css"></link> 
+        <!--[if lt IE 8]>
+          <link rel="stylesheet" href="css/blueprint/ie.css" type="text/css" media="screen, projection"/>
+        <![endif]-->
+        <link type="text/css" media="screen, projection" rel="stylesheet" href="css/pamflet.css"></link>
+        <link type="text/css" media="print" rel="stylesheet" href="css/pamflet-print.css"></link>
+        <link type="text/css" media="screen and (min-device-width: 800px), projection" rel="stylesheet" href="css/pamflet-grid.css"></link>
+        <link type="text/css" media="screen, projection" rel="stylesheet" href="css/custom.css"></link>
+        <script src="js/jquery-1.6.2.min.js"></script>
+        <script src="js/jquery.collapse.js"></script>
+        <script src="js/pamflet.js"></script>
+        <script type="text/javascript" src="js/prettify/prettify.js"></script><script type="text/javascript" src="js/prettify/lang-scala.js"></script><link type="text/css" rel="stylesheet" href="css/prettify.css"></link><script type="text/javascript"><!--
+        window.onload=function() { prettyPrint(); };
+      --></script>
+        <meta charset="utf-8"></meta>
+        <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+        
+      </head>
+      <body>
+        <a class="page prev nav" href="Extractors.html">
+            <span class="space">&nbsp;</span>
+            <span class="flip">❧</span>
+          </a><a class="page next nav" href="Tree+rewriting+%26+Flavors.html">
+            <span class="space">&nbsp;</span>
+            <span>❧</span>
+          </a>
+        <div class="container">
+          <div class="span-16 prepend-1 append-1">
+            <div class="top nav span-16 title">
+              <span>REL</span> — Matchers
+            </div>
+          </div>
+          <div class="span-16 prepend-1 append-1 contents">
+            <h1 id="Matchers">Matchers</h1><p>REL comes with some <em>matchers</em> built-in for commonly needed entities like dates. <em>Matchers</em> are <code>RE</code> expressions and corresponding extractors.
+</p><p>As the matchers collection will probably grow, they may come in a separate packaging one day (e.g. <em>rel-contrib</em>), but should keep their package and class names.
+</p><h2 id="Dates">Dates</h2><p>The dates matchers provide regexes and extractors for dates, both numeric (1/23/12, 2012-01-23) and alphanumeric (january 23rd, 2012), for English and French, partial (with at least a month or a year) or full.
+</p><h3 id="Regexes">Regexes</h3><table>
+<colgroup>
+<col style="text-align:left;"/>
+<col style="text-align:left;"/>
+</colgroup>
+
+<thead>
+<tr>
+	<th style="text-align:left;">Regex in <code>rel.matchers.…</code></th>
+	<th style="text-align:left;">Matches</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+	<td style="text-align:left;"><code>Date.FULL</code></td>
+	<td style="text-align:left;"><code>YMD</code> and <code>DMY</code> numerical formats</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>Date.FULL_US</code></td>
+	<td style="text-align:left;"><code>MDY</code>, <code>YMD</code> and <code>DMY</code> numerical formats</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>Date.NUMERIC</code></td>
+	<td style="text-align:left;">Numerical, including partial dates</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>Date.NUMERIC_US</code></td>
+	<td style="text-align:left;">Numerical, including <code>MDY</code> and partials</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>en.Date.ALPHA</code></td>
+	<td style="text-align:left;">English alphanumerical dates or partials</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>en.Date.ALPHA_FULL</code></td>
+	<td style="text-align:left;">English alphanumerical dates</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>en.Date.ALL</code></td>
+	<td style="text-align:left;">English alphanumerical or numerical dates or partials</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>en.Date.ALL_FULL</code></td>
+	<td style="text-align:left;">English alphanumerical or numerical dates</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>fr.Date.ALPHA</code></td>
+	<td style="text-align:left;">French alphanumerical dates or partials</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>fr.Date.ALPHA_FULL</code></td>
+	<td style="text-align:left;">French alphanumerical dates</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>fr.Date.ALL</code></td>
+	<td style="text-align:left;">French alphanumerical or numerical dates or partials</td>
+</tr>
+<tr>
+	<td style="text-align:left;"><code>fr.Date.ALL_FULL</code></td>
+	<td style="text-align:left;">French alphanumerical or numerical dates</td>
+</tr>
+</tbody>
+</table>
+
+<h3 id="Extractors">Extractors</h3><p>Numerical dates may be ambiguous. For this reason, the date extractors will extract, for each match in the input string, a <code>List[DateExtractor.Result]</code>. Any additional disambiguation is left to client code.
+</p><p><code>DateExtractor.Result</code> is a case class with three <code>Option[Int]</code>: <code>y</code>, <code>m</code>, <code>d</code>. A year may be on 2 or 4 digits, left for interpretation too. The <code>toString</code> method provides search-engine-friendly tokens: <code>1998-10-20</code> will yield <code>Y1998 Y10 M10 D20</code> (note the doubling of the year in 2 digits form too).
+</p><p>The extractors to use are:
+</p><ul><li><code>matchers.DateExtractor</code> for numeric (full or partial, English or French)
+</li><li><code>matchers.en.FullDateExtractor</code> for <code>matchers.en.*_FULL</code>
+</li><li><code>matchers.en.DateExtractor</code> for <code>matchers.en.*</code>
+</li><li><code>matchers.fr.FullDateExtractor</code> for <code>matchers.fr.*_FULL</code>
+</li><li><code>matchers.fr.DateExtractor</code> for <code>matchers.fr.*</code>
+</li></ul><p>To extract dates from a <code>String</code>:
+</p><pre><code class="prettyprint lang-scala">import fr.splayce.rel.matchers
+import matchers.DateExtractor.NUMERIC
+import matchers.fr.{FullDateExtractor =&gt; FrDateExtr}
+
+NUMERIC(&quot;2012-12-31&quot;).next // List(Y2012 Y12 M12 D31)
+FrDateExtr(&quot;31 janvier 2013&quot;).next // List(Y2013 Y13 M01 D31)
+</code></pre><p>We can also reuse those extractor in other extractors to get Lists of <code>DateExtractor.Result</code> directly form a <code>String</code>, <code>Regex.Match</code>, <code>MatchGroup</code>… <code>DateExtratorSpec</code> contains several examples and use cases.
+</p><h2 id="Utilities">Utilities</h2><p>The <code>matchers</code> package also provides a few utility functions to help build other matchers. The <code>escaped</code> and <code>unescaped</code> functions build a <code>RE</code> expression to match an escaped (resp. unescaped) sub-expression, i.e. preceded by an even (resp. odd) number of the escape string.</p><div class="bottom nav">
+                        <em>Next Page</em>
+                        <span class="arrow">❧</span>
+                        <a href="Tree+rewriting+%26+Flavors.html"> Tree rewriting &amp; Flavors </a>
+                      </div><div class="tocwrapper show">
+      <a class="tochead nav" style="display: none" href="#toc">❦</a>
+      <a name="toc"></a>
+      <h4 class="toctitle">Contents</h4>
+      <div class="tocbody">
+      <div><a href="index.html">REL</a></div><ol class="toc"> <li><div><a href="DSL+Syntax.html">DSL Syntax</a></div></li><li><div><a href="Extractors.html">Extractors</a></div></li><li><div class="current">Matchers</div></li><li><div><a href="Tree+rewriting+%26+Flavors.html">Tree rewriting &amp; Flavors</a></div></li><li><div><a href="Cleaners.html">Cleaners</a></div></li><li><div><a href="Limitations+%26+Known+Issues.html">Limitations &amp; Known Issues</a></div></li><li class="generated"><div><a href="Contents+in+Depth.html">Contents in Depth</a></div></li><li class="generated"><div><a href="Combined+Pages.html">Combined Pages</a></div></li> </ol></div></div>
+          </div>
+        </div>
+        
+      </body>
+    </html>

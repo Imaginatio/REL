@@ -1,0 +1,79 @@
+<!DOCTYPE html SYSTEM "about:legacy-compat">
+<html>
+      <head>
+        <title>REL — Limitations &amp; Known Issues</title>
+        <link type="text/css" media="screen, projection" rel="stylesheet" href="css/blueprint/screen.css"></link>
+        <link type="text/css" media="screen and (min-device-width: 800px), projection" rel="stylesheet" href="css/blueprint/grid.css"></link>
+        <link type="text/css" media="print" rel="stylesheet" href="css/blueprint/print.css"></link> 
+        <!--[if lt IE 8]>
+          <link rel="stylesheet" href="css/blueprint/ie.css" type="text/css" media="screen, projection"/>
+        <![endif]-->
+        <link type="text/css" media="screen, projection" rel="stylesheet" href="css/pamflet.css"></link>
+        <link type="text/css" media="print" rel="stylesheet" href="css/pamflet-print.css"></link>
+        <link type="text/css" media="screen and (min-device-width: 800px), projection" rel="stylesheet" href="css/pamflet-grid.css"></link>
+        <link type="text/css" media="screen, projection" rel="stylesheet" href="css/custom.css"></link>
+        <script src="js/jquery-1.6.2.min.js"></script>
+        <script src="js/jquery.collapse.js"></script>
+        <script src="js/pamflet.js"></script>
+        
+        <meta charset="utf-8"></meta>
+        <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+        
+      </head>
+      <body>
+        <a class="page prev nav" href="Cleaners.html">
+            <span class="space">&nbsp;</span>
+            <span class="flip">❧</span>
+          </a><a class="page next nav" href="Contents+in+Depth.html">
+            <span class="space">&nbsp;</span>
+            <span>❧</span>
+          </a>
+        <div class="container">
+          <div class="span-16 prepend-1 append-1">
+            <div class="top nav span-16 title">
+              <span>REL</span> — Limitations &amp; Known Issues
+            </div>
+          </div>
+          <div class="span-16 prepend-1 append-1 contents">
+            <h1 id="Limitations+%26+Known+Issues">Limitations &amp; Known Issues</h1><h2 id="Versioning">Versioning</h2><p>REL version number follows the <a  href="http://semver.org/">Semantic Versioning 2.0 Specification</a>. In the current early stage of development, the API is still unstable and backward compatibility may break.
+As an additional rule, in version <code>0.Y.Z</code>, a <code>Z</code>-only version change is expected to be backward compatible with previous <code>0.Y.*</code> versions. But a <code>Y</code> version change potentially breaks backward compatibility.
+</p><h2 id="DSL">DSL</h2><p>There is no representation in the DSL for specific character ranges nor raw strings.
+</p><p>The <strong>string primitives are not parsed</strong> (use <code>esc(str)</code> to escape a string that should be matched literally). Hence:
+</p><ul><li>Any capturing group you pass inside those strings are not taken into account by REL when the final regex is generated. The following groups and back-references will be shifted so the resulting regex will most probably be incorrect.
+</li><li>You still need to escape your expressions to match literally characters that are regex-significant like <code>+</code>, <code>?</code> or <code>(</code>, even in <code>RECst</code>. Use <code>esc(str)</code> to escape the whole string.
+</li><li>Any regex you pass as a string is kept as-is when translated into different flavors. For instance, the <code>\w</code> passed in a string (as opposed to used with <code>Word</code>/<code>μ</code>) will not be translated by the <code>DotNETFlavor</code>.
+</li></ul><h2 id="Flavors">Flavors</h2><p>The Group names are checked but not inlined silently if they fail the validation, or if they are duplicated when the flavor requires unicity.
+</p><p><code>\uXXXX</code> is not supported by PCRE, yet not translated by <code>PCREFlavor</code> so far.
+</p><p>JavaScript regexes are quite limited and work a bit differently. In JavaScript flavor:
+</p><ul><li><code>WordBoundary</code>/<code>\b</code> is kept as-is, but will not have exactly the same semantic because of the lack of Unicode support in JavaScript regex flavor. For instance, in <code>&quot;fiancé&quot;</code>, Javascript sees <code>&quot;\bfianc\bé&quot;</code> where most other flavors see <code>&quot;\bfiancé\b&quot;</code>. Same goes for <code>NotWordBoundary</code>/<code>\B</code>.
+</li><li><code>InputBegin</code> (<code>^^</code>) and <code>InputEnd</code> (<code>$$</code>) are translated to <code>LineBegin</code> (<code>^</code>) and <code>LineEnd</code> (<code>$</code>), but this is only correct if the <code>m</code> (multiline) flag is off.
+</li></ul><h2 id="Cleaners">Cleaners</h2><p>Not all Unicode ligatures and variations are known to <code>DiacriticCleaner</code>, for example:
+</p><ul><li>Enclosed Alphanumeric Supplement: <code>U+1F100-U+1F1FF</code> (Unicode 6.1)
+</li><li>CJK Compatibility: <code>U+3300-U+33FF</code> (Unicode 6.0)
+</li><li>Latin Extended-D <code>U+A720-U+A7FF</code> (Unicode 5.1 to 6.1)
+</li></ul><h2 id="TrackString">TrackString</h2><p>Regex replacement in <code>TrackString</code> do not support Java 7 embedded group names, which are not accessible in Scala’s <code>Match</code> yet. It will use Scala group names instead (inconsistent with <code>String#replaceAll</code>).
+</p><p><code>TrackString</code> cannot track intertwined/reordered replacements, i.e. you can only track <code>abc</code> =&gt; <code>bca</code> as a single group (as opposed to three reordered groups). If out-of-order <code>Repl</code>/<code>Subst</code> are introduced, <code>srcPos</code> will most probably yield incorrect results.
+</p><h2 id="TODO">TODO</h2><p>The following would be useful:
+</p><ul><li><p>Core
+</p><ul><li>Add character range support (at DSL level), with inversion (<code>[^...]</code>)
+</li><li>Compatibility with Scala Parsers?
+</li><li>Consider using <code>'symbols</code> for group names
+</li><li>Java 6/7 flavors: detect &amp; fail on unbounded repeats in LookBehind ?
+</li><li>Parse [and limit] regex strings inputted to REL, producing REL-only expression trees, thus eliminating some known issues (see below) and opening some possibilities (e.g. generating sample matching strings)
+</li></ul></li><li><p>Matchers
+</p><ul><li>date: consider extracting incorrect dates (like feb. 31st) with some flag
+</li></ul></li><li><p>Utils
+</p><ul><li>Generate sample strings that match a regex (e.g. with <a  href="http://code.google.com/p/xeger/">Xeger</a>)
+</li><li>Source generation or compiler plugin to enable REL independence [at runtime]
+</li><li>Binary tool that would take a REL file, compile it and produce regexes in several flavors / programming languages
+</li></ul></li></ul><div class="bottom nav end"></div><div class="tocwrapper show">
+      <a class="tochead nav" style="display: none" href="#toc">❦</a>
+      <a name="toc"></a>
+      <h4 class="toctitle">Contents</h4>
+      <div class="tocbody">
+      <div><a href="index.html">REL</a></div><ol class="toc"> <li><div><a href="DSL+Syntax.html">DSL Syntax</a></div></li><li><div><a href="Extractors.html">Extractors</a></div></li><li><div><a href="Matchers.html">Matchers</a></div></li><li><div><a href="Tree+rewriting+%26+Flavors.html">Tree rewriting &amp; Flavors</a></div></li><li><div><a href="Cleaners.html">Cleaners</a></div></li><li><div class="current">Limitations &amp; Known Issues</div></li><li class="generated"><div><a href="Contents+in+Depth.html">Contents in Depth</a></div></li><li class="generated"><div><a href="Combined+Pages.html">Combined Pages</a></div></li> </ol></div></div>
+          </div>
+        </div>
+        
+      </body>
+    </html>
