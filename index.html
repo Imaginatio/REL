@@ -35,8 +35,10 @@
           </div>
           <div class="span-16 prepend-1 append-1 contents">
             <h1 id="REL">REL</h1><p><strong>A Regular Expression composition Library</strong>
-</p><p>REL is a small utility Scala library for people dealing with complex, modular regular expressions. It defines a DSL with most of the operators you already know and love. This allows you to isolate portions of your regex for easier testing and reuse.
-</p><p>Consider the following YYYY-MM-DD date regex: <code>^(?:19|20)\d\d([- /.])(?:0[1-9]|1[012])\1(?:0[1-9]|[12]\d|3[01])$</code>. It is a bit more readable and reusable expressed like this:
+</p><p>REL is a Scala library for people dealing with complex, modular regular expressions. It defines a DSL with most of the operators you already know and love. This allows you to isolate portions of your regex for easier testing and reuse.
+</p><p>Consider the following YYYY-MM-DD date regex: <code>^(?:19|20)\d\d([- /.])(?:0[1-9]|1[012])\1(?:0[1-9]|[12]\d|3[01])$</code>  
+<br/>
+It is a bit more readable and reusable expressed like this:
 </p><pre><code class="prettyprint lang-scala">import fr.splayce.rel._
 import Implicits._
 
