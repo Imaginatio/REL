@@ -1,8 +1,9 @@
 # REL, a Regular Expression composition Library
 
-REL is a small utility Scala library for people dealing with complex, modular regular expressions. It defines a DSL with most of the operators you already know and love. This allows you to isolate portions of your regex for easier testing and reuse.
+REL is a Scala library for people dealing with complex, modular regular expressions. It defines a DSL with most of the operators you already know and love. This allows you to isolate portions of your regex for easier testing and reuse.
 
-Consider the following YYYY-MM-DD date regex: `^(?:19|20)\d\d([- /.])(?:0[1-9]|1[012])\1(?:0[1-9]|[12]\d|3[01])$`. It is a bit more readable and reusable expressed like this:
+Consider the following YYYY-MM-DD date regex: `^(?:19|20)\d\d([- /.])(?:0[1-9]|1[012])\1(?:0[1-9]|[12]\d|3[01])$`.  
+It is a bit more readable and reusable expressed like this:
 
 ```scala
 import fr.splayce.rel._
@@ -21,7 +22,7 @@ val dateMDY = ^ ~ month ~ sep ~ day   ~ !sep ~ year ~ $
 
 - A familiar, regex-like [syntax](http://imaginatio.github.io/REL/DSL+Syntax.html)
 - Powerful [extractors](http://imaginatio.github.io/REL/Extractors.html) for scala Pattern Matching
-- Bundled [matchers](http://imaginatio.github.io/REL/Extractors.html) for frequently-used utilities like dates
+- Bundled [matchers](http://imaginatio.github.io/REL/Matchers.html) for frequently-used utilities like dates
 - Tree-rewriting utilities and [Flavors](http://imaginatio.github.io/REL/Tree+rewriting+&+Flavors.html) to use your regexes in other languages
 - Bundled [cleaners](http://imaginatio.github.io/REL/Cleaners.html) to clean your input and further simplify your regexes
 
