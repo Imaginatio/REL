@@ -56,7 +56,7 @@ REL is released under the [MIT License](http://www.opensource.org/licenses/MIT)
 
 REL was developed at [Imaginatio](http://imaginatio.fr) for project [Splayce](http://splayce.com) by:
 
-- [Adrien Lavoillotte](http://instanceof.me/) ([@streetpc](https://github.com/streetpc))
+- [Adrien Lavoillotte](http://instanceof.me/) ([@instanceofme](https://github.com/instanceofme))
 - Julien Martin
 
 Contributors:
