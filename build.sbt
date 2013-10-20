@@ -4,7 +4,7 @@ name := "REL"
 
 version := "0.3.1"
 
-scalaVersion := "2.9.1"
+scalaVersion := "2.10.3"
 
 crossScalaVersions := Seq("2.9.1", "2.9.2", "2.10.0")
 
