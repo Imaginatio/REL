@@ -78,7 +78,7 @@ object FullwidthNormalizer extends Cleaner({
   val re = "[\\uFF01-\\uFF5E￠￡￤￥￦]+".r
   val singles = Map('￠'->'¢', '￡'->'£', '￥'->'¥', '￦'->'₩')
 
-  def convert(c: Char): Char =
+  val convert: Char => Char = (c: Char) =>
     if (c < '\uFF5F') ((c.toInt & 0xFF) + 0x20) toChar
     else singles.getOrElse(c, c)
 

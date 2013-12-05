@@ -4,9 +4,9 @@ name := "REL"
 
 version := "0.3.1"
 
-scalaVersion := "2.9.1"
+scalaVersion := "2.10.3"
 
-crossScalaVersions := Seq("2.9.1", "2.9.2", "2.10.0")
+crossScalaVersions := Seq("2.9.3", "2.10.3")
 
 libraryDependencies <<= (scalaVersion, libraryDependencies) { (sv, deps) =>
 	deps :+ (sv match {

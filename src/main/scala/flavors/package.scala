@@ -43,9 +43,9 @@ class TranslatedRECst(val s: String) extends RECst(s)
  *  This validation is post-checked, so that an extending Flavor's
  *  `translator` can alter group names beforehand.
  *
- *  @see [[java.util.regex.Pattern]]
- *  @see [[scala.util.matching.Regex]]
- *  @see [[fr.splayce.rel.flavors.GroupNameSimplifier]]
+ *  @see java.util.regex.Pattern
+ *  @see scala.util.matching.Regex
+ *  @see fr.splayce.rel.flavors.GroupNameSimplifier
  */
 trait EmbedGroupNames extends FlavorLike {
   val groupNamingStyle: GroupNamingStyle = ChevNamingStyle
@@ -90,8 +90,8 @@ trait EmbedGroupNames extends FlavorLike {
 /** Strips inline-named capturing groups and references, Java 6-style (`(expr)` and `(\n)`).
  *
  *  Keeps Scala-style group names at Regex instanciation.
- *  @see [[java.util.regex.Pattern]]
- *  @see [[scala.util.matching.Regex]]
+ *  @see java.util.regex.Pattern
+ *  @see scala.util.matching.Regex
  */
 trait StripGroupNames extends FlavorLike {
   lazy val sgn: Rewriter = {
