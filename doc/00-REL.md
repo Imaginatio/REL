@@ -49,7 +49,7 @@ The embedded [Date regexes](https://github.com/Imaginatio/REL/blob/master/src/ma
 
 Copyright &copy; 2012 Imaginatio SAS
 
-REL is released under the [MIT License](http://www.opensource.org/licenses/MIT)
+REL is released under the [Creative Commons BY-NC-SA 4.0 International License](http://creativecommons.org/licenses/by-nc-sa/4.0/ "Creative Commons Attribution – Non-Commercial - Share-Alike 4.0 International").
 
 
 ## Authors
