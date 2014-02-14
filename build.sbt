@@ -2,11 +2,11 @@ organization := "fr.splayce"
 
 name := "REL"
 
-version := "0.3.1"
+version := "0.3.2-SNAPSHOT"
 
-scalaVersion := "2.10.3"
+scalaVersion := "2.9.1"
 
-crossScalaVersions := Seq("2.9.3", "2.10.3")
+crossScalaVersions := Seq("2.9.1", "2.9.2", "2.10.0")
 
 libraryDependencies <<= (scalaVersion, libraryDependencies) { (sv, deps) =>
 	deps :+ (sv match {
@@ -24,8 +24,8 @@ scalacOptions <<= scalaVersion map { v: String =>
 }
 
 publishTo <<= version { (v: String) =>
-  val url = "http://nexus.imaginatio.fr/content/repositories/"
-  val realm = "Nexus imaginatio "
+  val url = "http://integration.imaginatio.fr:2000/nexus/content/repositories/"
+  val realm = "Sonatype Nexus Repository Manager"
   if (v.trim.endsWith("SNAPSHOT"))
     Some(realm + "releases" at url + "snapshots")
   else
