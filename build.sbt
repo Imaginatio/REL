@@ -24,7 +24,7 @@ scalacOptions <<= scalaVersion map { v: String =>
 }
 
 publishTo <<= version { (v: String) =>
-  val url = "http://integration.imaginatio.fr:2000/nexus/content/repositories/"
+  val url = "http://integration.imaginatio.fr:4444/nexus/content/repositories/"
   val realm = "Sonatype Nexus Repository Manager"
   if (v.trim.endsWith("SNAPSHOT"))
     Some(realm + "releases" at url + "snapshots")
