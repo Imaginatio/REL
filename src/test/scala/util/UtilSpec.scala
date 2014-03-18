@@ -176,16 +176,16 @@ class UtilSpec extends Specification {
     (re.r findAllIn str).matchData.toList map { m => re.matchGroup(m) } match {
       case MatchGroup(None, Some("abcd"), List(
             MatchGroup(Some("abc"), Some("abc"), List(
-              MatchGroup(Some("a"), Some("a"), Nil),
-              MatchGroup(Some("b"), Some("b"), Nil),
-              MatchGroup(Some("c"), Some("c"), Nil))),
-            MatchGroup(Some("d"), Some("d"), Nil)))
+              MatchGroup(Some("a"), Some("a"), Nil, _, _),
+              MatchGroup(Some("b"), Some("b"), Nil, _, _),
+              MatchGroup(Some("c"), Some("c"), Nil, _, _)), _, _),
+            MatchGroup(Some("d"), Some("d"), Nil, _, _)), _, _)
         :: MatchGroup(None, Some("abc"), List(
             MatchGroup(Some("abc"), Some("abc"), List(
-              MatchGroup(Some("a"), Some("a"), Nil),
-              MatchGroup(Some("b"), Some("b"), Nil),
-              MatchGroup(Some("c"), Some("c"), Nil))),
-            MatchGroup(Some("d"), Some(""), Nil)))
+              MatchGroup(Some("a"), Some("a"), Nil, _, _),
+              MatchGroup(Some("b"), Some("b"), Nil, _, _),
+              MatchGroup(Some("c"), Some("c"), Nil, _, _)), _, _),
+            MatchGroup(Some("d"), Some(""), Nil, _, _)), _, _)
         :: Nil => // ok
       case mg =>
         println(mg mkString "\n")
@@ -204,26 +204,26 @@ class UtilSpec extends Specification {
     }
     "be obtainable from Partial(MatchGroup => A)" in {
       val extr: MatchGroupExtractor[String] = {
-        case MatchGroup(_, Some(_), List(MatchGroup(Some("abc"), Some(abc), _), _*)) => abc }
+        case MatchGroup(_, Some(_), List(MatchGroup(Some("abc"), Some(abc), _, _, _), _*), _, _) => abc }
       val extract = re << lift(extr)
       extract(str).toList must_== List("abc", "abc")
     }
     "be obtainable from Partial(MatchGroup => Option[A])" in {
       val extr: MatchGroupOptionExtractor[String] = {
-        case MatchGroup(_, Some(_), List(MatchGroup(Some("abc"), abc, _), _*)) => abc }
+        case MatchGroup(_, Some(_), List(MatchGroup(Some("abc"), abc, _, _, _), _*), _, _) => abc }
       val extract = re << lift(extr)
       extract(str).toList must_== List("abc", "abc")
     }
 
     "be obtainable from Partial(MatchGroup => A) with direct dive into first non-empty group" in {
       val extr: MatchGroupExtractor[String] = {
-        case MatchGroup(Some("abc"), Some(abc), _) => abc }
+        case MatchGroup(Some("abc"), Some(abc), _, _, _) => abc }
       val extract = re << firstNES(lift(extr))
       extract(str).toList must_== List("abc", "abc")
     }
     "be obtainable from Partial(MatchGroup => Option[A]) with direct dive into first non-empty group" in {
       val extr: MatchGroupOptionExtractor[String] = {
-        case MatchGroup(Some("abc"), abc, _) => abc }
+        case MatchGroup(Some("abc"), abc, _, _, _) => abc }
       val extract = re << firstNES(lift(extr))
       extract(str).toList must_== List("abc", "abc")
     }
@@ -239,9 +239,9 @@ class UtilSpec extends Specification {
 
       val extr: MatchGroupOptionExtractor[DoubleDate] = {
         case MatchGroup(None, Some(_),
-              MatchGroup(Some("date"), Some(_), List(nfDatePattern(d1)))
-          ::  MatchGroup(Some("date"), Some(_), List(nfDatePattern(d2)))
-          :: _) => Some((d1.head, d2.head))
+              MatchGroup(Some("date"), Some(_), List(nfDatePattern(d1)), _, _)
+          ::  MatchGroup(Some("date"), Some(_), List(nfDatePattern(d2)), _, _)
+          :: _, _, _) => Some((d1.head, d2.head))
       }
 
       val extract = re << extr

@@ -40,26 +40,26 @@ object DateExtractor {
 
   val NoDate: MGOE = { case _ => None }
   val NumericSub: MGOE = {
-    case  MatchGroup(Some("n_ymd"), Some(n_ymd), _) =>
+    case  MatchGroup(Some("n_ymd"), Some(n_ymd), _, _, _) =>
       val Array(y, m, d) = n_ymd.split(Date.DATE_SEP)
       result(y, m, d, 'YMD_DMY)
-    case  MatchGroup(Some("n_dmy"), Some(n_dmy), _) =>
+    case  MatchGroup(Some("n_dmy"), Some(n_dmy), _, _, _) =>
       val Array(d, m, y) = n_dmy.split(Date.DATE_SEP)
       result(y, m, d)
-    case  MatchGroup(Some("n_mdy"), Some(n_mdy), _) =>
+    case  MatchGroup(Some("n_mdy"), Some(n_mdy), _, _, _) =>
       val Array(m, d, y) = n_mdy.split(Date.DATE_SEP)
       result(y, m, d, 'MDY_YMD, 'MDY_DMY)
-    case  MatchGroup(Some("n_ym"), Some(n_ym), _) =>
+    case  MatchGroup(Some("n_ym"), Some(n_ym), _, _, _) =>
       val Array(y, m) = n_ym.split(Date.DATE_SEP)
       result(y, m, "")
-    case  MatchGroup(Some("n_my"), Some(n_my), _) =>
+    case  MatchGroup(Some("n_my"), Some(n_my), _, _, _) =>
       val Array(m, y) = n_my.split(Date.DATE_SEP)
       result(y, m, "")
   }
   val Numeric: MGOE = {
-    case nf @ MatchGroup(Some("n_f"), Some(_), _) =>
+    case nf @ MatchGroup(Some("n_f"), Some(_), _, _, _) =>
       NumericSub(nf.neSubmatches.head)
-    case MatchGroup(Some("n_y"), Some(n_y), _)    =>
+    case MatchGroup(Some("n_y"), Some(n_y), _, _, _)    =>
       Some(List(Result(Some(n_y.toInt))))
   }
 
@@ -146,7 +146,7 @@ object AlphaDateExtractor {
 
   protected def alphaNumeric(alphaSub: MGOE): MGOE = {
     {
-      case mg @ MatchGroup(Some("date"), Some(_), _) =>
+      case mg @ MatchGroup(Some("date"), Some(_), _, _, _) =>
         (alphaSub orElse Numeric)(mg.neSubmatches.head)
     }
   }
@@ -161,10 +161,10 @@ package object fr {
 
   val AlphaSub: MGOE = {
     case  MatchGroup(Some("a_f"), Some(_), List(
-            MatchGroup(Some("a_d"), od, _),
-            MatchGroup(Some("a_m"), Some(m), _),
-            MatchGroup(Some("a_y"), oy, _)
-          )) =>
+            MatchGroup(Some("a_d"), od, _, _, _),
+            MatchGroup(Some("a_m"), Some(m), _, _, _),
+            MatchGroup(Some("a_y"), oy, _, _, _)
+          ), _, _) =>
       result(
         oy,
         monthNum(m),
@@ -181,21 +181,21 @@ package object en {
 
   val AlphaSub: MGOE = {
     case  MatchGroup(Some("a_f"), Some(_), List(
-            MatchGroup(Some("a_d"), od, _),
-            MatchGroup(Some("a_m"), Some(m), _),
+            MatchGroup(Some("a_d"), od, _, _, _),
+            MatchGroup(Some("a_m"), Some(m), _, _, _),
             _, _,
-            MatchGroup(Some("a_y"), oy, _)
-          )) =>
+            MatchGroup(Some("a_y"), oy, _, _, _)
+          ), _, _) =>
       result(
         oy,
         monthNum(m),
         od.map(dayNum _))
     case  MatchGroup(Some("a_f"), Some(_), List(
             _, _,
-            MatchGroup(Some("a_m"), Some(m), _),
-            MatchGroup(Some("a_d"), od, _),
-            MatchGroup(Some("a_y"), oy, _)
-          )) =>
+            MatchGroup(Some("a_m"), Some(m), _, _, _),
+            MatchGroup(Some("a_d"), od, _, _, _),
+            MatchGroup(Some("a_y"), oy, _, _, _)
+          ), _, _) =>
       result(
         oy,
         monthNum(m),

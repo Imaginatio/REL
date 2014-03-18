@@ -165,7 +165,7 @@ abstract sealed class RE {
   protected[rel] def foreach[U](order: RE.TraversalOrder)(f: RE => U)
 
   /** Corresponding MatchGroup tree, with containing unnamed `\$0` MatchGroup */
-  lazy val matchGroup: MatchGroup = MatchGroup(None, None, groups)
+  lazy val matchGroup: MatchGroup = MatchGroup(None, None, groups, 0, 0)
   /** Corresponding MatchGroup tree, without containing unnamed `\$0` MatchGroup */
   val groups: List[MatchGroup]
 
@@ -362,7 +362,7 @@ extends RE1(re) with Wrapped {
   }
 
   override lazy val groups =
-    List(MatchGroup(Some(name), None, re.groups))
+    List(MatchGroup(Some(name), None, re.groups, 0, 0))
 
   lazy val unary_! = GroupRef(name, embedStyle)
 }

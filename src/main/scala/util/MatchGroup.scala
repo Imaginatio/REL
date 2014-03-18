@@ -7,7 +7,7 @@ import Regex.Match
 case class MatchGroup(
     name: Option[String] = None,
     matched: Option[String] = None,
-    subgroups: List[MatchGroup] = Nil) {
+    subgroups: List[MatchGroup] = Nil, start: Int, end: Int) {
 
   def unapplySeq(m: Match): Option[List[MatchGroup]] = {
     Some(apply(m).subgroups)
@@ -39,7 +39,7 @@ case class MatchGroup(
       j = nj
     }
 
-    (MatchGroup(nn, nm, nsg), j)
+    (MatchGroup(nn, nm, nsg, m.start, m.end), j)
   }
 
   def toString(l: Int): String = {
