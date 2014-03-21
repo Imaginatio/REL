@@ -39,7 +39,7 @@ case class MatchGroup(
       j = nj
     }
 
-    (MatchGroup(nn, nm, nsg, m.start, m.end), j)
+    (MatchGroup(nn, nm, nsg, m.start(i), m.end(i)), j)
   }
 
   def toString(l: Int): String = {
