@@ -71,12 +71,11 @@ class RECstSpec extends Specification {
     }
   }
   "LineTerminator" should {
-    """linearize to (?:\r\n?|[\n\u0085\u2028\u2029])""" in {
-      Τ.toString === """(?:\r\n?|[\n\u0085\u2028\u2029])"""
+    """linearize to (?:\r\n?|[\u000A-\u000C\u0085\u2028\u2029])""" in {
+      Τ.toString === """(?:\r\n?|[\u000A-\u000C\u0085\u2028\u2029])""" // """(?:\r\n?|[\n\u0085\u2028\u2029])"""
     }
     "match all line terminators" in {
-      (Τ.r findAllIn "\r\n\n\r\u0085\u2028\u2029").toList must_==
-        List("\r\n", "\n", "\r", "\u0085", "\u2028", "\u2029")
+      (Τ.r findAllIn "\r\n\n\r\u0085\u2028\u2029").toList must_== List("\r\n", "\n", "\r", "\u0085", "\u2028", "\u2029")
     }
   }
 

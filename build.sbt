@@ -1,43 +1,24 @@
-organization := "fr.splayce"
+ThisBuild / scalacOptions ++= Seq(
+  "-encoding", "utf8",
+  "-Xfatal-warnings", 
+  "-feature",
+  "-deprecation",
+  "-unchecked",
+  "-language:implicitConversions", // Allow definition of implicit functions called views
+  "-language:postfixOps"           // Allow postfix operator notation, such as `1 to 10 toList'
+  //-language:dynamics             # Allow direct or indirect subclasses of scala.Dynamic
+  //-language:existential          # Existential types (besides wildcard types) can be written and inferred -language:experimental.macros  # Allow macro defintion (besides implementation and application)
+  //-language:higherKinds          # Allow higher-kinded types
+  //-language:reflectiveCalls      # Allow reflective access to members of structural types
+)
 
-name := "REL"
+ThisBuild / scalacOptions in Test ++= Seq("-Yrangepos")
 
-version := "0.3.4-SNAPSHOT"
+ThisBuild / scalaVersion := "2.12.7"
+ThisBuild / organization := "fr.splayce"
 
-scalaVersion := "2.9.1"
-
-crossScalaVersions := Seq("2.9.1", "2.9.2", "2.10.0")
-
-libraryDependencies <<= (scalaVersion, libraryDependencies) { (sv, deps) =>
-	deps :+ (sv match {
-		case "2.10.0" => "org.specs2" % "specs2_2.10" % "1.14" % "test"
-		case _        => "org.specs2" %% "specs2" % "1.12.3" % "test"
-	})
-}
-
-scalacOptions <<= scalaVersion map { v: String =>
-  val default = Seq("-deprecation", "-unchecked", "-encoding", "UTF8")
-  if (v.startsWith("2.9."))
-    default
-  else
-    default ++ Seq("-feature", "-language:postfixOps", "-language:implicitConversions")
-}
-
-publishTo <<= version { (v: String) =>
-  val url = "http://integration.imaginatio.fr:4444/nexus/content/repositories/"
-  val realm = "Sonatype Nexus Repository Manager"
-  if (v.trim.endsWith("SNAPSHOT"))
-    Some(realm + "releases" at url + "snapshots")
-  else
-    Some(realm + "snapshots" at url + "releases")
-}
-
-publishArtifact in Test := false
-
-publishMavenStyle := true
-
-pomIncludeRepository := { _ => false }
-
-credentials += Credentials(Path.userHome / ".ivy2" / ".nexus.credentials")
-
-unmanagedClasspath in Compile += Attributed.blank(new java.io.File("doesnotexist"))
+lazy val rel = (project in file("."))
+  .settings(
+    name := "REL",
+    libraryDependencies += "org.specs2" %% "specs2-core" % "3.8.6" % Test
+  )

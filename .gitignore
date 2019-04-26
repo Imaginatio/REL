@@ -1,5 +1,7 @@
+.idea
 /target
 /lib_managed
+/project
 /project/boot
 /project/target
 /project/build/target

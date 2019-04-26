@@ -380,7 +380,7 @@ class TrackStringSpec extends Specification {
       TrackString("abcd").replaceAll("(bc)".r, "$1$1").toString must_== "abcbcd"
     }
     "replaceAll with scala-named groups accessed by name" in {
-      val result = TrackString("abcd").replaceAll(new Regex("(bc)", "gn"), "${gn}${gn}").toString must_== "abcbcd"
+      TrackString("abcd").replaceAll(new Regex("(bc)", "gn"), "${gn}${gn}").toString must_== "abcbcd"
     }
     "not support replaceAll with java-named groups accessed by name" in {
       if (TrackString.supportsNamedGroup) {

@@ -73,8 +73,8 @@ abstract class AlphaDate {
 
   val ALPHA      : RE
   val ALPHA_FULL : RE
-  lazy val ALL      = (ALPHA      \ "a_f" | NUMERIC ) \ "date"
-  lazy val ALL_FULL = (ALPHA_FULL \ "a_f" | NUM_FULL) \ "date"
+  lazy val ALL:Group      = (ALPHA      \ "a_f" | NUMERIC ) \ "date"
+  lazy val ALL_FULL:Group = (ALPHA_FULL \ "a_f" | NUM_FULL) \ "date"
 }
 
 

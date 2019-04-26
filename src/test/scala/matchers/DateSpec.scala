@@ -1,10 +1,11 @@
 package fr.splayce.rel.matchers
 
 import org.specs2.mutable._
-
 import _root_.fr.splayce.rel
 import rel.Implicits.RE2Regex
 import rel.test._
+
+import scala.util.matching.Regex
 
 
 class DateSpec extends Specification {
@@ -109,7 +110,7 @@ class DateSpec extends Specification {
     import Date.NUMERIC_FULL
 
     "still match numeric" in {
-      List("01/10/2000", "00-10-1", "01 10 2000") must allBeMatching(NUMERIC_FULL)
+      forall(Seq("01/10/2000", "00-10-1", "01 10 2000")) ((_:String) must beMatching(NUMERIC_FULL))
       (NUMERIC_FULL findAllIn        "test01-03-2012ok").toList must have size(1)
       (NUMERIC_FULL findAllIn        "test1-3-12ok"    ).toList must have size(1)
       (NUMERIC_FULL findAllIn        "test1-3-2012ok"  ).toList must have size(1)
@@ -120,7 +121,7 @@ class DateSpec extends Specification {
       (NUMERIC_FULL findFirstMatchIn "test22-1-41ok")    must haveGroup("n_dmy", "22-1-41")
     }
     "not match partial date" in {
-      List("10 2000", "2000 11", "1999") must noneBeMatching(NUMERIC_FULL)
+      forall(Seq("10 2000", "2000 11", "1999")) ((_:String) must not be matching(NUMERIC_FULL))
       (NUMERIC_FULL findAllIn        "test2012ok")       must be empty;
       (NUMERIC_FULL findAllIn        "test03-2012ok")    must be empty;
     }
@@ -131,7 +132,7 @@ class DateSpec extends Specification {
     import Date.NUMERIC_US
 
     "still match numeric" in {
-      List("01/10/2000", "1/3/2000", "00-10-1", "10 2000", "2000 11", "1999") must allBeMatching(NUMERIC_US)
+      forall(Seq("01/10/2000", "1/3/2000", "00-10-1", "10 2000", "2000 11", "1999")) ((_:String) must beMatching(NUMERIC_US))
     }
 
         "match M-DD-YY"    in { "1-21-00"    must     be matching(NUMERIC_US) }
@@ -153,8 +154,8 @@ class DateSpec extends Specification {
     import Date.NUMERIC_FULL_US
 
     "still match numeric (with MDY > YMD > DMY)" in {
-      List("01/10/2000", "1/3/2000", "00-10-1", "01 10 2000") must allBeMatching(NUMERIC_FULL_US)
-      List("1-21-00", "3-21-2000", "01-21-2000")              must allBeMatching(NUMERIC_FULL_US)
+      forall(Seq("01/10/2000", "1/3/2000", "00-10-1", "01 10 2000")) ((_:String) must beMatching(NUMERIC_FULL_US))
+      forall(Seq("1-21-00", "3-21-2000", "01-21-2000"))              ((_:String) must beMatching(NUMERIC_FULL_US))
       (NUMERIC_FULL_US findFirstMatchIn "01/10/2000") must haveGroup("n_mdy", "01/10/2000")
       (NUMERIC_FULL_US findFirstMatchIn "3/1/2000")   must haveGroup("n_mdy", "3/1/2000")
       (NUMERIC_FULL_US findFirstMatchIn "11-11-2011") must haveGroup("n_mdy", "11-11-2011")
@@ -174,23 +175,29 @@ class DateSpec extends Specification {
       (NUMERIC_FULL_US findFirstMatchIn "test21-3-2012ok")  must haveGroup("n_dmy", "21-3-2012")
     }
     "not match partial date" in {
-      List("10 2000", "2000 11", "1999") must noneBeMatching(NUMERIC_FULL_US)
+      forall(Seq("10 2000", "2000 11", "1999")) ((_:String) must not be matching(NUMERIC_FULL_US))
       (NUMERIC_FULL_US findAllIn        "test2012ok")       must be empty;
-      (NUMERIC_FULL_US findAllIn        "test03-2012ok")    must be empty;
+      (NUMERIC_FULL_US findAllIn        "test03-2012ok")    must be empty
     }
+
+    "not match empty string" in {
+      "" must not be matching(NUMERIC_FULL_US)
+      "" must not be matching(NUMERIC_FULL_US)
+    }
+
   }
 
-
   "French date regex" should {
+
     import fr.Date.{ALL => FR_ALL, ALPHA => FR_ALPHA}
 
     "not match empty string" in {
-      "" must not be matching(FR_ALL)
+      "" must not be matching(FR_ALL:Regex)
       "" must not be matching(FR_ALPHA)
     }
 
     "still match numeric (with YMD > DMY)" in {
-      List("01/10/2000", "00-10-1", "10 2000", "2000 11", "1999") must allBeMatching(FR_ALL)
+      forall(Seq("01/10/2000", "00-10-1", "10 2000", "2000 11", "1999")) ((_:String) must beMatching(FR_ALL))
       (FR_ALL findAllIn        "test2012ok"      ).toList must have size(1)
       (FR_ALL findAllIn        "test01-03-2012ok").toList must have size(1)
       (FR_ALL findAllIn        "test03-2012ok"   ).toList must have size(1)
@@ -208,36 +215,37 @@ class DateSpec extends Specification {
     "match months in short form" in {
       // NB missing 'mars', 'mai', 'juin', 'aout'
       // usually not abbreviated
-      List(
-        "janv", "fev", "fév", "févr", "fevr", "avr", "juil", "juill",
-        "sept", "oct", "nov", "dec", "déc"
-      ) must allBeMatching(FR_ALL)
-      List(
-        "janv.", "fev.", "fév.", "févr.", "fevr.", "avr.", "juil.",  "juill.",
-        "sept.", "oct.", "nov.", "dec.", "déc."
-      ) must allBeMatching(FR_ALL)
+      forall(Seq("janv", "fev", "fév", "févr", "fevr", "avr",
+        "juil", "juill", "sept", "oct", "nov", "dec", "déc"
+      )) ((_:String) must beMatching(FR_ALL))
+
+      forall(Seq("janv.", "fev.", "fév.", "févr.", "fevr.", "avr.",
+        "juil.",  "juill.", "sept.", "oct.", "nov.", "dec.", "déc."
+      )) ((_:String) must beMatching(FR_ALL))
     }
+
     "match months in full form" in {
-      List(
-        "janvier", "fevrier", "février", "mars",      "avril",   "mai",      "juin",
-        "juillet", "aout",    "août",    "septembre", "octobre", "novembre", "decembre", "décembre"
-      ) must allBeMatching(FR_ALL)
+      forall(Seq("janvier", "fevrier", "février", "mars", "avril", "mai", "juin", "juillet",
+        "aout", "août", "septembre", "octobre", "novembre", "decembre", "décembre"
+      )) ((_:String) must beMatching(FR_ALL))
     }
 
     "match unseparated month + YY[YY]" in {
-      List(
+      forall(Seq(
         "nov2012",      "nov12",      "nov'12",
         "nov.2012",     "nov.12",     "nov.'12",
         "novembre2012", "novembre12", "novembre'12"
-      ) must allBeMatching(FR_ALL)
+      )) ((_:String) must beMatching(FR_ALL))
     }
+
     "match month YY[YY]" in {
-      List(
+      forall(Seq(
         "nov 2012",      "nov 12",      "nov '12",
         "nov. 2012",     "nov. 12",     "nov. '12",
         "novembre 2012", "novembre 12", "novembre '12"
-      ) must allBeMatching(FR_ALL)
+      )) ((_:String) must beMatching(FR_ALL))
     }
+
     "match 'month YY[YY].' in one match without the final dot" in {
       "nov 2012." must not be matching(FR_ALL)
       (FR_ALL findAllIn   "nov 2012.").toList must have size(1)
@@ -245,33 +253,34 @@ class DateSpec extends Specification {
     }
 
     "match unseparated D[D] + month" in {
-      List(
-         "3nov",  "3nov.",  "3novembre",
+      forall(List(
+        "3nov",  "3nov.",  "3novembre",
         "03nov", "03nov.", "03novembre"
-      ) must allBeMatching(FR_ALL)
+      )) ((_:String) must beMatching(FR_ALL))
     }
     "match D[D] month" in {
-      List(
-         "3 nov",  "3 nov.",  "3 novembre",
+      forall(List(
+        "3 nov",  "3 nov.",  "3 novembre",
         "03 nov", "03 nov.", "03 novembre"
-      ) must allBeMatching(FR_ALL)
+      )) ((_:String) must beMatching(FR_ALL))
     }
 
     "match unseparated D[D] + month + YY[YY]" in {
-      List(
+      forall(Seq(
          "3nov2012",  "3nov12",  "3nov'12",  "3nov.2012",  "3nov.12",  "3nov.'12",
         "03nov2012", "03nov12", "03nov'12", "03nov.2012", "03nov.12", "03nov.'12",
          "3novembre2012",  "3novembre12",  "3novembre'12",
         "03novembre2012", "03novembre12", "03novembre'12"
-      ) must allBeMatching(FR_ALL)
+      )) ((_:String) must beMatching(FR_ALL))
     }
+
     "match D[D] month YY[YY]" in {
-      List(
+      forall(Seq(
          "3 nov 2012",  "3 nov 12",  "3 nov '12",  "3 nov. 2012",  "3 nov. 12",  "3 nov. '12",
         "03 nov 2012", "03 nov 12", "03 nov '12", "03 nov. 2012", "03 nov. 12", "03 nov. '12",
          "3 novembre 2012",  "3 novembre 12",  "3 novembre '12",
         "03 novembre 2012", "03 novembre 12", "03 novembre '12"
-      ) must allBeMatching(FR_ALL)
+      )) ((_:String) must beMatching(FR_ALL))
     }
 
     "match 'D[D] month YY[YY].' in one match without the final dot" in {
@@ -309,7 +318,7 @@ class DateSpec extends Specification {
     import fr.Date.{ALL_FULL => FR_FULL}
 
     "still match numeric" in {
-      List("01/10/2000", "00-10-1", "01 10 2000") must allBeMatching(FR_FULL)
+      forall(Seq("01/10/2000", "00-10-1", "01 10 2000")) ((_:String) must beMatching(FR_FULL))
       (FR_FULL findAllIn        "test01-03-2012ok").toList must have size(1)
       (FR_FULL findAllIn        "test1-3-12ok"    ).toList must have size(1)
       (FR_FULL findAllIn        "test1-3-2012ok"  ).toList must have size(1)
@@ -320,44 +329,45 @@ class DateSpec extends Specification {
       (FR_FULL findFirstMatchIn "test22-1-41ok")    must haveGroup("n_dmy", "22-1-41")
     }
     "still not match partial numeric date" in {
-      List("10 2000", "2000 11", "1999") must noneBeMatching(FR_FULL)
+      forall(List("10 2000", "2000 11", "1999")) ((_:String) must not be matching(FR_FULL))
       (FR_FULL findAllIn        "test2012ok")       must be empty;
-      (FR_FULL findAllIn        "test03-2012ok")    must be empty;
+      (FR_FULL findAllIn        "test03-2012ok")    must be empty
     }
 
 
     "not match months in any form" in {
-      List(
+      forall(Seq(
         "janv", "fev", "fév", "févr", "fevr", "avr", "juil", "juill",
         "sept", "oct", "nov", "dec", "déc",
         "janv.", "fev.", "fév.", "févr.", "fevr.", "avr.", "juil.",  "juill.",
         "sept.", "oct.", "nov.", "dec.", "déc.",
         "janvier", "fevrier", "février", "mars",      "avril",   "mai",      "juin",
         "juillet", "aout",    "août",    "septembre", "octobre", "novembre", "decembre", "décembre"
-      ) must noneBeMatching(FR_FULL)
+      )) ((_:String) must not be matching(FR_FULL))
     }
 
     "not match [unseparated] month + YY[YY]" in {
-      List(
+      forall(Seq(
         "nov2012",      "nov12",        "nov'12",
         "nov.2012",     "nov.12",       "nov.'12",
         "novembre2012", "novembre12",   "novembre'12",
         "nov 2012",      "nov 12",      "nov '12",
         "nov. 2012",     "nov. 12",     "nov. '12",
         "novembre 2012", "novembre 12", "novembre '12"
-      ) must noneBeMatching(FR_FULL)
+      )) ((_:String) must not be matching(FR_FULL))
     }
+
     "not match [unseparated] D[D] + month" in {
-      List(
+      forall(Seq(
          "3nov",  "3nov.",  "3novembre",
         "03nov", "03nov.", "03novembre",
          "3 nov",  "3 nov.",  "3 novembre",
         "03 nov", "03 nov.", "03 novembre"
-      ) must noneBeMatching(FR_FULL)
+      )) ((_:String) must not be matching(FR_FULL))
     }
 
     "still match [unseparated] D[D] + month + YY[YY]" in {
-      List(
+      forall(Seq(
         "3nov2012",  "3nov12",  "3nov'12",  "3nov.2012",  "3nov.12",  "3nov.'12",
         "03nov2012",  "03nov12", "03nov'12", "03nov.2012", "03nov.12", "03nov.'12",
          "3novembre2012",  "3novembre12",  "3novembre'12",
@@ -366,7 +376,7 @@ class DateSpec extends Specification {
         "03 nov 2012", "03 nov 12", "03 nov '12", "03 nov. 2012", "03 nov. 12", "03 nov. '12",
          "3 novembre 2012",  "3 novembre 12",  "3 novembre '12",
         "03 novembre 2012", "03 novembre 12", "03 novembre '12"
-      ) must allBeMatching(FR_FULL)
+      )) ((_:String) must beMatching(FR_FULL))
     }
 
     "still find full date inside a word" in {
@@ -377,6 +387,8 @@ class DateSpec extends Specification {
       (FR_FULL findAllIn   "re03nov2012v3").toList must have size(1)
       (FR_FULL findFirstIn "re03nov2012v3")        must_== Some("03nov2012")
     }
+
+
   }
 
 
@@ -389,10 +401,9 @@ class DateSpec extends Specification {
     }
 
     "still match numeric (with MDY > YMD > DMY)" in {
-      List("01/10/2000", "1/3/2000", "00-10-1",
-        "10 2000", "2000 11", "1999") must allBeMatching(EN_ALL)
-      List("1-21-00", "1/21/2000", "01-21-2000")   must allBeMatching(Date.NUMERIC_US)
-      List("1-21-00", "1/21/2000", "01-21-2000")   must allBeMatching(EN_ALL)
+      forall(Seq("01/10/2000", "1/3/2000", "00-10-1", "10 2000", "2000 11", "1999")) ((_:String) must beMatching(EN_ALL))
+      forall(Seq("1-21-00", "1/21/2000", "01-21-2000")) ((_:String) must beMatching(Date.NUMERIC_US))
+      forall(Seq("1-21-00", "1/21/2000", "01-21-2000")) ((_:String) must beMatching(EN_ALL))
       (EN_ALL findFirstMatchIn "01/10/2000") must haveGroup("n_mdy", "01/10/2000")
       (EN_ALL findFirstMatchIn "11-11-2011") must haveGroup("n_mdy", "11-11-2011")
       (EN_ALL findFirstMatchIn "22-11-2011") must haveGroup("n_dmy", "22-11-2011")
@@ -417,34 +428,34 @@ class DateSpec extends Specification {
     }
 
     "match months in short form" in {
-      List(
+      forall(Seq(
         "jan", "feb", "mar",  "apr", "jun", "jul",
         "aug", "sep", "sept", "oct", "nov", "dec"
-      ) must allBeMatching(EN_ALL)
-      List(
+      )) ((_:String) must beMatching(EN_ALL))
+      forall(Seq(
         "jan.", "feb.", "mar.",  "apr.", "jun.", "jul.",
         "aug.", "sep.", "sept.", "oct.", "nov.", "dec."
-      ) must allBeMatching(EN_ALL)
+      )) ((_:String) must beMatching(EN_ALL))
     }
     "match months in full form" in {
-      List(
+      forall(Seq(
         "january", "february", "march",     "april",   "may",      "june",
         "july",    "august",   "september", "october", "november", "december"
-      ) must allBeMatching(EN_ALL)
+      )) ((_:String) must beMatching(EN_ALL))
     }
 
     "match unseparated month + YY[YY]" in {
-      List(
+      forall(Seq(
         "nov2012",      "nov,2012",
         "nov12",        "nov,12",
         "nov'12",        "nov,'12",
         "nov.2012",     "nov.12",        "nov.'12",
         "november2012", "november,2012",
         "november12",   "november,12",   "november,'12"
-      ) must allBeMatching(EN_ALL)
+      )) ((_:String) must beMatching(EN_ALL))
     }
     "match month YY[YY]" in {
-      List(
+      forall(Seq(
         "nov 2012",      "nov, 2012",
         //"nov 12",      "nov, 12",
         "nov '12",       "nov, '12",
@@ -454,7 +465,7 @@ class DateSpec extends Specification {
         "november 2012", "november, 2012",
         //"november 12", "november, 12",
         "november '12",  "november, '12"
-      ) must allBeMatching(EN_ALL)
+      )) ((_:String) must beMatching(EN_ALL))
     }
     "match 'month YY[YY].' in one match without the final dot" in {
       "nov 2012." must not be matching(EN_ALL)
@@ -463,44 +474,44 @@ class DateSpec extends Specification {
     }
 
     "match unseparated month + D[D]" in {
-      List(
+      forall(Seq(
         "nov3",      "nov.3",
         "november3", "nov03",
         "nov.03",    "november03"
-      ) must allBeMatching(EN_ALL)
+      )) ((_:String) must beMatching(EN_ALL))
     }
     "match month D[D]" in {
-      List(
+      forall(List(
         "nov 3",      "nov. 3",
         "november 3", "nov 03",
         "nov. 03",    "november 03"
-      ) must allBeMatching(EN_ALL)
+      )) ((_:String) must beMatching(EN_ALL))
     }
     "match unseparated D[D] + month" in {
-      List(
+      forall(Seq(
          "3nov",  "3nov.",  "3november",
         "03nov", "03nov.", "03november"
-      ) must allBeMatching(EN_ALL)
+      )) ((_:String) must beMatching(EN_ALL))
     }
     "match D[D] month" in {
-      List(
+      forall(Seq(
          "3 nov",  "3 nov.",  "3 november",
         "03 nov", "03 nov.", "03 november"
-      ) must allBeMatching(EN_ALL)
+      )) ((_:String) must beMatching(EN_ALL))
     }
 
     "match unseparated month + D[D] + ',' + YY[YY]" in {
-      List(
+      forall(Seq(
         "nov3,2012",       "nov3,12",       "nov3,'12",
         "nov.3,2012",      "nov.3,12",      "nov.3,'12",
         "november3,2012",  "november3,12",  "november3,'12",
         "nov03,2012",      "nov03,12",      "nov03,'12",
         "nov.03,2012",     "nov.03,12",     "nov.03,'12",
         "november03,2012", "november03,12", "november03,'12"
-      ) must allBeMatching(EN_ALL)
+      )) ((_:String) must beMatching(EN_ALL))
     }
     "match month D[D][,] YY[YY]" in {
-      List(
+      forall(Seq(
         "nov 3 2012",       "nov 3rd 2012",      "nov 3, 2012",      "nov 3rd, 2012",
         "nov 3 12",         "nov 3rd 12",        "nov 3, 12",        "nov 3rd, 12",
         "nov 3 '12",        "nov 3rd '12",       "nov 3, '12",       "nov 3rd, '12",
@@ -519,7 +530,7 @@ class DateSpec extends Specification {
         "november 03 2012", "november 03, 2012",
         "november 03 12",   "november 03, 12",
         "november 03 '12",  "november 03, '12"
-      ) must allBeMatching(EN_ALL)
+      )) ((_:String) must beMatching(EN_ALL))
     }
     "match 'month D[D][,] YY[YY].' in one match without the final dot" in {
       "nov 1st, 2012." must not be matching(EN_ALL)
@@ -534,17 +545,17 @@ class DateSpec extends Specification {
     }
 
     "match unseparated month + D[D] + ',' + YY[YY]" in {
-      List(
+      forall(Seq(
         "3nov,2012",       "3nov,12",       "3nov,'12",
         "3nov.,2012",      "3nov.,12",      "3nov.,'12",
         "3november,2012",  "3november,12",  "3november,'12",
         "03nov,2012",      "03nov,12",      "03nov,'12",
         "03nov.,2012",     "03nov.,12",     "03nov.,'12",
         "03november,2012", "03november,12", "03november,'12"
-      ) must allBeMatching(EN_ALL)
+      )) ((_:String) must beMatching(EN_ALL))
     }
     "match D[D] month[,] YY[YY]" in {
-      List(
+      forall(Seq(
          "3 nov 2012",       "3rd nov 2012",      "3 nov, 2012",      "3rd nov, 2012",
          "3 nov 12",         "3rd nov 12",        "3 nov, 12",        "3rd nov, 12",
          "3 nov '12",        "3rd nov '12",       "3 nov, '12",       "3rd nov, '12",
@@ -563,10 +574,10 @@ class DateSpec extends Specification {
         "03 november 2012", "03 november, 2012",
         "03 november 12",   "03 november, 12",
         "03 november '12",  "03 november, '12"
-      ) must allBeMatching(EN_ALL)
+      )) ((_:String) must beMatching(EN_ALL))
     }
     "match D[D] [of ]month[,] YY[YY]" in {
-      List(
+      forall(Seq(
          "3 of nov 2012",       "3rd of nov 2012",      "3 of nov, 2012",      "3rd of nov, 2012",
          "3 of nov 12",         "3rd of nov 12",        "3 of nov, 12",        "3rd of nov, 12",
          "3 of nov '12",        "3rd of nov '12",       "3 of nov, '12",       "3rd of nov, '12",
@@ -585,7 +596,7 @@ class DateSpec extends Specification {
         "03 of november 2012", "03 of november, 2012",
         "03 of november 12",   "03 of november, 12",
         "03 of november '12",  "03 of november, '12"
-      ) must allBeMatching(EN_ALL)
+      )) ((_:String) must beMatching(EN_ALL))
     }
 
     "not find month inside a word" in {
@@ -611,8 +622,8 @@ class DateSpec extends Specification {
     import en.Date.{ALL_FULL => EN_FULL}
 
     "still match numeric (with MDY > YMD > DMY)" in {
-      List("01/10/2000", "00-10-1", "01 10 2000", "1 10 2000") must allBeMatching(EN_FULL)
-      List("1-21-00", "01-21-2000", "1-21-2000")               must allBeMatching(EN_FULL)
+      forall(Seq("01/10/2000", "00-10-1", "01 10 2000", "1 10 2000")) ((_:String) must beMatching(EN_FULL))
+      forall(Seq("1-21-00", "01-21-2000", "1-21-2000")) ((_:String) must beMatching(EN_FULL))
       (EN_FULL findFirstMatchIn "01/10/2000") must haveGroup("n_mdy", "01/10/2000")
       (EN_FULL findFirstMatchIn "1/10/2000")  must haveGroup("n_mdy", "1/10/2000")
       (EN_FULL findFirstMatchIn "11-11-2011") must haveGroup("n_mdy", "11-11-2011")
@@ -634,25 +645,25 @@ class DateSpec extends Specification {
       (EN_FULL findFirstMatchIn "test21-3-2012ok")  must haveGroup("n_dmy", "21-3-2012")
     }
     "still not match partial date" in {
-      List("10 2000", "2000 11", "1999") must noneBeMatching(EN_FULL)
+      forall(Seq("10 2000", "2000 11", "1999")) ((_:String) must not be matching(EN_FULL) )
       (EN_FULL findAllIn        "test2012ok")       must be empty;
       (EN_FULL findAllIn        "test03-2012ok")    must be empty;
     }
 
 
     "not match months in any form" in {
-      List(
+      forall(Seq(
         "jan", "feb", "mar",  "apr", "jun", "jul",
         "aug", "sep", "sept", "oct", "nov", "dec",
         "jan.", "feb.", "mar.",  "apr.", "jun.", "jul.",
         "aug.", "sep.", "sept.", "oct.", "nov.", "dec.",
         "january", "february", "march",     "april",   "may",      "june",
         "july",    "august",   "september", "october", "november", "december"
-      ) must noneBeMatching(EN_FULL)
+      )) ((_:String) must not be matching(EN_FULL))
     }
 
     "not match [unseparated] month + YY[YY][.]" in {
-      List(
+      forall(Seq(
         "nov2012",       "nov,2012",
         "nov12",         "nov,12",
         "nov.2012",      "nov.12",
@@ -668,7 +679,7 @@ class DateSpec extends Specification {
         "november 2012", "november, 2012",
         //"november 12", "november, 12",
         "november '12",  "november, '12"
-      ) must noneBeMatching(EN_FULL)
+      )) ((_:String) must not be matching(EN_FULL))
 
       "nov 2012." must not be matching(EN_FULL)
       (EN_FULL findAllIn "nov 2012.") must be empty;
@@ -676,28 +687,28 @@ class DateSpec extends Specification {
     }
 
     "not match [unseparated] month + D[D]" in {
-      List(
+      forall(Seq(
         "nov3",      "nov.3",
         "november3", "nov03",
         "nov.03",    "november03",
         "nov 3",      "nov. 3",
         "november 3", "nov 03",
         "nov. 03",    "november 03"
-      ) must noneBeMatching(EN_FULL)
+      )) ((_:String) must not be matching(EN_FULL))
     }
     "not match [unseparated] D[D] [+ 'of'] + month" in {
-      List(
+      forall(Seq(
          "3nov",      "3nov.",      "3november",
         "03nov",     "03nov.",     "03november",
          "3 nov",     "3 nov.",     "3 november",
         "03 nov",    "03 nov.",    "03 november",
          "3 of nov",  "3 of nov.",  "3 of november",
         "03 of nov", "03 of nov.", "03 of november"
-      ) must noneBeMatching(EN_FULL)
+      )) ((_:String) must not be matching(EN_FULL))
     }
 
     "still match [unseparated] month D[D][,] YY[YY][.] in one match without the final dot" in {
-      List(
+      forall(Seq(
         "nov3,2012",       "nov3,12",       "nov3,'12",
         "nov.3,2012",      "nov.3,12",      "nov.3,'12",
         "november3,2012",  "november3,12",  "november3,'12",
@@ -722,7 +733,7 @@ class DateSpec extends Specification {
         "november 03 2012", "november 03, 2012",
         "november 03 12",   "november 03, 12",
         "november 03 '12",  "november 03, '12"
-      ) must allBeMatching(EN_FULL)
+      )) ((_:String) must be matching(EN_FULL))
       "nov 1st, 2012." must not be matching(EN_FULL)
       (EN_FULL findAllIn   "nov 1st, 2012.").toList must have size(1)
       (EN_FULL findFirstIn "nov 1st, 2012.")        must_== Some("nov 1st, 2012")
@@ -735,7 +746,7 @@ class DateSpec extends Specification {
     }
 
     "still match [unseparated] D[D] [+ 'of'] + month [+ ','] + YY[YY]" in {
-      List(
+      forall(Seq(
         "3nov,2012",       "3nov,12",       "3nov,'12",
         "3nov.,2012",      "3nov.,12",      "3nov.,'12",
         "3november,2012",  "3november,12",  "3november,'12",
@@ -779,9 +790,8 @@ class DateSpec extends Specification {
         "03 of november 2012", "03 of november, 2012",
         "03 of november 12",   "03 of november, 12",
         "03 of november '12",  "03 of november, '12"
-      ) must allBeMatching(EN_FULL)
+      )) ((_:String) must beMatching(EN_FULL))
     }
-
 
 
     "still find full date inside a word" in {

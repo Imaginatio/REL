@@ -127,7 +127,7 @@ class GroupSpec extends Specification {
     "provide group name" in {
       val m = group.r.findFirstMatchIn("abc").get
       m.group("g")   must_== "a"
-      m.group("n/a") must throwA[NoSuchElementException]
+      m.group("n/a") must throwA[IllegalArgumentException]
     }
     "generate arbitrary group name when not specified" in {
       val m = "a".g.r.findFirstMatchIn("abc").get

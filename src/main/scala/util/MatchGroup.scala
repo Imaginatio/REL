@@ -7,7 +7,9 @@ import Regex.Match
 case class MatchGroup(
     name: Option[String] = None,
     matched: Option[String] = None,
-    subgroups: List[MatchGroup] = Nil, start: Int, end: Int) {
+    subgroups: List[MatchGroup] = Nil,
+    start: Int,
+    end: Int) {
 
   def unapplySeq(m: Match): Option[List[MatchGroup]] = {
     Some(apply(m).subgroups)
