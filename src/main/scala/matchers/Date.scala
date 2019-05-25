@@ -127,8 +127,7 @@ package en {
       """nov(?>ember|\.)?""",
       """dec(?>ember|\.)?""")
 
-    val DAY = ?>("(?:(?:[23]?1)st|(?:2?2)nd|(?:2?3)rd|(?:[12]?[4-9]|[123]0)th)\\b"
-      | DD | D ) \ "a_d"
+    val DAY = ?>("(?:(?:[23]?1)st|(?:2?2)nd|(?:2?3)rd|(?:[12]?[4-9]|[123]0)th)\\b" | DD | D ) \ "a_d"
 
     protected val YS: RE = ","
     protected val OF: RE = " of"

@@ -9,10 +9,10 @@ package object util {
   type Rewriter      = PartialFunction[RE, RE]
   type OpRewriter[A] = Function2[A, RE, (RE, A)]
 
-  /** Utility no-op Rewriter, bypasses recusion */
+  /** Utility no-op Rewriter, bypasses recursion */
   val IdRewriter: Rewriter = { case re => re }
 
-  /** Utility no-op Rewriter, keeps recusion */
+  /** Utility no-op Rewriter, keeps recursion */
   val RecursiveIdRewriter = new Rewriter {
     override def isDefinedAt(re: RE) = false
     override def apply(re: RE) = re
@@ -29,7 +29,7 @@ package object util {
    *  over using unlift to make a MatchExtractor.
    */
   def unlift[A, B](f: Function1[A, Option[B]]): PartialFunction[A, B] = {
-    case o if (f(o).isDefined) => f(o).get
+    case o if f(o).isDefined => f(o).get
   }
 
   def defaultMGOE[A]: MatchGroupOptionExtractor[A] = { case _ => None }
@@ -39,20 +39,14 @@ package object util {
 package util {
 
   trait Extractor[+A] extends Function1[String, Iterator[A]] {
-
-    def compose(prepare: String => String) =
-      Extractor(super.compose(prepare))
-
-    def unapplySeq(in: String): Option[List[A]] =
-      Some(apply(in) toList)
-
+    def compose(prepare: String => String) = Extractor(super.compose(prepare))
+    def unapplySeq(in: String): Option[List[A]] = Some(apply(in) toList)
   }
-  object Extractor {
 
+  object Extractor {
     def apply[A](extractor: String => Iterator[A]) = new Extractor[A] {
       def apply(in: String) = extractor(in)
     }
-
   }
 
 
@@ -73,10 +67,12 @@ package util {
     def isDefinedAt(m: Match) = true
     def apply(m: Match) = m.matched
   }
+
   case class NthGroupExtractor(n: Int = 1) extends MatchExtractor[String] {
     def isDefinedAt(m: Match) = m.groupCount >= n
     def apply(m: Match) = m.group(n)
   }
+
   case class NamedGroupExtractor(name: String) extends MatchExtractor[String] {
     def isDefinedAt(m: Match) = m.groupNames contains name
     def apply(m: Match) = m.group(name)

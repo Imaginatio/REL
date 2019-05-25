@@ -5,16 +5,16 @@ import Regex.Match
 
 import util._
 
+
 /** A REL term in the expression tree */
 abstract sealed class RE {
-
   /** Protected concatenation, both operands are wrapped in non-capturing groups if needed */
   def ~ (that: RE) :RE    =
     (this, that) match {
-      case (Epsilon, Epsilon)          => Epsilon
-      case (Epsilon, r)                => r
-      case (l, Epsilon)                => l
-      case (l, r)                      => l.ncg - r.ncg
+      case (Epsilon, Epsilon) => Epsilon
+      case (Epsilon, r)       => r
+      case (l, Epsilon)       => l
+      case (l, r)             => l.ncg - r.ncg
     }
 
   /** Unprotected concatenation */
@@ -59,6 +59,7 @@ abstract sealed class RE {
 
   /** Exactly-N quantifier */
   def apply(n: Int): RE = RepExactlyN(this.ncg, n)
+
   /** At-least-N quantifier, greedy */
   def `>`  (n: Int): RE = RepAtLeastN(this.ncg, n)
   /** At-least-N quantifier, reluctant */
@@ -80,11 +81,11 @@ abstract sealed class RE {
   /** Positive look-ahead */
   lazy val `?=` : RE = LookAround(this, Ahead)
   /** Negative look-ahead */
-  lazy val `?!` : RE = LookAround(this, Ahead, false)
+  lazy val `?!` : RE = LookAround(this, Ahead, positive=false)
   /** Positive look-behind */
   lazy val `?<=`: RE = LookAround(this, Behind)
   /** Negative look-behind */
-  lazy val `?<!`: RE = LookAround(this, Behind, false)
+  lazy val `?<!`: RE = LookAround(this, Behind, positive=false)
 
   /** Named capturing group */
   def g(name: String): Group = this match {
@@ -123,7 +124,7 @@ abstract sealed class RE {
   /** Atomic group */
   lazy val ag: RE = this match {
     case re: Rep if re.mode == Possessive => this
-    case re: AGroup                       => this
+    case _: AGroup                        => this
     case NCGroup(re, "")                  => re.ag
     case _                                => AGroup(this)
   }
@@ -131,6 +132,7 @@ abstract sealed class RE {
   lazy val ?> = ag
 
   def linear(groupNames: List[String] = Nil): (String, List[String])
+
   /** Combined linearization: first term is String representation, second is the List of capturing group names */
   lazy val lin = linear()
 
@@ -138,7 +140,7 @@ abstract sealed class RE {
   lazy val r: Regex = new Regex(lin._1, lin._2.toArray: _*)
 
   /** String linearization */
-  override def toString:String = lin._1
+  override def toString: String = lin._1
 
   /** Recursively replace matching terms in the RE subtree */
   def map(tr: Rewriter, order: RE.TraversalOrder = TraversalOrder.Postfixed): RE = {
@@ -157,10 +159,9 @@ abstract sealed class RE {
 
   /** Return a Traversable for this order */
   def traverse(order: RE.TraversalOrder = TraversalOrder.Postfixed): Traversable[RE] = new Traversable[RE] {
-    override def foreach[U](f: RE => U) {
-      RE.this.foreach(order)(f)
-    }
+    override def foreach[U](f: RE => U) { RE.this.foreach(order)(f) }
   }
+
   protected[rel] def foreach[U](order: RE.TraversalOrder)(f: RE => U)
 
   /** Corresponding MatchGroup tree, with containing unnamed `\$0` MatchGroup */
@@ -178,6 +179,7 @@ abstract sealed class RE {
   def <<[A](extractor: MatchExtractor[A]): Extractor[A] =
     this << extractor.lift
 }
+
 
 object RE {
   type TraversalOrder = TraversalOrder.Value
@@ -231,26 +233,27 @@ abstract sealed class RE2(val lRe: RE, val rRe: RE) extends RE {
   override lazy val groups =
     lRe.groups ::: rRe.groups
 
-  override def /:[A](z: A)(op: OpRewriter[A], order: RE.TraversalOrder): (RE, A) = order match {
-    case TraversalOrder.Prefixed  =>
-      val t = op(z, this)
-      if (t._1.getClass == getClass) {
-        val l = (t._2 /: t._1.asInstanceOf[RE2].lRe)(op, order)
-        val r = (l._2 /: t._1.asInstanceOf[RE2].rRe)(op, order)
-        (t._1.asInstanceOf[RE2].replicate(l._1, r._1), r._2)
-      } else t
-    case TraversalOrder.InfixedPre | TraversalOrder.InfixedPost =>
-      val l = (z /: lRe)(op, order)
-      val that = this.replicate(lRe = l._1, rRe = rRe)
-      val t = op(l._2, that)
-      if (t._1.getClass == getClass) {
-        val r = (t._2 /: rRe)(op, order)
-        (that.replicate(rRe = r._1), r._2)
-      } else t
-    case TraversalOrder.Postfixed =>
-      val l = (   z /: lRe)(op, order)
-      val r = (l._2 /: rRe)(op, order)
-      op(r._2, this.replicate(lRe = l._1, rRe = r._1))
+  override def /:[A](z: A)(op: OpRewriter[A], order: RE.TraversalOrder): (RE, A) =
+    order match {
+      case TraversalOrder.Prefixed  =>
+        val t = op(z, this)
+        if (t._1.getClass == getClass) {
+          val l = (t._2 /: t._1.asInstanceOf[RE2].lRe)(op, order)
+          val r = (l._2 /: t._1.asInstanceOf[RE2].rRe)(op, order)
+          (t._1.asInstanceOf[RE2].replicate(l._1, r._1), r._2)
+        } else t
+      case TraversalOrder.InfixedPre | TraversalOrder.InfixedPost =>
+        val l = (z /: lRe)(op, order)
+        val that = this.replicate(lRe = l._1, rRe = rRe)
+        val t = op(l._2, that)
+        if (t._1.getClass == getClass) {
+          val r = (t._2 /: rRe)(op, order)
+          (that.replicate(rRe = r._1), r._2)
+        } else t
+      case TraversalOrder.Postfixed =>
+        val l = (   z /: lRe)(op, order)
+        val r = (l._2 /: rRe)(op, order)
+        op(r._2, this.replicate(lRe = l._1, rRe = r._1))
   }
 
   override def foreach[U](order: RE.TraversalOrder)(f: RE => U) {
@@ -263,7 +266,6 @@ abstract sealed class RE2(val lRe: RE, val rRe: RE) extends RE {
         lRe.foreach(order)(f) ; rRe.foreach(order)(f) ; f(this)
     }
   }
-
 }
 
 /** Concatenation RE tree node */
@@ -322,8 +324,8 @@ case class NCGroup(override val re: RE, flags: String = "") extends RE1(re) with
   override def replicate(re: RE) = copy(re)
 
   override def linear(groupNames: List[String]) = re match {
-    case re: Wrapped if flags.isEmpty => re.linear(groupNames)
-    case _                            => linear(
+    case r: Wrapped if flags.isEmpty => r.linear(groupNames)
+    case _                           => linear(
       { s =>
         if (flags.isEmpty && RE.nonBreakingEntity.pattern.matcher(s).matches) s
         else "(?" + flags + ":" + s + ")"
@@ -336,22 +338,20 @@ case class AGroup(override val re: RE) extends RE1(re) with Wrapped {
   override def replicate(re: RE) : AGroup = copy(re)
 
   override def linear(groupNames: List[String]) = re match {
-    case re: Rep if re.mode == Possessive   => re.linear(groupNames)
-    case re: AGroup                         => re.linear(groupNames)
-    case NCGroup(re, "")                    => AGroup(re).linear(groupNames)
-    case _                                  => linear("(?>" + _ + ")", groupNames)
+    case r: Rep if r.mode == Possessive => r.linear(groupNames)
+    case r: AGroup                      => r.linear(groupNames)
+    case NCGroup(r, "")                 => AGroup(r).linear(groupNames)
+    case _                              => linear("(?>" + _ + ")", groupNames)
   }
 }
 
 /** Named capturing group */
-case class Group(name: String, override val re: RE, embedStyle: Option[GroupNamingStyle] = None)
-extends RE1(re) with Wrapped {
+case class Group(name: String, override val re: RE, embedStyle: Option[GroupNamingStyle] = None) extends RE1(re) with Wrapped {
   override def replicate(re: RE) = copy(re = re)
 
   override def linear(groupNames: List[String]) = re match {
-    case NCGroup(re, "") => Group(name, re).linear(groupNames)
-    case _               =>
-      linear("(" + embedStyle.map(_ capture name).getOrElse("") + _ + ")", groupNames ::: List(name))
+    case NCGroup(r, "") => Group(name, r).linear(groupNames)
+    case _              => linear("(" + embedStyle.map(_ capture name).getOrElse("") + _ + ")", groupNames ::: List(name))
   }
 
   override lazy val groups =
@@ -361,97 +361,71 @@ extends RE1(re) with Wrapped {
 }
 
 /** Look-around */
-case class LookAround(override val re: RE, direction: LookDirection, positive: Boolean = true)
-extends RE1(re) with Wrapped {
+case class LookAround(override val re: RE, direction: LookDirection, positive: Boolean = true) extends RE1(re) with Wrapped {
   override def replicate(re: RE) = copy(re)
 
   override def linear(groupNames: List[String]) = re match {
-    case NCGroup(re, "") => LookAround(re, direction, positive).linear(groupNames)
-    case _               => linear("(?" + direction + (if (positive) "=" else "!") + _ + ")", groupNames)
+    case NCGroup(r, "") => LookAround(r, direction, positive).linear(groupNames)
+    case _              => linear("(?" + direction + (if (positive) "=" else "!") + _ + ")", groupNames)
   }
 }
 
 /** Quantifier (aka “repeater”) */
-sealed abstract class Rep(
-  override val re: RE,
-  val lb: Int,
-  val ub: Option[Int] = None,
-  val mode: RepMode = Greedy)
-extends RE1(re) {
-
-  override def linear(groupNames: List[String]) =
-    linear(_ + "{" + lb + "," + ub.getOrElse("") + "}" + mode, groupNames)
+sealed abstract class Rep(override val re: RE, val lb: Int, val ub: Option[Int] = None, val mode: RepMode = Greedy) extends RE1(re) {
+  override def linear(groupNames: List[String]) = linear(_ + "{" + lb + "," + ub.getOrElse("") + "}" + mode, groupNames)
 }
 
 /** Exactly-N quantifier */
-case class RepExactlyN(override val re: RE, n: Int)
-extends Rep(re, n, Some(n), Greedy) {
+case class RepExactlyN(override val re: RE, n: Int) extends Rep(re, n, Some(n), Greedy) {
   override def replicate(re: RE) = copy(re)
 
-  override def linear(groupNames: List[String]) =
-    linear(_ + "{" + lb + "}" + mode, groupNames)
+  override def linear(groupNames: List[String]) = linear(_ + "{" + lb + "}" + mode, groupNames)
 }
 
 /** N-to-M quantifier */
-case class RepNToM(
-  override val re: RE,
-  override val lb: Int,
-               max: Int,
-  override val mode: RepMode = Greedy)
-extends Rep(re, lb, Some(max), mode) {
-
+case class RepNToM(override val re: RE, override val lb: Int, max: Int, override val mode: RepMode = Greedy) extends Rep(re, lb, Some(max), mode) {
   override def replicate(re: RE) = copy(re)
 }
 
 /** At-least-N quantifier */
-case class RepAtLeastN(override val re: RE, override val lb: Int, override val mode: RepMode = Greedy)
-extends Rep(re, lb, None, mode) {
+case class RepAtLeastN(override val re: RE, override val lb: Int, override val mode: RepMode = Greedy) extends Rep(re, lb, None, mode) {
   override def replicate(re: RE) = copy(re)
 }
 
 /** At-most-N quantifier */
-case class RepAtMostN(override val re: RE, val max: Int, override val mode: RepMode = Greedy)
-extends Rep(re, 0, Some(max), mode) {
+case class RepAtMostN(override val re: RE, max: Int, override val mode: RepMode = Greedy) extends Rep(re, 0, Some(max), mode) {
   override def replicate(re: RE) = copy(re)
 }
 
 /** Zero-or-one (`?`) quantifier */
-case class Opt(override val re: RE, override val mode: RepMode = Greedy)
-extends Rep(re, 0, Some(1), mode) {
+case class Opt(override val re: RE, override val mode: RepMode = Greedy) extends Rep(re, 0, Some(1), mode) {
   override def replicate(re: RE) = copy(re)
 
-  override def linear(groupNames: List[String]) =
-    linear(_ + "?" + mode, groupNames)
+  override def linear(groupNames: List[String]) = linear(_ + "?" + mode, groupNames)
 }
 
 /** Zero-or-more (`+`) quantifier */
-case class KStar(override val re: RE, override val mode: RepMode = Greedy)
-extends Rep(re, 0, mode = mode) {
+case class KStar(override val re: RE, override val mode: RepMode = Greedy) extends Rep(re, 0, mode = mode) {
   override def replicate(re: RE) = copy(re)
 
-  override def linear(groupNames: List[String]) =
-    linear(_ + "*" + mode, groupNames)
+  override def linear(groupNames: List[String]) = linear(_ + "*" + mode, groupNames)
 }
 
 /** One-or-more (`+`) quantifier */
-case class KCross(override val re: RE, override val mode: RepMode = Greedy)
-extends Rep(re, 1, mode = mode) {
+case class KCross(override val re: RE, override val mode: RepMode = Greedy) extends Rep(re, 1, mode = mode) {
   override def replicate(re: RE) = copy(re)
 
-  override def linear(groupNames: List[String]) =
-    linear(_ + "+" + mode, groupNames)
+  override def linear(groupNames: List[String]) = linear(_ + "+" + mode, groupNames)
 }
 
 /** Utility all-purpose subtree wrapper.
  *
  *  Should mainly be used to implement Flavors / tree transformations.
  */
-case class Wrapper(override val re: RE, val prefix: String, val suffix: String, appendGroupNames: List[String] = Nil)
-extends RE1(re) {
+case class Wrapper(override val re: RE, prefix: String, suffix: String, appendGroupNames: List[String] = Nil) extends RE1(re) {
   override def replicate(re: RE) = copy(re)
 
-  override def linear(groupNames: List[String]) =
-    linear(prefix + _ + suffix, groupNames ::: appendGroupNames)
+  override def linear(groupNames: List[String]) = linear(prefix + _ + suffix, groupNames:::appendGroupNames)
 }
 
 
@@ -471,9 +445,7 @@ sealed abstract class RE0 extends RE {
 }
 
 /** Reference on a (named) capturing group */
-case class GroupRef(val name: String, val embedStyle: Option[GroupNamingStyle] = None)
-extends RE0 with Wrapped {
-
+case class GroupRef(name: String, embedStyle: Option[GroupNamingStyle] = None) extends RE0 with Wrapped {
   override def linear(groupNames: List[String]) =
     (embedStyle.map(_ reference name).getOrElse("\\" + (groupNames.lastIndexOf(name) + 1)), groupNames)
 
@@ -481,27 +453,27 @@ extends RE0 with Wrapped {
 }
 
 /** Standalone raw regex expression (not interpreted) for external instanciation */
-case class Atom(val re: Regex) extends RE0 {
-  override def linear(groupNames: List[String]) =
-    (re.toString, groupNames)
+case class Atom(re: Regex) extends RE0 {
+  override def linear(groupNames: List[String]) = (re.toString, groupNames)
 }
 
 /** Escaped (litteral) expression */
-case class Escaped(val value: String) extends RE0 {
+case class Escaped(value: String) extends RE0 {
   def this(s: Symbol) = this(s.toString.substring(1))
 
   lazy val reStr = RE.escapeRegex(value)
+
   override def toString = reStr
 }
 
 /** Abstract standalone raw regex expression (not interpreted) */
-abstract class REStr(val reStr: String) extends RE0 {
+abstract class REStr(reStr: String) extends RE0 {
   override def toString = reStr
 }
 
 /** Abstract standalone raw regex expression that don't need non-capturing group protection. */
-abstract class RECst(val reCst: String) extends REStr(reCst) with Wrapped
+abstract class RECst(reCst: String) extends REStr(reCst) with Wrapped
 
 /** A litteral integer */
-case class DigitCst(val i: Int)
+case class DigitCst(i: Int)
 extends RECst(if (i < 10) i.toString else "(?:" + i.toString + ")")
